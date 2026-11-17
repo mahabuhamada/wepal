@@ -1,0 +1,76 @@
+/* ════════ WePal identities ════════
+   Two official palettes from the WePal visual identity guides.
+   <html data-identity="forum|palestine"> selects one; every page reads these tokens. */
+
+:root, :root[data-identity="forum"] {
+  /* Forum edition — Navy #101942 · Blue #0B79CD · Teal #4DC7B1 · Yellow #F7C24C */
+  --n900: #0a1030; --n800: #101942; --n700: #1a2766; --n600: #1f3a7a;
+  --b500: #0B79CD; --b400: #3d96dc; --b-deep: #0a5fa3; --b500-rgb: 11,121,205;
+  --c400: #4DC7B1; --c100: #e4f0fb; --c-light: #7fdccb; --c400-rgb: 77,199,177;
+  --y400: #F7C24C; --y100: #fef3d9; --on-accent: #101942;
+  --v400: #3b5bc4; --v100: #ecf0fb; --m100: #e3f6f1; --r100: #fdeedd;
+  --ink: #101942; --ink-2: #4a5878; --ink-3: #7d88a3; --line: #dfe5f0; --bg: #f4f6fb; --tint: #eef2f9;
+  --hero-1: #fbfcff; --hero-2: #e8effb; --hero-3: #d7e4f6; --blob-1: #a9cdf2; --blob-2: #fde3a6; --hover-line: #b6d1ef;
+  --dot-1: #4DC7B1; --dot-2: #ffffff; --dot-3: #F7C24C;
+  /* legacy tokens used by older inner-page styles */
+  --navy: #101942; --deep: #0a1030; --blue: #0B79CD; --cyan: #4DC7B1; --sky: #e4f0fb; --pale: #f4f6fb; --yellow: #F7C24C; --muted: #4a5878; --violet: #3b5bc4; --mint: #4DC7B1; --coral: #F7C24C;
+}
+
+:root[data-identity="palestine"] {
+  /* Palestine edition — Night #18211F · Jade #00A86B · Mist #EEF3F1 · Rose #D64555 */
+  --n900: #101614; --n800: #18211F; --n700: #22302c; --n600: #0f4a35;
+  --b500: #00A86B; --b400: #2fbf88; --b-deep: #008656; --b500-rgb: 0,168,107;
+  --c400: #45D39C; --c100: #e2f4ec; --c-light: #6fe0b4; --c400-rgb: 69,211,156;
+  --y400: #D64555; --y100: #fbe5e8; --on-accent: #ffffff;
+  --v400: #0b7a50; --v100: #e9f1ee; --m100: #e2f4ec; --r100: #fbe5e8;
+  --ink: #18211F; --ink-2: #4b5a55; --ink-3: #7f8d88; --line: #dbe4e0; --bg: #f3f6f5; --tint: #EEF3F1;
+  --hero-1: #fbfdfc; --hero-2: #e7f3ee; --hero-3: #d5ebe2; --blob-1: #9fe3c6; --blob-2: #f6c9cf; --hover-line: #a9dcc5;
+  --dot-1: #18211F; --dot-2: #ffffff; --dot-3: #D64555;
+  --navy: #18211F; --deep: #101614; --blue: #00A86B; --cyan: #45D39C; --sky: #e2f4ec; --pale: #f3f6f5; --yellow: #D64555; --muted: #4b5a55; --violet: #0b7a50; --mint: #45D39C; --coral: #D64555;
+}
+
+body { background: var(--bg); color: var(--ink); }
+/* Nunito for Latin text, Baloo Bhaijaan 2 for Arabic (Nunito has no Arabic glyphs, so Arabic falls through to Baloo). */
+body, .home, .home button, .home input, .home select, .home textarea, .h-palette, .h-palette input { font-family: "Nunito", "Baloo Bhaijaan 2", "Segoe UI", Tahoma, Arial, sans-serif; }
+[lang="ar"] .h-hero h1, [lang="ar"] .portal-hero h1 { line-height: 1.3; }
+
+/* Smooth cross-fade while switching identity */
+html.identity-switching *, html.identity-switching *::before, html.identity-switching *::after {
+  transition: background-color .5s ease, border-color .5s ease, color .5s ease, fill .5s ease, stroke .5s ease, box-shadow .5s ease !important;
+}
+
+/* Logos: both identities are rendered; only the active one shows */
+.wp-logo { display: inline-flex; align-items: center; }
+.wp-logo img { display: block; width: auto !important; max-width: none !important; height: 100% !important; border-radius: 0 !important; filter: none !important; }
+:root[data-identity="palestine"] .wp-logo .is-forum,
+:root:not([data-identity="palestine"]) .wp-logo .is-palestine { display: none; }
+
+/* Identity switcher */
+.h-identity { position: relative; display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--tint); border: 1px solid var(--line); }
+.h-identity button { position: relative; z-index: 1; display: grid; place-items: center; width: 34px; height: 30px; border: 0; border-radius: 999px; background: none; cursor: pointer; transition: background .3s; }
+.h-identity button[aria-pressed="true"] { background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.h-identity button:hover:not([aria-pressed="true"]) { background: rgba(255,255,255,.6); }
+.h-identity img { width: 15px; height: 18px; transition: transform .35s var(--ease, ease); }
+.h-identity button:hover img { transform: scale(1.15) rotate(-6deg); }
+.h-identity-tip { position: absolute; top: calc(100% + 10px); inset-inline-end: 0; padding: 6px 10px; border-radius: 8px; background: var(--n800); color: #fff; font-size: 11px; white-space: nowrap; opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity .2s, transform .2s; }
+.h-identity:hover .h-identity-tip { opacity: 1; transform: none; }
+
+/* Drawer version */
+.h-drawer-identity { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 18px 0 12px; }
+.h-drawer-identity button { display: flex; align-items: center; justify-content: center; gap: 10px; height: 52px; border-radius: 14px; border: 1px solid rgba(255,255,255,.2); background: none; color: #fff; font-weight: 700; cursor: pointer; }
+.h-drawer-identity button[aria-pressed="true"] { background: #fff; color: var(--n800); }
+.h-drawer-identity img { width: 18px; height: 22px; }
+
+/* Brand dots (three-dot motif from the logo) */
+.wp-dots { display: inline-flex; gap: 6px; }
+.wp-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--dot-1); }
+.wp-dots i:nth-child(2) { background: var(--dot-2); box-shadow: inset 0 0 0 1px var(--line); }
+.wp-dots i:nth-child(3) { background: var(--dot-3); }
+:root[data-identity="palestine"] .wp-dots i:first-child { box-shadow: none; }
+
+@media (max-width: 1180px) { .h-identity-tip { display: none; } }
+
+/* Logo sizes in inner pages */
+.portal-v3 .partnership-mark .wp-logo { height: 30px; }
+.portal-v3 .login-brand .wp-logo { height: 36px; }
+.portal-v3 .eco-center .wp-logo { height: 28px; }

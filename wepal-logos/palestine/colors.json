@@ -1,0 +1,18 @@
+{
+  "name": "Palestine colours",
+  "colors": {
+    "night": "#18211F",
+    "jade": "#00A86B",
+    "mist": "#EEF3F1",
+    "rose": "#D64555"
+  },
+  "logo": {
+    "we": "#18211F",
+    "pal": "#00A86B",
+    "dots": [
+      "#18211F",
+      "#FFFFFF",
+      "#D64555"
+    ]
+  }
+}
