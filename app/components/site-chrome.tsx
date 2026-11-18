@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type Keyboard
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
 import { EXTRA_PAGES, NAV, NEWS, RESOURCES, type Lang } from "./content";
-import { Logo, useIdentity, type Identity } from "./identity";
+import { IDENTITY_SWITCH_ENABLED, Logo, useIdentity, type Identity } from "./identity";
 
 const IDENTITY_LABEL: Record<Identity, { ar: string; en: string }> = {
   forum: { ar: "هوية المنتدى", en: "Forum identity" },
@@ -13,6 +13,7 @@ const IDENTITY_LABEL: Record<Identity, { ar: string; en: string }> = {
 
 function IdentitySwitch({ lang, variant }: { lang: Lang; variant: "pill" | "drawer" }) {
   const [identity, setIdentity] = useIdentity();
+  if (!IDENTITY_SWITCH_ENABLED) return null;
   const next: Identity = identity === "forum" ? "palestine" : "forum";
   if (variant === "drawer") {
     return (
@@ -256,9 +257,11 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
           <section className="f-card f-prefs">
             <span className="f-label"><SlidersHorizontal size={14} />{rtl ? "تفضيلاتك" : "Your preferences"}</span>
             {onLang && <div className="f-seg" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}>العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}>English</button></div>}
+            {IDENTITY_SWITCH_ENABLED && (
             <div className="f-seg" role="group" aria-label={rtl ? "هوية الموقع" : "Site identity"}>
               {(["forum", "palestine"] as Identity[]).map((id) => <button key={id} aria-pressed={identity === id} onClick={() => setIdentity(id)}><img src={`/brand/${id}/wepal-symbol.svg`} alt="" />{IDENTITY_LABEL[id][lang]}</button>)}
             </div>
+            )}
           </section>
         </div>
 

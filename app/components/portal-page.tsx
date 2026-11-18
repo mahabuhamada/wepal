@@ -184,7 +184,7 @@ function LoginPage({ language }: { language: Language }) {
         <aside className="login-panel">
           <img className="login-panel-photo" src="/images/facilitators.webp" alt="" />
           <div className="login-panel-inner">
-            <Logo />
+            <Logo variant="reverse" />
             <div className="login-panel-copy">
               <span className="wp-dots"><i /><i /><i /></span>
               <h2>{rtl ? "مكان واحد لمتابعة ما يهمك والمشاركة فيما تؤمن به." : "One place to follow what matters and take part in what you believe in."}</h2>
