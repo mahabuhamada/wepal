@@ -197,7 +197,7 @@ function LoginPage({ language }: { language: Language }) {
           </div>
         </aside>
 
-        <form className="login-form" onSubmit={(e) => e.preventDefault()}>
+        <form className="login-form" onSubmit={(e) => { e.preventDefault(); window.location.href = "/dashboard"; }}>
           <div className="login-form-head">
             <span className="login-eyebrow"><UserRound aria-hidden="true" />{rtl ? "دخول الأعضاء" : "Member login"}</span>
             <h1>{rtl ? "أهلًا بعودتك" : "Welcome back"}</h1>

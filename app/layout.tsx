@@ -4,6 +4,7 @@ import "./home.css";
 import "./portal.css";
 import "./identity.css";
 import "./mobile.css";
+import "./member.css";
 import { identityBootScript } from "./components/identity";
 
 export const metadata: Metadata = {
