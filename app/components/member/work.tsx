@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, FolderKanban, LayoutDashboard, ListTodo, MessageCircle, Paperclip, Plus, Search, Upload, Users } from "lucide-react";
-import { Avatar, Card, Empty, MemberShell, PageHead, Progress, Stages, Tabs, memberOrMe, useMember } from "./shell";
-import { ROOM_SEED, STAGES, TRACKS, WORKSPACES, WS_FILES, workspaceById, type Track } from "./data";
+import { Avatar, Card, Empty, MemberShell, PageHead, Panel, Progress, Stages, Tabs, memberOrMe, useMember } from "./shell";
+import { MEMBERS, ROOM_SEED, STAGES, TRACKS, WORKSPACES, WS_FILES, workspaceById, type Track } from "./data";
 import { AttachmentView, ChatRoom } from "./chat";
-import { ago, readFiles, toast, uid, update, useStore } from "./store";
+import { ago, now, readFiles, toast, uid, update, useStore, type TaskMeta } from "./store";
 
 type Status = "todo" | "doing" | "done";
 
@@ -37,6 +37,16 @@ export function WorkspaceCard({ id }: { id: string }) {
 
 function Workspaces() {
   const { rtl, tx } = useMember();
+  const st = useStore();
+  const [proposing, setProposing] = useState(false);
+  const [draft, setDraft] = useState<{ title: string; summary: string; track: Track; team: string[]; due: string }>({ title: "", summary: "", track: "research", team: ["me"], due: "" });
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!draft.title.trim() || !draft.summary.trim()) return;
+    update((x) => ({ ...x, proposals: [{ id: uid(), title: draft.title.trim(), summary: draft.summary.trim(), track: draft.track, team: draft.team, due: draft.due || undefined, time: now() }, ...x.proposals] }));
+    setProposing(false); setDraft({ title: "", summary: "", track: "research", team: ["me"], due: "" });
+    toast(rtl ? "أُرسل اقتراحك للمراجعة 🙌" : "Your proposal was sent for review 🙌");
+  };
   const [scope, setScope] = useState<"mine" | "all">("mine");
   const [track, setTrack] = useState<Track | "all">("all");
   const [q, setQ] = useState("");
@@ -48,7 +58,20 @@ function Workspaces() {
       <PageHead icon={FolderKanban} kicker={{ ar: "مساحات العمل", en: "Workspaces" }}
         title={{ ar: "مساحات العمل", en: "Workspaces" }}
         lead={rtl ? `${active} مساحات عمل نشطة. لكل مساحة محادثة جماعية ومهام وملفات.` : `${active} active workspaces. Each has a group chat, tasks and files.`}
-        actions={<button className="m-btn is-primary" onClick={() => toast(rtl ? "سيُفتح نموذج اقتراح مساحة عمل عند ربط المنصة" : "The workspace proposal form opens once the platform is connected")}><Plus />{rtl ? "اقترح مساحة عمل" : "Propose a workspace"}</button>} />
+        actions={<button className="m-btn is-primary" onClick={() => setProposing(true)}><Plus />{rtl ? "اقترح مساحة عمل" : "Propose a workspace"}</button>} />
+      {st.proposals.length > 0 && (
+        <section className="w-proposals" aria-label={rtl ? "مقترحاتي" : "My proposals"}>
+          <h2 className="d-section-head-title">{rtl ? "مقترحاتي" : "My proposals"}</h2>
+          <div className="m-cards">{st.proposals.map((p) => (
+            <article key={p.id} className={`m-ws is-proposal track-${p.track}`}>
+              <div className="m-ws-top"><span className="m-tag">{tx(TRACKS[p.track])}</span><span className="m-stage stage-review">{rtl ? "بانتظار المراجعة" : "Awaiting review"}</span></div>
+              <h3>{p.title}</h3><p>{p.summary}</p>
+              <div className="m-ws-foot"><span className="m-team">{p.team.map((m) => <Avatar key={m} who={memberOrMe(m)} size={26} />)}</span><small>{ago(p.time, rtl)}</small></div>
+              <p className="w-proposal-note">{rtl ? "تراجع إدارة المنصة المقترح وتردّ عليك خلال أيام. ستصلك رسالة عند القرار." : "The platform team reviews proposals within days. You'll be notified of the decision."}</p>
+            </article>
+          ))}</div>
+        </section>
+      )}
       <div className="m-toolbar">
         <Tabs label={rtl ? "النطاق" : "Scope"} value={scope} onChange={setScope} items={[{ key: "mine", label: rtl ? "مساحاتي" : "Mine", count: WORKSPACES.filter((w) => w.mine).length }, { key: "all", label: rtl ? "كل المساحات" : "All", count: WORKSPACES.length }]} />
         <label className="m-search"><Search aria-hidden="true" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={rtl ? "ابحث بالعنوان أو الوصف…" : "Search title or description…"} aria-label={rtl ? "البحث في مساحات العمل" : "Search workspaces"} /></label>
@@ -58,6 +81,19 @@ function Workspaces() {
       </div>
       {list.length === 0 ? <Empty icon={Search} title={rtl ? "لا مساحات عمل تطابق بحثك" : "No workspaces match"} text={rtl ? "جرّب كلمة أخرى أو بدّل النطاق." : "Try another word or switch scope."} />
         : <div className="m-cards">{list.map((w) => <WorkspaceCard key={w.id} id={w.id} />)}</div>}
+      <Panel open={proposing} onClose={() => setProposing(false)} title={rtl ? "اقترح مساحة عمل" : "Propose a workspace"}
+        footer={<><button className="m-btn" type="button" onClick={() => setProposing(false)}>{rtl ? "إلغاء" : "Cancel"}</button><button className="m-btn is-primary" type="submit" form="w-propose" disabled={!draft.title.trim() || !draft.summary.trim()}>{rtl ? "أرسل للمراجعة" : "Send for review"}</button></>}>
+        <form id="w-propose" className="w-fields" onSubmit={submit}>
+          <p className="m-muted">{rtl ? "مساحة العمل مكان لفريق صغير يعمل على هدف واضح: بحث، أو مبادرة، أو محتوى." : "A workspace is where a small team works on a clear goal: research, an initiative, or content."}</p>
+          <label>{rtl ? "عنوان المساحة" : "Title"}<input value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} maxLength={80} required placeholder={rtl ? "مثلًا: دليل الحوار في المدارس" : "e.g. A dialogue guide for schools"} /></label>
+          <label>{rtl ? "ما الهدف؟" : "What's the goal?"}<textarea rows={3} value={draft.summary} onChange={(e) => setDraft({ ...draft, summary: e.target.value })} maxLength={300} required placeholder={rtl ? "سطران عن الفكرة وما ستنتجه المساحة." : "Two lines on the idea and what the workspace will produce."} /><small className="w-count">{draft.summary.length}/300</small></label>
+          <label>{rtl ? "المسار" : "Track"}<div className="w-seg" role="group">{(["research", "initiative", "digital"] as Track[]).map((t) => <button type="button" key={t} aria-pressed={draft.track === t} onClick={() => setDraft({ ...draft, track: t })}>{tx(TRACKS[t])}</button>)}</div></label>
+          <fieldset className="w-team-pick"><legend>{rtl ? "الفريق المقترح" : "Proposed team"}</legend>
+            <div>{MEMBERS.map((m) => { const on = draft.team.includes(m.id); return <button type="button" key={m.id} aria-pressed={on} onClick={() => setDraft({ ...draft, team: on ? draft.team.filter((x) => x !== m.id) : [...draft.team, m.id] })}><Avatar who={m} size={26} />{tx(m.name).split(" ")[0]}</button>; })}</div>
+          </fieldset>
+          <label>{rtl ? "موعد مستهدف (اختياري)" : "Target date (optional)"}<input type="date" value={draft.due} onChange={(e) => setDraft({ ...draft, due: e.target.value })} /></label>
+        </form>
+      </Panel>
     </>
   );
 }
@@ -74,11 +110,20 @@ function WorkspaceDetail() {
   const unread = useRoomUnread(ws?.id ?? "");
   const [tab, setTab] = useState<Tab>("overview");
   const [newTask, setNewTask] = useState("");
+  const [openTask, setOpenTask] = useState<string | null>(null);
+  const [note, setNote] = useState("");
+  // Open the tab named in the address (#chat, #tasks…), on load and whenever the hash changes
+  // (e.g. a notification link to this same workspace's chat).
   useEffect(() => {
-    const h = window.location.hash.slice(1) as Tab;
-    if (!TABS.includes(h)) return;
-    const id = requestAnimationFrame(() => { setTab(h); if (h === "chat") requestAnimationFrame(() => document.querySelector(".w-tabs")?.scrollIntoView({ block: "start" })); });
-    return () => cancelAnimationFrame(id);
+    const apply = () => {
+      const h = window.location.hash.slice(1) as Tab;
+      if (!TABS.includes(h)) return;
+      setTab(h);
+      if (h === "chat") requestAnimationFrame(() => document.querySelector(".w-tabs")?.scrollIntoView({ block: "start" }));
+    };
+    const id = requestAnimationFrame(apply);
+    window.addEventListener("hashchange", apply);
+    return () => { cancelAnimationFrame(id); window.removeEventListener("hashchange", apply); };
   }, []);
   const go = (t: Tab) => {
     setTab(t); history.replaceState(null, "", `#${t}`);
@@ -89,10 +134,13 @@ function WorkspaceDetail() {
 
   const member = ws.team.includes("me");
   const statusOf = (id: string, done: boolean): Status => st.taskStatus[id] ?? ((st.tasks[id] ?? done) ? "done" : "todo");
+  const meta = (id: string) => st.taskMeta[id] ?? {};
+  const fmtDue = (d?: string) => (d ? new Intl.DateTimeFormat(rtl ? "ar-PS-u-nu-latn" : "en-GB", { day: "numeric", month: "short" }).format(new Date(d)) : "");
   const tasks = [
-    ...ws.tasks.map((t) => ({ id: t.id, title: tx(t.title), owner: t.owner, due: tx(t.due), status: statusOf(t.id, t.done) })),
-    ...st.newTasks.filter((t) => t.ws === ws.id).map((t) => ({ id: t.id, title: t.title, owner: "me", due: ago(t.time, rtl), status: st.taskStatus[t.id] ?? t.status })),
+    ...ws.tasks.map((t) => ({ id: t.id, title: tx(t.title), owner: meta(t.id).owner ?? t.owner, due: fmtDue(meta(t.id).due) || tx(t.due), status: statusOf(t.id, t.done), comments: meta(t.id).comments?.length ?? 0 })),
+    ...st.newTasks.filter((t) => t.ws === ws.id).map((t) => ({ id: t.id, title: t.title, owner: meta(t.id).owner ?? "me", due: fmtDue(meta(t.id).due) || (rtl ? "بلا موعد" : "No date"), status: st.taskStatus[t.id] ?? t.status, comments: meta(t.id).comments?.length ?? 0 })),
   ];
+  const setMeta = (id: string, patch: Partial<TaskMeta>) => update((x) => ({ ...x, taskMeta: { ...x.taskMeta, [id]: { ...(x.taskMeta[id] ?? {}), ...patch } } }));
   const setStatus = (id: string, status: Status, title: string) => {
     update((x) => ({ ...x, taskStatus: { ...x.taskStatus, [id]: status }, tasks: { ...x.tasks, [id]: status === "done" } }));
     if (status === "done") toast(rtl ? `أُنجزت «${title}» 🎉` : `"${title}" done 🎉`);
@@ -153,7 +201,7 @@ function WorkspaceDetail() {
           <div className="m-stack">
             <Card title={rtl ? "المهام المفتوحة" : "Open tasks"} action={<button className="m-more" onClick={() => go("tasks")}>{rtl ? "لوحة المهام" : "Task board"}<Arrow /></button>}>
               {tasks.filter((t) => t.status !== "done").length === 0 ? <p className="m-muted">{rtl ? "لا مهام مفتوحة 🎉" : "No open tasks 🎉"}</p> : (
-                <ul className="m-list">{tasks.filter((t) => t.status !== "done").map((t) => <li key={t.id}><div className="m-row"><span className={`m-ico ${t.status === "doing" ? "is-reply" : "is-task"}`}><ListTodo /></span><span><strong>{t.title}</strong><small>{tx(memberOrMe(t.owner).name)} · {t.due}</small></span>{member && <button className="m-btn is-sm" onClick={() => setStatus(t.id, "done", t.title)}><CheckCircle2 />{rtl ? "أنجزت" : "Done"}</button>}</div></li>)}</ul>
+                <ul className="m-list">{tasks.filter((t) => t.status !== "done").map((t) => <li key={t.id}><div className="m-row"><span className={`m-ico ${t.status === "doing" ? "is-reply" : "is-task"}`}><ListTodo /></span><button className="w-task-open is-row" onClick={() => setOpenTask(t.id)}><strong>{t.title}</strong><small>{tx(memberOrMe(t.owner).name)} · {t.due}</small></button>{member && <button className="m-btn is-sm" onClick={() => setStatus(t.id, "done", t.title)}><CheckCircle2 />{rtl ? "أنجزت" : "Done"}</button>}</div></li>)}</ul>
               )}
             </Card>
             <Card title={rtl ? "آخر النشاط" : "Recent activity"}>
@@ -180,7 +228,7 @@ function WorkspaceDetail() {
 
       {tab === "chat" && (member ? (
         <div className="w-chat">
-          <ChatRoom room={ws.id} seed={ROOM_SEED[ws.id]?.messages ?? []} group where={tx(ws.title)} href={`/projects/${ws.id}#chat`} replyFrom={ws.team.find((m) => m !== "me")} replyText={{ ar: "تمام، وصلت 👍 سأطّلع عليها.", en: "Got it 👍 I'll take a look." }}
+          <ChatRoom room={ws.id} seed={ROOM_SEED[ws.id]?.messages ?? []} group people={ws.team} where={tx(ws.title)} href={`/projects/${ws.id}#chat`} replyFrom={ws.team.find((m) => m !== "me")} replyText={{ ar: "تمام، وصلت 👍 سأطّلع عليها.", en: "Got it 👍 I'll take a look." }}
             header={<header className="c-head"><span className="w-chat-ico"><FolderKanban /></span><span><strong>{tx(ws.title)}</strong><small>{ws.team.map((m) => tx(memberOrMe(m).name).split(" ")[0]).join(rtl ? "، " : ", ")}</small></span><span className="m-team">{ws.team.slice(0, 4).map((m) => <Avatar key={m} who={memberOrMe(m)} size={28} />)}</span></header>}
             placeholder={rtl ? "اكتب للفريق… (يمكنك سحب الملفات وإفلاتها هنا)" : "Message the team… (you can drop files here)"} />
         </div>
@@ -195,8 +243,8 @@ function WorkspaceDetail() {
                 <h3>{c.label}<b>{items.length}</b></h3>
                 {items.length === 0 ? <p className="w-col-empty">{rtl ? "لا شيء هنا" : "Nothing here"}</p> : items.map((t) => (
                   <article key={t.id} className="w-task">
-                    <strong>{t.title}</strong>
-                    <div className="w-task-foot"><Avatar who={memberOrMe(t.owner)} size={24} /><small>{t.due}</small></div>
+                    <button className="w-task-open" onClick={() => setOpenTask(t.id)}><strong>{t.title}</strong></button>
+                    <div className="w-task-foot"><Avatar who={memberOrMe(t.owner)} size={24} /><small><CalendarDays aria-hidden="true" />{t.due}</small>{t.comments > 0 && <small className="w-task-c"><MessageCircle aria-hidden="true" />{t.comments}</small>}</div>
                     {member && <div className="w-task-move">{cols.filter((x) => x.key !== c.key).map((x) => <button key={x.key} onClick={() => setStatus(t.id, x.key, t.title)}>{x.key === "done" ? "✓ " : ""}{x.label}</button>)}</div>}
                   </article>
                 ))}
@@ -224,6 +272,41 @@ function WorkspaceDetail() {
           ); })}
         </div>
       )}
+      {(() => {
+        const t = tasks.find((x) => x.id === openTask);
+        if (!t) return null;
+        const m = meta(t.id);
+        return (
+          <Panel open title={rtl ? "تفاصيل المهمة" : "Task details"} onClose={() => { setOpenTask(null); setNote(""); }}
+            footer={member ? <form className="w-note" onSubmit={(e) => { e.preventDefault(); if (!note.trim()) return; setMeta(t.id, { comments: [...(m.comments ?? []), { id: uid(), from: "me", text: note.trim(), time: Date.now() }] }); setNote(""); }}>
+              <input value={note} onChange={(e) => setNote(e.target.value)} placeholder={rtl ? "اكتب تعليقًا على المهمة…" : "Comment on this task…"} aria-label={rtl ? "تعليق" : "Comment"} />
+              <button className="m-btn is-primary is-sm" disabled={!note.trim()}>{rtl ? "أضف" : "Add"}</button>
+            </form> : undefined}>
+            <h3 className="w-detail-title">{t.title}</h3>
+            <p className="m-muted"><FolderKanban aria-hidden="true" />{tx(ws.title)}</p>
+            <div className="w-fields">
+              <label>{rtl ? "الحالة" : "Status"}
+                <div className="w-seg" role="group">{cols.map((c) => <button type="button" key={c.key} aria-pressed={t.status === c.key} disabled={!member} onClick={() => setStatus(t.id, c.key, t.title)}>{c.label}</button>)}</div>
+              </label>
+              <label>{rtl ? "المسؤول" : "Owner"}
+                <select value={t.owner} disabled={!member} onChange={(e) => { setMeta(t.id, { owner: e.target.value }); toast(rtl ? `أُسندت إلى ${tx(memberOrMe(e.target.value).name)}` : `Assigned to ${tx(memberOrMe(e.target.value).name)}`); }}>
+                  {ws.team.map((id) => <option key={id} value={id}>{tx(memberOrMe(id).name)}</option>)}
+                </select>
+              </label>
+              <label>{rtl ? "الموعد" : "Due date"}
+                <input type="date" value={m.due ?? ""} disabled={!member} onChange={(e) => setMeta(t.id, { due: e.target.value || undefined })} />
+              </label>
+              <label>{rtl ? "الوصف" : "Description"}
+                <textarea rows={3} defaultValue={m.desc ?? ""} disabled={!member} placeholder={rtl ? "ما المطلوب بالضبط؟ أضف التفاصيل والروابط." : "What exactly is needed? Add details and links."} onBlur={(e) => { if ((m.desc ?? "") !== e.target.value) { setMeta(t.id, { desc: e.target.value }); toast(rtl ? "حُفظ الوصف" : "Description saved"); } }} />
+              </label>
+            </div>
+            <h4 className="w-detail-sub">{rtl ? `التعليقات (${m.comments?.length ?? 0})` : `Comments (${m.comments?.length ?? 0})`}</h4>
+            {(m.comments ?? []).length === 0 ? <p className="m-muted">{rtl ? "لا تعليقات بعد. اسأل أو حدّث الفريق هنا." : "No comments yet. Ask or update the team here."}</p> : (
+              <ul className="w-comments">{m.comments!.map((c) => <li key={c.id}><Avatar who={memberOrMe(c.from)} size={30} /><div><p><strong>{tx(memberOrMe(c.from).name)}</strong>{c.text}</p><small>{ago(c.time, rtl)}</small></div></li>)}</ul>
+            )}
+          </Panel>
+        );
+      })()}
     </>
   );
 }

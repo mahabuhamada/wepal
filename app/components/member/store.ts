@@ -6,9 +6,11 @@
 import { useSyncExternalStore } from "react";
 
 export type Reaction = "like" | "love" | "idea" | "agree";
-export type Comment = { id: string; author: string; text: string; time: number };
+export type Comment = { id: string; author: string; text: string; time: number; replyTo?: string };
 export type Att = { name: string; size: number; type: string; preview?: string };
 export type ChatMsg = { id?: string; from: "me" | string; text: string; time: number; attachments?: Att[]; replyTo?: { who: string; text: string }; reactions?: Record<string, string[]> };
+export type TaskMeta = { owner?: string; due?: string; desc?: string; comments?: { id: string; from: string; text: string; time: number }[] };
+export type Proposal = { id: string; title: string; summary: string; track: "research" | "initiative" | "digital"; team: string[]; due?: string; time: number };
 export type NewTask = { id: string; ws: string; title: string; status: "todo" | "doing" | "done"; time: number };
 export type NewPost = { id: string; group: string; text: string; time: number; kind: "post" | "question"; attachments?: Att[] };
 
@@ -25,6 +27,16 @@ type State = {
   files: Record<string, (Att & { by: string; time: number })[]>;
   msgReacts: Record<string, string>;
   events: { id: string; who: string; text: string; where: string; href: string; time: number }[];
+  taskMeta: Record<string, TaskMeta>;
+  pins: Record<string, { key: string; who: string; text: string }>;
+  muted: Record<string, boolean>;
+  proposals: Proposal[];
+  postEdits: Record<string, string>;
+  hiddenPosts: Record<string, boolean>;
+  pinnedPosts: Record<string, string>;
+  reports: Record<string, string>;
+  onboarded?: boolean;
+  interests: string[];
   posts: NewPost[];
   answered: Record<string, boolean>;
   votes: Record<string, string>;
@@ -32,7 +44,7 @@ type State = {
 };
 
 const KEY = "wepal-demo-v1";
-const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {}, newTasks: [], taskStatus: {}, files: {}, msgReacts: {}, events: [] };
+const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {}, newTasks: [], taskStatus: {}, files: {}, msgReacts: {}, events: [], taskMeta: {}, pins: {}, muted: {}, proposals: [], postEdits: {}, hiddenPosts: {}, pinnedPosts: {}, reports: {}, interests: [] };
 let state: State = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -114,3 +126,6 @@ export function notify(e: { who: string; text: string; where: string; href: stri
 
 /** Remember that this browser is signed in to the members area (used by the public site). */
 export const MEMBER_FLAG = "wepal-member";
+
+/** Current time for event handlers (keeps Date.now out of render-analysed code paths). */
+export const now = () => Date.now();

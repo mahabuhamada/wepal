@@ -10,11 +10,17 @@ import { useLang } from "../site-chrome";
 import type { Lang, T } from "../content";
 import { ASK_SUGGESTIONS, GROUPS, MEMBERS, ME, NOTICES, ONLINE, ROOM_SEED, THREADS, WORKSPACES, type Member } from "./data";
 import { ago, MEMBER_FLAG, update, useStore, useToasts } from "./store";
+import { apiEnabled, getToken, logout, me, type ApiUser } from "./api";
 
 /* ── Context: current language for every member page ── */
 type Ctx = { lang: Lang; rtl: boolean; tx: (t: T) => string };
 const MemberCtx = createContext<Ctx>({ lang: "ar", rtl: true, tx: (t) => t.ar });
 export const useMember = () => useContext(MemberCtx);
+
+/** Language context for member screens that live outside the shell (the welcome steps). */
+export function MemberLangProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
+  return <MemberCtx.Provider value={{ lang, rtl: lang === "ar", tx: (t: T) => t[lang] }}>{children}</MemberCtx.Provider>;
+}
 
 export type MemberRoute =
   | "dashboard" | "profile" | "messages" | "notifications" | "projects" | "community"
@@ -39,8 +45,9 @@ const NAV_MORE: NavItem[] = [
 function useCounts() {
   const s = useStore();
   const notices = NOTICES.filter((n) => n.unread && !s.read[n.id]).length + (s.events ?? []).filter((e) => !s.read[e.id]).length;
-  const messages = THREADS.reduce((sum, t) => sum + (s.read[t.id] ? 0 : t.unread), 0)
-    + Object.entries(ROOM_SEED).reduce((sum, [id, r]) => sum + (WORKSPACES.find((w) => w.id === id)?.team.includes("me") && !s.read[id] ? r.unread : 0), 0);
+  // Muted conversations never add to the unread badge.
+  const messages = THREADS.reduce((sum, t) => sum + (s.read[t.id] || s.muted[t.id] ? 0 : t.unread), 0)
+    + Object.entries(ROOM_SEED).reduce((sum, [id, r]) => sum + (WORKSPACES.find((w) => w.id === id)?.team.includes("me") && !s.read[id] && !s.muted[id] ? r.unread : 0), 0);
   return { notices, messages };
 }
 
@@ -56,7 +63,14 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
   const [searchOpen, setSearchOpen] = useState(false);
   // Remember the signed-in state for the public site ("Account" tab goes to the dashboard).
   useEffect(() => { try { window.localStorage.setItem(MEMBER_FLAG, "1"); } catch { /* storage blocked */ } }, []);
-  const signOut = () => { try { window.localStorage.removeItem(MEMBER_FLAG); } catch { /* storage blocked */ } };
+  const signOut = () => { try { window.localStorage.removeItem(MEMBER_FLAG); } catch { /* storage blocked */ } if (apiEnabled) void logout(lang); };
+  // With the platform API on, the members area needs a valid session; the real name comes from /me.
+  const [apiUser, setApiUser] = useState<ApiUser | null>(null);
+  useEffect(() => {
+    if (!apiEnabled) return;
+    if (!getToken()) { window.location.replace(`${window.location.origin}/login`); return; }
+    me(lang).then(setApiUser).catch(() => { if (!getToken()) window.location.replace(`${window.location.origin}/login`); });
+  }, [lang]);
   const barRef = useRef<HTMLDivElement>(null);
   useEffect(() => { document.body.style.overflow = sheet ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [sheet]);
   useEffect(() => {
@@ -134,7 +148,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
                 <button className="m-top-me" onClick={() => setMenu(menu === "me" ? null : "me")} aria-label={rtl ? "حسابي" : "My account"} aria-expanded={menu === "me"}><Avatar who={{ ...ME, tone: 0 }} size={36} /></button>
                 {menu === "me" && (
                   <div className="m-pop is-menu">
-                    <a href="/profile" className="m-pop-me"><Avatar who={{ ...ME, tone: 0 }} size={46} /><span><strong>{tx(ME.name)}</strong><small>{rtl ? "عرض ملفي" : "View my profile"}</small></span></a>
+                    <a href="/profile" className="m-pop-me"><Avatar who={{ ...ME, tone: 0 }} size={46} /><span><strong>{apiUser?.name ?? tx(ME.name)}</strong><small>{rtl ? "عرض ملفي" : "View my profile"}</small></span></a>
                     <a href="/settings"><Settings />{rtl ? "الإعدادات" : "Settings"}</a>
                     <a href="/"><Globe2 />{rtl ? "البوابة العامة" : "Public site"}</a>
                     <a href="/login" className="m-logout" onClick={signOut}><LogOut />{rtl ? "تسجيل الخروج" : "Sign out"}</a>
@@ -274,6 +288,27 @@ function GlobalSearch({ open, onClose, onAsk }: { open: boolean; onClose: () => 
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Side panel on desktop, bottom sheet on phones. Closes on Escape or backdrop. */
+export function Panel({ open, onClose, title, children, footer }: { open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode }) {
+  const { rtl } = useMember();
+  useEffect(() => {
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", esc); document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", esc); document.body.style.overflow = ""; };
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="m-panel" onClick={onClose}>
+      <aside className="m-panel-box" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
+        <header className="m-panel-head"><h2>{title}</h2><button onClick={onClose} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></header>
+        <div className="m-panel-body">{children}</div>
+        {footer && <footer className="m-panel-foot">{footer}</footer>}
+      </aside>
     </div>
   );
 }

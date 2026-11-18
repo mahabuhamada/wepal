@@ -9,6 +9,7 @@ import {
   UserRound, Users,
 } from "lucide-react";
 import { useReveal } from "./use-reveal";
+import { ApiError, apiEnabled, completeTwoFactor, login } from "./member/api";
 import { SiteFooter, SiteHeader, useLang } from "./site-chrome";
 import { Logo } from "./identity";
 import type { Lang } from "./content";
@@ -169,9 +170,38 @@ function ContactPage({ language }: { language: Language }) {
   return <div className="portal-body shell"><div className="contact-layout"><aside><h2>{rtl?"اختر الطريقة الأنسب لك":"Choose what works for you"}</h2><p>{rtl?"نقرأ كل رسالة، ونوجّهها إلى الشخص الأنسب داخل الفريق.":"We read every message and route it to the right person."}</p>{[[Mail,"info@wepal.ps",rtl?"البريد الإلكتروني":"Email"],[Phone,"+970 2 000 0000",rtl?"الهاتف":"Phone"],[MapPin,rtl?"فلسطين":"Palestine",rtl?"الموقع":"Location"]].map(([I,v,l])=>{const Ic=I as typeof Mail;return <div className="contact-method" key={v as string}><Ic/><div><span>{l as string}</span><strong>{v as string}</strong></div></div>})}</aside><form className="contact-form" onSubmit={submit}><div className="form-head"><span>{rtl?"اكتب لنا":"Write to us"}</span><h2>{rtl?"كيف يمكننا مساعدتك؟":"How can we help?"}</h2></div><div className="form-row"><label>{rtl?"الاسم":"Name"}<input required/></label><label>{rtl?"البريد الإلكتروني":"Email"}<input type="email" required/></label></div><label>{rtl?"موضوع الرسالة":"Subject"}<select><option>{rtl?"استفسار عام":"General inquiry"}</option><option>{rtl?"تعاون وشراكات":"Partnership"}</option><option>{rtl?"ملاحظة على المحتوى":"Content feedback"}</option></select></label><label>{rtl?"الرسالة":"Message"}<textarea rows={6} required/></label><button type="submit"><Send/>{rtl?"إرسال الرسالة":"Send message"}</button></form></div></div>;
 }
 
+/** First sign-in goes through the welcome steps; later sign-ins open the dashboard. */
+function firstStop() {
+  try { const st = JSON.parse(window.localStorage.getItem("wepal-demo-v1") ?? "{}"); return st.onboarded ? "/dashboard" : "/welcome"; } catch { return "/dashboard"; }
+}
+
 function LoginPage({ language }: { language: Language }) {
   const rtl = language === "ar";
   const [showPassword, setShowPassword] = useState(false);
+  // Real sign-in when the platform API is configured; demo otherwise.
+  const [challenge, setChallenge] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const signIn = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!apiEnabled) { window.location.assign(`${window.location.origin}${firstStop()}`); return; }
+    setError(""); setBusy(true);
+    try {
+      if (challenge) {
+        await completeTwoFactor(challenge, code.trim(), language);
+      } else {
+        const f = new FormData(e.currentTarget);
+        const r = await login(String(f.get("email") ?? ""), String(f.get("password") ?? ""), language);
+        if ("challenge" in r) { setChallenge(r.challenge); setBusy(false); return; }
+      }
+      try { window.localStorage.setItem("wepal-member", "1"); } catch { /* storage blocked */ }
+      window.location.assign(`${window.location.origin}${firstStop()}`);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : (rtl ? "حدث خطأ غير متوقع. حاول مرة أخرى." : "Something went wrong. Please try again."));
+      setBusy(false);
+    }
+  };
   const benefits: [typeof MessageCircle, string, string][] = [
     [MessageCircle, rtl ? "نقاشات أعمق" : "Deeper discussions", rtl ? "تابع الحوارات التي تهمك وشارك برأيك." : "Follow the conversations you care about and add your voice."],
     [Users, rtl ? "مجموعات اهتمام" : "Interest groups", rtl ? "انضم إلى من يشاركونك الأسئلة نفسها." : "Join people asking the same questions as you."],
@@ -196,7 +226,7 @@ function LoginPage({ language }: { language: Language }) {
           </div>
         </aside>
 
-        <form className="login-form" onSubmit={(e) => { e.preventDefault(); window.location.assign(`${window.location.origin}/dashboard`); }}>
+        <form className="login-form" onSubmit={signIn}>
           <div className="login-form-head">
             <span className="login-eyebrow"><UserRound aria-hidden="true" />{rtl ? "دخول الأعضاء" : "Member login"}</span>
             <h1>{rtl ? "أهلًا بعودتك" : "Welcome back"}</h1>
@@ -205,7 +235,7 @@ function LoginPage({ language }: { language: Language }) {
 
           <div className="login-field">
             <label htmlFor="login-email">{rtl ? "البريد الإلكتروني" : "Email"}</label>
-            <div className="login-input"><Mail aria-hidden="true" /><input id="login-email" type="email" autoComplete="email" placeholder="name@example.com" dir="ltr" required /></div>
+            <div className="login-input"><Mail aria-hidden="true" /><input id="login-email" name="email" type="email" autoComplete="email" placeholder="name@example.com" dir="ltr" required /></div>
           </div>
 
           <div className="login-field">
@@ -215,7 +245,7 @@ function LoginPage({ language }: { language: Language }) {
             </div>
             <div className="login-input">
               <LockKeyhole aria-hidden="true" />
-              <input id="login-password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="••••••••" dir="ltr" required />
+              <input id="login-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="••••••••" dir="ltr" required />
               <button type="button" className="login-eye" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? (rtl ? "إخفاء كلمة المرور" : "Hide password") : (rtl ? "إظهار كلمة المرور" : "Show password")}>
                 {showPassword ? <EyeOff /> : <Eye />}
               </button>
@@ -224,9 +254,17 @@ function LoginPage({ language }: { language: Language }) {
 
           <label className="login-remember"><input type="checkbox" /><span>{rtl ? "تذكرني على هذا الجهاز" : "Keep me signed in"}</span></label>
 
-          <button type="submit" className="login-submit">{rtl ? "تسجيل الدخول" : "Sign in"}</button>
-          <div className="login-or"><span>{rtl ? "أو" : "or"}</span></div>
-          <a href="/dashboard" className="login-direct"><Sparkles aria-hidden="true" />{rtl ? "دخول مباشر بحساب تجريبي" : "Enter directly with a demo account"}</a>
+          {challenge && (
+            <div className="login-field login-code">
+              <label htmlFor="login-code">{rtl ? "رمز التحقق" : "Verification code"}</label>
+              <p>{rtl ? "أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة." : "Enter the 6-digit code from your authenticator app."}</p>
+              <div className="login-input"><ShieldCheck aria-hidden="true" /><input id="login-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" placeholder="000000" dir="ltr" required autoFocus /></div>
+            </div>
+          )}
+          {error && <p className="login-error" role="alert">{error}</p>}
+          <button type="submit" className="login-submit" disabled={busy || (!!challenge && code.length < 6)}>{busy ? (rtl ? "جارٍ الدخول…" : "Signing in…") : challenge ? (rtl ? "تحقّق وادخل" : "Verify and sign in") : (rtl ? "تسجيل الدخول" : "Sign in")}</button>
+          {!apiEnabled && <><div className="login-or"><span>{rtl ? "أو" : "or"}</span></div>
+          <a href="/dashboard" className="login-direct" onClick={(e) => { e.preventDefault(); window.location.assign(`${window.location.origin}${firstStop()}`); }}><Sparkles aria-hidden="true" />{rtl ? "دخول مباشر بحساب تجريبي" : "Enter directly with a demo account"}</a></>}
 
           <p className="login-signup">{rtl ? "ليس لديك حساب؟" : "New to WePal?"} <a href="#">{rtl ? "أنشئ حسابًا مجانيًا" : "Create a free account"}</a></p>
           <p className="login-secure"><ShieldCheck aria-hidden="true" />{rtl ? "بياناتك محمية ولن نشاركها مع أي جهة." : "Your data is protected and never shared."}</p>
