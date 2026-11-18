@@ -583,9 +583,8 @@ html:has(.home) { scroll-padding-top: 40px; }
 @media (prefers-reduced-motion: reduce) { .f-live, .f-question > p { animation: none; } }
 
 /* Language flags */
-.lang-flag { flex: none; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255,255,255,.9), 0 1px 4px rgba(16,25,66,.25); transition: transform .3s var(--ease); }
-.h-lang button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-.h-lang button:not([aria-pressed="true"]) .lang-flag { opacity: .55; filter: saturate(.6); }
-.h-lang button:hover .lang-flag, .h-lang-mini:hover .lang-flag { transform: scale(1.12) rotate(-6deg); opacity: 1; filter: none; }
-.h-drawer-lang button, .f-seg button { display: flex; align-items: center; justify-content: center; gap: 8px; }
-.h-drawer-lang .lang-flag, .f-seg .lang-flag { box-shadow: 0 0 0 1.5px rgba(255,255,255,.25); }
+.lang-flag { flex: none; border-radius: 4px; box-shadow: 0 1px 3px rgba(16,25,66,.22); transition: transform .3s var(--ease), opacity .25s, filter .25s, box-shadow .3s; }
+.h-lang button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.h-lang button:not([aria-pressed="true"]) .lang-flag { opacity: .6; filter: saturate(.55); }
+.h-lang button:hover .lang-flag, .h-lang-mini:hover .lang-flag, .h-drawer-lang button:hover .lang-flag, .f-seg button:hover .lang-flag { transform: translateY(-1px) rotate(-4deg); opacity: 1; filter: none; box-shadow: 0 4px 10px rgba(16,25,66,.25); }
+.h-drawer-lang button, .f-seg button { display: flex; align-items: center; justify-content: center; gap: 9px; }

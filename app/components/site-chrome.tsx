@@ -41,29 +41,37 @@ const TABS = [
   { href: "/login", icon: UserRound, label: { ar: "حسابي", en: "Account" } },
 ] as const;
 
-/** Small round flags for the language switch: Palestine for Arabic, United Kingdom for English. */
+/** Small rounded-rectangle flags for the language switch: Palestine for Arabic, United Kingdom for English. */
 export function LangFlag({ lang, size = 16 }: { lang: Lang; size?: number }) {
-  if (lang === "ar") {
-    return (
-      <svg className="lang-flag" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-        <clipPath id="flag-ps"><circle cx="12" cy="12" r="12" /></clipPath>
-        <g clipPath="url(#flag-ps)">
-          <rect width="24" height="8" fill="#151515" /><rect y="8" width="24" height="8" fill="#fff" /><rect y="16" width="24" height="8" fill="#149954" />
-          <path d="M0 0 L11 12 L0 24 Z" fill="#E4312B" />
-        </g>
-      </svg>
-    );
-  }
+  const h = Math.round(size * 0.8);
+  const w = Math.round(h * 1.4);
+  const id = `flag-${lang}`;
   return (
-    <svg className="lang-flag" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-      <clipPath id="flag-gb"><circle cx="12" cy="12" r="12" /></clipPath>
-      <g clipPath="url(#flag-gb)">
-        <rect width="24" height="24" fill="#012169" />
-        <path d="M0 0 L24 24 M24 0 L0 24" stroke="#fff" strokeWidth="5" />
-        <path d="M0 0 L24 24 M24 0 L0 24" stroke="#C8102E" strokeWidth="1.8" />
-        <path d="M12 0 V24 M0 12 H24" stroke="#fff" strokeWidth="7" />
-        <path d="M12 0 V24 M0 12 H24" stroke="#C8102E" strokeWidth="4" />
+    <svg className="lang-flag" width={w} height={h} viewBox="0 0 28 20" aria-hidden="true">
+      <defs>
+        <clipPath id={`${id}-clip`}><rect width="28" height="20" rx="4.5" /></clipPath>
+        <linearGradient id={`${id}-sheen`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity=".28" /><stop offset=".5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".12" />
+        </linearGradient>
+      </defs>
+      <g clipPath={`url(#${id}-clip)`}>
+        {lang === "ar" ? (
+          <>
+            <rect width="28" height="6.67" fill="#151515" /><rect y="6.67" width="28" height="6.67" fill="#fff" /><rect y="13.33" width="28" height="6.67" fill="#149954" />
+            <path d="M0 0 L11 10 L0 20 Z" fill="#E4312B" />
+          </>
+        ) : (
+          <>
+            <rect width="28" height="20" fill="#012169" />
+            <path d="M0 0 L28 20 M28 0 L0 20" stroke="#fff" strokeWidth="4" />
+            <path d="M0 0 L28 20 M28 0 L0 20" stroke="#C8102E" strokeWidth="1.4" />
+            <path d="M14 0 V20 M0 10 H28" stroke="#fff" strokeWidth="6" />
+            <path d="M14 0 V20 M0 10 H28" stroke="#C8102E" strokeWidth="3.4" />
+          </>
+        )}
+        <rect width="28" height="20" fill={`url(#${id}-sheen)`} />
       </g>
+      <rect x=".5" y=".5" width="27" height="19" rx="4" fill="none" stroke="rgba(16,25,66,.18)" />
     </svg>
   );
 }
