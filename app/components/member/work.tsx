@@ -3,7 +3,8 @@
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Circle, FolderKanban, Plus, Search, Users } from "lucide-react";
-import { Avatar, Card, Empty, MemberShell, PageHead, Progress, Tabs, memberOrMe, useMember } from "./shell";
+import { Avatar, Card, Empty, MemberShell, PageHead, Progress, Stages, Tabs, memberOrMe, useMember } from "./shell";
+import { toast, update, useStore } from "./store";
 import { STAGES, TRACKS, WORKSPACES, workspaceById, type Track } from "./data";
 
 function Workspaces() {
@@ -56,7 +57,13 @@ function WorkspaceDetail() {
   const Arrow = rtl ? ArrowLeft : ArrowRight;
   const params = useParams<{ id: string }>();
   const ws = workspaceById(String(params?.id ?? ""));
-  const [done, setDone] = useState<Record<string, boolean>>(() => Object.fromEntries((ws?.tasks ?? []).map((t) => [t.id, t.done])));
+  const st = useStore();
+  const done: Record<string, boolean> = Object.fromEntries((ws?.tasks ?? []).map((t) => [t.id, st.tasks[t.id] ?? t.done]));
+  const toggleTask = (id: string, title: string) => {
+    const next = !done[id];
+    update((x) => ({ ...x, tasks: { ...x.tasks, [id]: next } }));
+    if (next) toast(rtl ? `أُنجزت «${title}» 🎉` : `"${title}" done 🎉`);
+  };
   if (!ws) return <Empty icon={FolderKanban} title={rtl ? "لم نجد مساحة العمل هذه" : "Workspace not found"} text={rtl ? "ربما حُذفت أو تغيّر رابطها." : "It may have been removed or moved."} />;
   const total = ws.tasks.length; const finished = ws.tasks.filter((t) => done[t.id]).length;
 
@@ -65,6 +72,7 @@ function WorkspaceDetail() {
       <a className="m-back" href="/projects">{rtl ? <ArrowRight /> : <ArrowLeft />}{rtl ? "مساحات العمل" : "Workspaces"}</a>
       <PageHead icon={FolderKanban} kicker={TRACKS[ws.track]} title={ws.title} lead={ws.summary}
         actions={<span className={`m-stage stage-${ws.stage} is-lg`}>{tx(STAGES[ws.stage])}</span>} />
+      <Stages stage={ws.stage} />
 
       <div className="m-grid-3">
         <Card title={rtl ? `المهام (${finished}/${total})` : `Tasks (${finished}/${total})`} className="m-span-2">
@@ -72,7 +80,7 @@ function WorkspaceDetail() {
             <ul className="m-tasks">
               {ws.tasks.map((t) => { const owner = memberOrMe(t.owner); const isDone = done[t.id]; return (
                 <li key={t.id} className={isDone ? "is-done" : ""}>
-                  <button onClick={() => setDone((d) => ({ ...d, [t.id]: !d[t.id] }))} aria-pressed={isDone} aria-label={isDone ? (rtl ? "أعد فتح المهمة" : "Reopen task") : (rtl ? "أكمل المهمة" : "Complete task")}>{isDone ? <CheckCircle2 /> : <Circle />}</button>
+                  <button onClick={() => toggleTask(t.id, tx(t.title))} aria-pressed={isDone} aria-label={isDone ? (rtl ? "أعد فتح المهمة" : "Reopen task") : (rtl ? "أكمل المهمة" : "Complete task")}>{isDone ? <CheckCircle2 /> : <Circle />}</button>
                   <span><strong>{tx(t.title)}</strong><small>{tx(owner.name)} · {tx(t.due)}</small></span>
                   <Avatar who={owner} size={28} />
                 </li>

@@ -47,22 +47,28 @@ export const MEMBERS: Member[] = [
 export const memberById = (id: string) => MEMBERS.find((m) => m.id === id);
 
 export type Group = { id: string; name: T; about: T; kind: T; members: number; joined: boolean; posts: Post[] };
-export type Post = { id: string; author: string; text: T; time: T; replies: number };
+export type SeedComment = { author: string; text: T; time: T };
+export type Post = { id: string; author: string; text: T; time: T; replies: number; reacts?: number; img?: string; kind?: "post" | "question"; comments?: SeedComment[] };
 export const GROUPS: Group[] = [
   {
     id: "g1", name: L("حوار الضفة الشمالية", "Northern West Bank dialogue"), kind: L("منطقة", "Region"), members: 86, joined: true,
     about: L("مساحة لأعضاء نابلس وجنين وطولكرم لتنسيق جلسات الحوار المحلية.", "A space for members in Nablus, Jenin and Tulkarm to coordinate local dialogue sessions."),
     posts: [
-      { id: "p1", author: "m1", text: L("أرفقت ملخص جلسة الأمس عن الثقة بين الأجيال. ما الذي فاتني؟", "I attached the summary of yesterday's session on trust between generations. What did I miss?"), time: L("قبل ساعتين", "2 hours ago"), replies: 6 },
-      { id: "p2", author: "m6", text: L("نبحث عن مكان لجلسة الشهر القادم في طولكرم، أي اقتراحات؟", "Looking for a venue for next month's session in Tulkarm, any ideas?"), time: L("أمس", "Yesterday"), replies: 3 },
+      { id: "p1", author: "m1", text: L("أرفقت ملخص جلسة الأمس عن الثقة بين الأجيال. ما الذي فاتني؟", "I attached the summary of yesterday's session on trust between generations. What did I miss?"), time: L("قبل ساعتين", "2 hours ago"), replies: 6, reacts: 14, img: "/images/facilitators.webp", kind: "question",
+        comments: [
+          { author: "m6", text: L("نقطة الاستماع قبل الرد كانت الأهم برأيي.", "Listening before replying was the key point for me."), time: L("قبل ساعة", "1 hour ago") },
+          { author: "m3", text: L("سأضيف ملاحظاتي من جلسة الخليل.", "I'll add my notes from the Hebron session."), time: L("قبل 40 د", "40 min ago") },
+        ] },
+      { id: "p2", author: "m6", text: L("نبحث عن مكان لجلسة الشهر القادم في طولكرم، أي اقتراحات؟", "Looking for a venue for next month's session in Tulkarm, any ideas?"), time: L("أمس", "Yesterday"), replies: 3, reacts: 5 },
     ],
   },
   {
     id: "g2", name: L("صنّاع المحتوى", "Content makers"), kind: L("مسار", "Track"), members: 124, joined: true,
     about: L("نتبادل الأفكار والأدوات لصناعة محتوى رقمي واضح ومسؤول.", "Sharing ideas and tools for clear, responsible digital content."),
     posts: [
-      { id: "p3", author: "m2", text: L("مسودة فيديو «كيف نقرأ الخبر؟» جاهزة للتعليق.", "Draft video \"How do we read the news?\" is ready for feedback."), time: L("قبل 3 ساعات", "3 hours ago"), replies: 9 },
-      { id: "p4", author: "m5", text: L("شاركت قالب إنفوغرافيك جديدًا.", "Shared a new infographic template."), time: L("قبل يومين", "2 days ago"), replies: 4 },
+      { id: "p3", author: "m2", text: L("مسودة فيديو «كيف نقرأ الخبر؟» جاهزة للتعليق.", "Draft video \"How do we read the news?\" is ready for feedback."), time: L("قبل 3 ساعات", "3 hours ago"), replies: 9, reacts: 23, img: "/images/library.webp",
+        comments: [{ author: "m5", text: L("الإيقاع ممتاز، فقط اختصري المقدمة قليلًا.", "Great pace, just trim the intro a little."), time: L("قبل ساعتين", "2 hours ago") }] },
+      { id: "p4", author: "m5", text: L("شاركت قالب إنفوغرافيك جديدًا.", "Shared a new infographic template."), time: L("قبل يومين", "2 days ago"), replies: 4, reacts: 11 },
     ],
   },
   {
@@ -186,3 +192,28 @@ export const ASK_SUGGESTIONS = [
   L("كيف أيسّر جلسة حوار في حيّي؟", "How do I facilitate a dialogue session in my neighbourhood?"),
   L("أين أجد أوراق السياسات عن الشباب؟", "Where can I find policy papers on youth?"),
 ];
+
+/** Every seeded post with its group, newest first as listed. */
+export const FEED = GROUPS.flatMap((g) => g.posts.map((p) => ({ ...p, group: g })));
+
+export const UPCOMING = [
+  { id: "u1", day: "22", month: L("نوفمبر", "Nov"), title: L("جلسة حوار: الثقة بين الأجيال", "Dialogue session: trust between generations"), where: L("حوار الضفة الشمالية", "Northern West Bank dialogue"), href: "/community/g1" },
+  { id: "u2", day: "25", month: L("نوفمبر", "Nov"), title: L("تسليم مسودة الفصل الأول", "Chapter one draft due"), where: L("خريطة مساحات الحوار", "Dialogue spaces map"), href: "/projects/w1" },
+  { id: "u3", day: "30", month: L("نوفمبر", "Nov"), title: L("إغلاق استشارة الأولويات", "Priorities consultation closes"), where: L("المشاورات", "Consultations"), href: "/consultations" },
+];
+
+export const PLATFORM_NEWS = [
+  { id: "pn1", kind: L("استبيان مفتوح", "Open survey"), title: L("كيف تتابع الأخبار؟", "How do you follow the news?"), date: L("اليوم", "Today"), href: "/surveys" },
+  { id: "pn2", kind: L("خبر", "News"), title: L("انطلاق دورة الحوار الجديدة في خمس جامعات", "New dialogue cycle launches at five universities"), date: L("قبل 3 أيام", "3 days ago"), href: "/news" },
+  { id: "pn3", kind: L("مكتبة", "Library"), title: L("دليل تيسير الجلسات متاح للتحميل", "Session facilitation guide now available"), date: L("الأسبوع الماضي", "Last week"), href: "/library" },
+];
+
+/** Members shown as online in the demo. */
+export const ONLINE = new Set(["m2", "m3", "m5"]);
+
+/** Canned replies for the messages demo, per conversation. */
+export const AUTO_REPLY: Record<string, T> = {
+  th1: L("وصلت، شكرًا! سأراجعها الآن 🙏", "Got it, thanks! Reviewing now 🙏"),
+  th2: L("ممتاز، أخبرني إن احتجت شيئًا.", "Great, let me know if you need anything."),
+  th3: L("بكل سرور 😊", "My pleasure 😊"),
+};

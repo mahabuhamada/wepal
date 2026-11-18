@@ -1,14 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Award, Bell, CheckCheck, Download, Eye, Globe2, KeyRound, ListTodo, Lock, MapPin, MessageSquare, MessagesSquare, Pencil, Send, Settings, ShieldCheck, Trash2, UserRound, Vote } from "lucide-react";
 import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, memberOrMe, useMember } from "./shell";
-import { BADGES, GROUPS, ME, NOTICES, THREADS, TRACKS, WORKSPACES } from "./data";
+import { AUTO_REPLY, BADGES, GROUPS, ME, NOTICES, ONLINE, THREADS, TRACKS, WORKSPACES } from "./data";
+import { ago, toast, update, useStore } from "./store";
+import { PostCard, useFeed } from "./social";
 
 function Profile() {
   const { rtl, tx } = useMember();
   const work = WORKSPACES.filter((w) => w.mine);
-  const groups = GROUPS.filter((g) => g.joined);
+  const st = useStore();
+  const groups = GROUPS.filter((g) => st.joined[g.id] ?? g.joined);
+  const feed = useFeed();
+  const [tab, setTab] = useState<"posts" | "saved">("posts");
+  const shown = feed.filter((p) => (tab === "posts" ? p.author === "me" : st.saved[p.id]));
   const tasks = WORKSPACES.flatMap((w) => w.tasks).filter((t) => t.owner === "me" && t.done).length + 12;
   return (
     <>
@@ -39,6 +45,8 @@ function Profile() {
       <Card title={rtl ? "مجموعاتي" : "My groups"}>
         <div className="m-chips is-static">{groups.map((g) => <a key={g.id} href={`/community/${g.id}`}>{tx(g.name)}</a>)}</div>
       </Card>
+      <div className="m-toolbar"><Tabs label={rtl ? "المحتوى" : "Content"} value={tab} onChange={setTab} items={[{ key: "posts", label: rtl ? "منشوراتي" : "My posts", count: feed.filter((p) => p.author === "me").length }, { key: "saved", label: rtl ? "المحفوظات" : "Saved", count: feed.filter((p) => st.saved[p.id]).length }]} /></div>
+      {shown.length ? <div className="m-stack">{shown.map((p) => <PostCard key={p.id} post={p} />)}</div> : <Empty icon={tab === "posts" ? Pencil : Award} title={tab === "posts" ? (rtl ? "لم تنشر شيئًا بعد" : "You haven't posted yet") : (rtl ? "لا محفوظات بعد" : "Nothing saved yet")} text={tab === "posts" ? (rtl ? "اكتب أول منشور من «لوحتي» أو من المجتمع." : "Write your first post from Home or Community.") : (rtl ? "اضغط «احفظ» على أي منشور ليظهر هنا." : "Tap Save on any post to keep it here.")} />}
       <p className="m-privacy"><Eye aria-hidden="true" />{rtl ? "يرى الأعضاء الآخرون اسمك ومساحات عملك وشاراتك. غيّر ذلك من " : "Other members see your name, workspaces and badges. Change this in "}<a href="/settings">{rtl ? "إعدادات الخصوصية" : "privacy settings"}</a>.</p>
     </>
   );
@@ -46,32 +54,64 @@ function Profile() {
 
 function Messages() {
   const { rtl, tx } = useMember();
+  const s = useStore();
   const [open, setOpen] = useState<string | null>(null);
-  const [extra, setExtra] = useState<Record<string, string[]>>({});
   const [draft, setDraft] = useState("");
+  const [typing, setTyping] = useState<string | null>(null);
+  const endRef = useRef<HTMLLIElement>(null);
+  // Open a conversation from ?t=<thread> or ?to=<member> (links from the top bar and member pages).
+  useEffect(() => {
+    const qs = new URLSearchParams(window.location.search);
+    const byThread = qs.get("t"); const byMember = qs.get("to");
+    const th = THREADS.find((t) => t.id === byThread) ?? THREADS.find((t) => t.with === byMember);
+    if (!th) return;
+    const id = requestAnimationFrame(() => setOpen(th.id));
+    update((x) => ({ ...x, read: { ...x.read, [th.id]: true } }));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  useEffect(() => { endRef.current?.scrollIntoView({ block: "end", behavior: "smooth" }); }, [open, s.messages, typing]);
   const th = THREADS.find((t) => t.id === open);
+  const pick = (id: string) => { setOpen(id); update((x) => ({ ...x, read: { ...x.read, [id]: true } })); };
+  const send = (e: React.FormEvent) => {
+    e.preventDefault(); if (!th || !draft.trim()) return;
+    const tid = th.id;
+    update((x) => ({ ...x, messages: { ...x.messages, [tid]: [...(x.messages[tid] ?? []), { from: "me", text: draft.trim(), time: Date.now() }] } }));
+    setDraft("");
+    // Simulated reply so the conversation feels alive: typing… then an answer.
+    window.setTimeout(() => setTyping(tid), 700);
+    window.setTimeout(() => {
+      setTyping(null);
+      update((x) => ({ ...x, messages: { ...x.messages, [tid]: [...(x.messages[tid] ?? []), { from: th.with, text: tx(AUTO_REPLY[tid]), time: Date.now() }] } }));
+    }, 2400);
+  };
   return (
     <>
       <PageHead icon={MessagesSquare} kicker={{ ar: "الرسائل", en: "Messages" }} title={{ ar: "الرسائل الخاصة", en: "Direct messages" }} />
       <div className={`m-chat ${th ? "has-open" : ""}`}>
         <ul className="m-threads" aria-label={rtl ? "المحادثات" : "Conversations"}>
-          {THREADS.map((t) => { const m = memberOrMe(t.with); return (
-            <li key={t.id}><button className={open === t.id ? "is-active" : ""} onClick={() => setOpen(t.id)}>
-              <Avatar who={m} size={42} />
-              <span><span className="m-thread-top"><strong>{tx(m.name)}</strong><small>{tx(t.time)}</small></span><span className="m-thread-last">{extra[t.id]?.at(-1) ?? tx(t.last)}</span></span>
-              {t.unread > 0 && open !== t.id && <b className="m-count">{t.unread}</b>}
+          {THREADS.map((t) => { const m = memberOrMe(t.with); const extra = s.messages[t.id]; const last = extra?.at(-1); const unread = !s.read[t.id] && t.unread > 0; return (
+            <li key={t.id}><button className={`${open === t.id ? "is-active" : ""} ${unread ? "is-unread" : ""}`} onClick={() => pick(t.id)}>
+              <Avatar who={m} size={44} online={ONLINE.has(t.with)} />
+              <span><span className="m-thread-top"><strong>{tx(m.name)}</strong><small>{last ? ago(last.time, rtl) : tx(t.time)}</small></span><span className="m-thread-last">{typing === t.id ? <em className="m-typing-text">{rtl ? "يكتب…" : "typing…"}</em> : last ? `${last.from === "me" ? (rtl ? "أنت: " : "You: ") : ""}${last.text}` : tx(t.last)}</span></span>
+              {unread && <b className="m-count">{t.unread}</b>}
             </button></li>
           ); })}
         </ul>
         <section className="m-conv">
           {!th ? <Empty icon={MessageSquare} title={rtl ? "اختر محادثة للبدء" : "Pick a conversation"} /> : (
             <>
-              <header><button className="m-conv-back" onClick={() => setOpen(null)} aria-label={rtl ? "رجوع" : "Back"}>{rtl ? <ArrowRight /> : <ArrowLeft />}</button><Avatar who={memberOrMe(th.with)} size={36} /><a href={`/members/${th.with}`}><strong>{tx(memberOrMe(th.with).name)}</strong></a></header>
+              <header>
+                <button className="m-conv-back" onClick={() => setOpen(null)} aria-label={rtl ? "رجوع" : "Back"}>{rtl ? <ArrowRight /> : <ArrowLeft />}</button>
+                <Avatar who={memberOrMe(th.with)} size={38} online={ONLINE.has(th.with)} />
+                <a href={`/members/${th.with}`}><strong>{tx(memberOrMe(th.with).name)}</strong><small>{typing === th.id ? (rtl ? "يكتب…" : "typing…") : ONLINE.has(th.with) ? (rtl ? "متصل الآن" : "Online now") : (rtl ? "غير متصل" : "Offline")}</small></a>
+              </header>
               <ol className="m-bubbles">
                 {th.messages.map((msg, i) => <li key={i} className={msg.from === "me" ? "is-me" : ""}><p>{tx(msg.text)}</p><small>{tx(msg.time)}</small></li>)}
-                {(extra[th.id] ?? []).map((text, i) => <li key={`x${i}`} className="is-me"><p>{text}</p><small>{rtl ? "الآن" : "Now"}</small></li>)}
+                {(s.messages[th.id] ?? []).map((msg, i) => <li key={`x${i}`} className={`is-new ${msg.from === "me" ? "is-me" : ""}`}><p>{msg.text}</p><small>{ago(msg.time, rtl)}{msg.from === "me" && <CheckCheck className="m-seen" aria-label={rtl ? "قُرئت" : "Seen"} />}</small></li>)}
+                {typing === th.id && <li className="m-typing" aria-label={rtl ? "يكتب" : "Typing"}><span /><span /><span /></li>}
+                <li ref={endRef} aria-hidden="true" className="m-end" />
               </ol>
-              <form onSubmit={(e) => { e.preventDefault(); if (!draft.trim()) return; setExtra((x) => ({ ...x, [th.id]: [...(x[th.id] ?? []), draft.trim()] })); setDraft(""); }}>
+              <form onSubmit={send}>
                 <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={rtl ? "اكتب رسالة…" : "Write a message…"} aria-label={rtl ? "رسالة" : "Message"} />
                 <button className="m-btn is-primary is-icon" disabled={!draft.trim()} aria-label={rtl ? "إرسال" : "Send"}><Send /></button>
               </form>
@@ -86,14 +126,16 @@ function Messages() {
 function Notifications() {
   const { rtl, tx } = useMember();
   const Arrow = rtl ? ArrowLeft : ArrowRight;
-  const [read, setRead] = useState<Record<string, boolean>>(() => Object.fromEntries(NOTICES.map((n) => [n.id, !n.unread])));
+  const s = useStore();
+  const isRead = (id: string) => s.read[id] ?? !NOTICES.find((n) => n.id === id)!.unread;
   const [tab, setTab] = useState<"all" | "unread">("all");
   const needs = NOTICES.filter((n) => n.kind !== "info");
   const info = NOTICES.filter((n) => n.kind === "info");
-  const unread = NOTICES.filter((n) => !read[n.id]).length;
-  const show = (list: typeof NOTICES) => list.filter((n) => tab === "all" || !read[n.id]);
+  const unread = NOTICES.filter((n) => !isRead(n.id)).length;
+  const show = (list: typeof NOTICES) => list.filter((n) => tab === "all" || !isRead(n.id));
+  const markAll = () => update((x) => ({ ...x, read: { ...x.read, ...Object.fromEntries(NOTICES.map((n) => [n.id, true])) } }));
   const row = (n: (typeof NOTICES)[number]) => (
-    <li key={n.id} className={read[n.id] ? "" : "is-unread"}><a href={n.href} onClick={() => setRead((r) => ({ ...r, [n.id]: true }))}>
+    <li key={n.id} className={isRead(n.id) ? "" : "is-unread"}><a href={n.href} onClick={() => update((x) => ({ ...x, read: { ...x.read, [n.id]: true } }))}>
       <span className={`m-ico is-${n.kind}`}>{n.kind === "reply" ? <MessageSquare /> : n.kind === "task" ? <ListTodo /> : n.kind === "decision" ? <Vote /> : <Bell />}</span>
       <span><strong>{tx(n.text)}</strong><small>{tx(n.where)} · {tx(n.time)}</small></span><Arrow className="m-go" />
     </a></li>
@@ -101,7 +143,7 @@ function Notifications() {
   return (
     <>
       <PageHead icon={Bell} kicker={{ ar: "الإشعارات", en: "Notifications" }} title={{ ar: "الإشعارات", en: "Notifications" }} lead={rtl ? `غير المقروءة: ${unread}` : `Unread: ${unread}`}
-        actions={<button className="m-btn" onClick={() => setRead(Object.fromEntries(NOTICES.map((n) => [n.id, true])))} disabled={!unread}><CheckCheck />{rtl ? "تعليم الكل كمقروء" : "Mark all read"}</button>} />
+        actions={<button className="m-btn" onClick={() => { markAll(); toast(rtl ? "عُلّمت كلها كمقروءة" : "All marked as read"); }} disabled={!unread}><CheckCheck />{rtl ? "تعليم الكل كمقروء" : "Mark all read"}</button>} />
       <div className="m-toolbar"><Tabs label={rtl ? "العرض" : "View"} value={tab} onChange={setTab} items={[{ key: "all", label: rtl ? "الكل" : "All" }, { key: "unread", label: rtl ? "غير المقروءة" : "Unread", count: unread }]} /></div>
       <Card title={rtl ? "يحتاج ردّك" : "Needs your response"}>{show(needs).length ? <ul className="m-list">{show(needs).map(row)}</ul> : <Empty icon={CheckCheck} title={rtl ? "لا شيء ينتظر ردّك." : "Nothing needs a response."} />}</Card>
       <Card title={rtl ? "للعلم" : "For your information"}>{show(info).length ? <ul className="m-list">{show(info).map(row)}</ul> : <Empty icon={Bell} title={rtl ? "لا إشعارات أخرى." : "No other notifications."} />}</Card>
