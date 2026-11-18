@@ -168,7 +168,7 @@ export function ChatRoom({ room, seed, group = false, replyFrom, replyText, head
         {reply && <div className="c-replying"><CornerUpLeft /><span><strong>{rtl ? `ردّ على ${reply.who}` : `Replying to ${reply.who}`}</strong>{reply.text}</span><button type="button" onClick={() => setReply(null)} aria-label={rtl ? "إلغاء" : "Cancel"}><X /></button></div>}
         {suggestions.length > 0 && (
           <div className="c-mentions" role="listbox" aria-label={rtl ? "اذكر عضوًا" : "Mention someone"}>
-            {suggestions.map((id) => <button type="button" key={id} role="option" onMouseDown={(e) => { e.preventDefault(); pickMention(id); }}><Avatar who={memberOrMe(id)} size={26} /><span>{tx(memberOrMe(id).name)}</span></button>)}
+            {suggestions.map((id, i) => <button type="button" key={id} role="option" aria-selected={i === 0} onMouseDown={(e) => { e.preventDefault(); pickMention(id); }}><Avatar who={memberOrMe(id)} size={26} /><span>{tx(memberOrMe(id).name)}</span></button>)}
           </div>
         )}
         {files.length > 0 && <div className="c-pending">{files.map((f, i) => <AttachmentView key={i} a={f} compact onRemove={() => setFiles((x) => x.filter((_, j) => j !== i))} />)}</div>}

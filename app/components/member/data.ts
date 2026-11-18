@@ -257,3 +257,14 @@ export const WS_FILES: Record<string, (Attachment & { by: string; when: T })[]> 
 };
 
 export const fmtSize = (b: number) => (b >= 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1e3))} KB`);
+
+/** Group moderation: who moderates each group, and its house rules. */
+export const GROUP_META: Record<string, { mods: string[]; rules: T[] }> = {
+  g1: { mods: ["me", "m6"], rules: [L("ناقش الفكرة لا الشخص.", "Discuss ideas, not people."), L("اذكر مصدرك حين تنقل معلومة.", "Cite your source when sharing information."), L("لا محتوى حزبي أو تحريضي.", "No partisan or inciting content.")] },
+  g2: { mods: ["m2"], rules: [L("شارك مسوداتك لتحصل على ملاحظات بنّاءة.", "Share drafts to get constructive feedback."), L("احترم حقوق الصور والموسيقى.", "Respect image and music rights."), L("الملاحظة تكون على العمل لا على صاحبه.", "Feedback is about the work, not the person.")] },
+  g3: { mods: ["m7"], rules: [L("أرفق رابط الدراسة أو الورقة.", "Attach the study or paper link."), L("فرّق بين الرأي والمعلومة.", "Separate opinion from fact.")] },
+  g4: { mods: ["m3"], rules: [L("التزم بمواعيد الجلسات المعلنة.", "Keep to the announced session times."), L("مساحة آمنة لكل الطلاب.", "A safe space for every student.")] },
+};
+
+/** Interests offered in the welcome steps. */
+export const INTERESTS = [L("الحوار", "Dialogue"), L("الشأن العام", "Public affairs"), L("الانتخابات المحلية", "Local elections"), L("الإعلام والتحقق", "Media & verification"), L("الثقافة والمعرفة", "Culture & knowledge"), L("المبادرات المجتمعية", "Community initiatives"), L("البحث وأوراق السياسات", "Research & policy"), L("المحتوى الرقمي", "Digital content")];

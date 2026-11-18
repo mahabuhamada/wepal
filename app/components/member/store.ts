@@ -6,7 +6,7 @@
 import { useSyncExternalStore } from "react";
 
 export type Reaction = "like" | "love" | "idea" | "agree";
-export type Comment = { id: string; author: string; text: string; time: number };
+export type Comment = { id: string; author: string; text: string; time: number; replyTo?: string };
 export type Att = { name: string; size: number; type: string; preview?: string };
 export type ChatMsg = { id?: string; from: "me" | string; text: string; time: number; attachments?: Att[]; replyTo?: { who: string; text: string }; reactions?: Record<string, string[]> };
 export type TaskMeta = { owner?: string; due?: string; desc?: string; comments?: { id: string; from: string; text: string; time: number }[] };
@@ -31,6 +31,12 @@ type State = {
   pins: Record<string, { key: string; who: string; text: string }>;
   muted: Record<string, boolean>;
   proposals: Proposal[];
+  postEdits: Record<string, string>;
+  hiddenPosts: Record<string, boolean>;
+  pinnedPosts: Record<string, string>;
+  reports: Record<string, string>;
+  onboarded?: boolean;
+  interests: string[];
   posts: NewPost[];
   answered: Record<string, boolean>;
   votes: Record<string, string>;
@@ -38,7 +44,7 @@ type State = {
 };
 
 const KEY = "wepal-demo-v1";
-const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {}, newTasks: [], taskStatus: {}, files: {}, msgReacts: {}, events: [], taskMeta: {}, pins: {}, muted: {}, proposals: [] };
+const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {}, newTasks: [], taskStatus: {}, files: {}, msgReacts: {}, events: [], taskMeta: {}, pins: {}, muted: {}, proposals: [], postEdits: {}, hiddenPosts: {}, pinnedPosts: {}, reports: {}, interests: [] };
 let state: State = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();

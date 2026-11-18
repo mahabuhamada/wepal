@@ -84,6 +84,10 @@ function Dashboard() {
         </section>
       </div>
 
+      {!s.onboarded && (
+        <a className="d2-setup" href="/welcome"><Sparkles aria-hidden="true" /><span><strong>{rtl ? "أكمل إعداد حسابك" : "Finish setting up your account"}</strong><small>{rtl ? "اختر اهتماماتك ومجموعاتك وصورتك في دقيقة." : "Pick your interests, groups and picture in a minute."}</small></span><Arrow aria-hidden="true" /></a>
+      )}
+
       {/* 2 · My places */}
       <section className="d-places" aria-label={rtl ? "أماكني" : "My places"}>
         <div className="d-stories">

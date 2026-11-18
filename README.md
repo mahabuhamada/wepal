@@ -131,3 +131,23 @@ The portable build runs Vinext directly without a host `timeout` command. The ma
 
 - [vinext Documentation](https://github.com/cloudflare/vinext)
 - [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+
+## Members area: connecting to the WePal platform API
+
+The members area (`/dashboard`, `/projects`, `/community`, `/messages`, …) runs on demo data by default.
+To use real accounts, build with the platform API address:
+
+```bash
+NEXT_PUBLIC_WEPAL_API=https://wepal.ps/api npm run build
+```
+
+With it set:
+- `/login` signs in with email and password (`POST /auth/login`), then asks for the 6-digit code when the
+  account uses two-factor authentication (`POST /auth/2fa/challenge`). The demo-login button is hidden.
+- Pages in the members area require a valid token and redirect to `/login` without one; signing out calls
+  `POST /auth/logout`. The account menu shows the name from `GET /me`.
+- Feeds, workspaces, chats and the rest still use demo data until each is wired to its endpoint.
+
+The API server must allow this site's origin in its CORS settings (`CORS_ALLOWED_ORIGINS` in the backend),
+for example the Cloudflare Workers address and the final domain. Without it the browser blocks sign-in and
+the page shows "Couldn't reach the server".

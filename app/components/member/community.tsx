@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check, HelpCircle, MapPin, MessageSquare, Search, UserRound, Users } from "lucide-react";
-import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, useMember } from "./shell";
-import { GROUPS, MEMBERS, ONLINE, TRACKS, WORKSPACES, groupById, memberById } from "./data";
-import { Composer, PostCard, useFeed } from "./social";
+import { ArrowLeft, ArrowRight, Check, HelpCircle, MapPin, MessageSquare, Search, ShieldCheck, UserRound, Users } from "lucide-react";
+import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, memberOrMe, useMember } from "./shell";
+import { GROUPS, GROUP_META, MEMBERS, ONLINE, TRACKS, WORKSPACES, groupById, memberById } from "./data";
+import { Composer, PostCard, isMod, useFeed } from "./social";
 import { toast, update, useStore } from "./store";
 
 /** Join/leave state shared with the sidebar and dashboard through the demo store. */
@@ -116,9 +116,16 @@ function Group() {
           {isIn(g.id) ? <Composer fixedGroup={g.id} /> : <div className="c-join-note">{rtl ? "انضم إلى المجموعة لتكتب فيها وتعلّق." : "Join the group to post and comment."}<JoinButton id={g.id} /></div>}
           {feed.map((p) => <PostCard key={p.id} post={p} showGroup={false} />)}
         </div>
-        <Card title={rtl ? "الأعضاء" : "Members"}>
-          <ul className="m-people">{people.map((m) => <li key={m.id}><a href={`/members/${m.id}`}><Avatar who={m} size={34} online={ONLINE.has(m.id)} /><span><strong>{tx(m.name)}</strong><small>{tx(m.city)}</small></span></a></li>)}</ul>
-        </Card>
+        <div className="m-stack">
+          <Card title={rtl ? "قواعد المجموعة" : "Group rules"}>
+            <ol className="c-rules">{(GROUP_META[g.id]?.rules ?? []).map((r, i) => <li key={i}>{tx(r)}</li>)}</ol>
+            <p className="c-mods"><ShieldCheck aria-hidden="true" />{rtl ? "المشرفون:" : "Moderators:"} {(GROUP_META[g.id]?.mods ?? []).map((id) => tx(memberOrMe(id).name)).join(rtl ? "، " : ", ")}</p>
+            {isMod(g.id) && <p className="c-mod-note">{rtl ? "أنت مشرف هنا: يمكنك تثبيت منشور من قائمة ⋯ ومراجعة البلاغات." : "You moderate this group: pin posts from the ⋯ menu and review reports."}</p>}
+          </Card>
+          <Card title={rtl ? "الأعضاء" : "Members"}>
+            <ul className="m-people">{people.map((m) => <li key={m.id}><a href={`/members/${m.id}`}><Avatar who={m} size={34} online={ONLINE.has(m.id)} /><span><strong>{tx(m.name)}</strong><small>{tx(m.city)}</small></span>{GROUP_META[g.id]?.mods.includes(m.id) && <em className="c-mod-tag">{rtl ? "مشرف" : "Mod"}</em>}</a></li>)}</ul>
+          </Card>
+        </div>
       </div>
     </>
   );
