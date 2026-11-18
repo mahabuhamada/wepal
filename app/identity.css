@@ -71,6 +71,11 @@ html.identity-switching *, html.identity-switching *::before, html.identity-swit
 @media (max-width: 1180px) { .h-identity-tip { display: none; } }
 
 /* Logo sizes in inner pages */
-.portal-v3 .partnership-mark .wp-logo { height: 30px; }
-.portal-v3 .login-brand .wp-logo { height: 36px; }
-.portal-v3 .eco-center .wp-logo { height: 28px; }
+.portal-v3 .partnership-mark .wp-logo { height: 22px; }
+.portal-v3 .login-brand .wp-logo { height: 20px; }
+.portal-v3 .eco-center .wp-logo { height: 20px; }
+/* Partnership marks: WePal and SDF logos share one height */
+.h-partner-mark, .portal-v3 .partnership-mark { --mark-h: 30px; gap: 16px; }
+.h-partner-mark .wp-logo, .portal-v3 .partnership-mark .wp-logo { height: var(--mark-h); }
+.h-partner-mark > img.h-sdf-logo, .portal-v3 .partnership-mark > img.sdf-logo-img { width: auto !important; height: var(--mark-h) !important; max-width: none; flex: none; }
+.h-partner-mark > span, .portal-v3 .partnership-mark > span { font-size: 16px; line-height: 1; }

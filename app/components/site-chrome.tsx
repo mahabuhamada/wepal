@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as RKeyboardEvent } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
 import { EXTRA_PAGES, NAV, NEWS, RESOURCES, type Lang } from "./content";
 import { Logo, useIdentity, type Identity } from "./identity";
 
@@ -180,21 +180,90 @@ function SearchPalette({ lang, onClose }: { lang: Lang; onClose: () => void }) {
   );
 }
 
-export function SiteFooter({ lang }: { lang: Lang }) {
+const QUESTIONS = [
+  { ar: "ما الذي يجعل الحوار مثمرًا لا مجرد تبادل آراء؟", en: "What makes a dialogue productive, not just an exchange of opinions?" },
+  { ar: "كيف نختلف دون أن نخسر بعضنا؟", en: "How do we disagree without losing each other?" },
+  { ar: "ما المصدر الذي تثق به أكثر، ولماذا؟", en: "Which source do you trust most, and why?" },
+  { ar: "متى كانت آخر مرة غيّر فيها نقاشٌ رأيك؟", en: "When did a conversation last change your mind?" },
+  { ar: "ما القضية التي تتمنى أن نتحدث عنها أكثر؟", en: "Which issue do you wish we talked about more?" },
+];
+
+function useMounted() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { const id = requestAnimationFrame(() => setMounted(true)); return () => cancelAnimationFrame(id); }, []);
+  return mounted;
+}
+
+function PalestineClock({ lang }: { lang: Lang }) {
+  const mounted = useMounted();
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => { const id = window.setInterval(() => setNow(new Date()), 15000); return () => window.clearInterval(id); }, []);
+  const locale = lang === "ar" ? "ar-PS" : "en-GB";
+  const time = mounted ? new Intl.DateTimeFormat(locale, { timeZone: "Asia/Hebron", hour: "2-digit", minute: "2-digit" }).format(now) : "--:--";
+  const day = mounted ? new Intl.DateTimeFormat(locale, { timeZone: "Asia/Hebron", weekday: "long", day: "numeric", month: "long" }).format(now) : "";
+  const hour = mounted ? Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hebron", hour: "numeric", hourCycle: "h23" }).format(now)) : 12;
+  const night = hour < 6 || hour >= 19;
+  return (
+    <div className="f-clock">
+      <span className="f-label">{night ? <Moon size={14} /> : <Sun size={14} />}{lang === "ar" ? "الآن في فلسطين" : "Now in Palestine"}</span>
+      <strong dir="ltr">{time}</strong>
+      <small>{day}</small>
+    </div>
+  );
+}
+
+export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) => void }) {
   const rtl = lang === "ar";
   const Arrow = rtl ? ArrowLeft : ArrowRight;
+  const [identity, setIdentity] = useIdentity();
+  const [q, setQ] = useState(0);
+  useEffect(() => { const id = requestAnimationFrame(() => setQ(Math.floor(Date.now() / 86400000) % QUESTIONS.length)); return () => cancelAnimationFrame(id); }, []);
+  const latest = NEWS[0];
+  const links = [...NAV.slice(1), ...EXTRA_PAGES];
   return (
-    <footer className="h-footer">
-      <div className="h-wrap h-footer-grid">
-        <div className="h-footer-brand">
-          <Logo variant="reverse" />
-          <p>{rtl ? "منصة فلسطينية للمعرفة والحوار العام." : "A Palestinian platform for knowledge and public dialogue."}</p>
+    <footer className="f-footer">
+      <div className="h-wrap">
+        <div className="f-bento">
+          <section className="f-card f-brand">
+            <Logo variant="reverse" />
+            <p>{rtl ? "منصة فلسطينية للمعرفة والحوار العام." : "A Palestinian platform for knowledge and public dialogue."}</p>
+            <PalestineClock lang={lang} />
+          </section>
+
+          <section className="f-card f-question" aria-live="polite">
+            <span className="f-label"><MessageCircleQuestion size={14} />{rtl ? "سؤال اليوم" : "Question of the day"}</span>
+            <p key={q}>{QUESTIONS[q][lang]}</p>
+            <div className="f-question-actions">
+              <a href="/login">{rtl ? "شارك برأيك" : "Share your view"}<Arrow size={15} /></a>
+              <button onClick={() => setQ((x) => (x + 1) % QUESTIONS.length)} aria-label={rtl ? "سؤال آخر" : "Another question"}><Shuffle size={15} /></button>
+            </div>
+          </section>
+
+          <a className="f-card f-latest" href="/news">
+            <img src={latest.img} alt="" />
+            <div>
+              <span className="f-label"><span className="f-live" />{rtl ? "الأحدث" : "Latest"}</span>
+              <h4>{latest.title[lang]}</h4>
+            </div>
+            <span className="f-go"><Arrow size={16} /></span>
+          </a>
+
+          <nav className="f-card f-links" aria-label={rtl ? "روابط سريعة" : "Quick links"}>
+            <span className="f-label"><Compass size={14} />{rtl ? "إلى أين؟" : "Where to?"}</span>
+            <div>{links.map((n) => <a key={n.href} href={n.href}>{n.label[lang]}</a>)}</div>
+          </nav>
+
+          <section className="f-card f-prefs">
+            <span className="f-label"><SlidersHorizontal size={14} />{rtl ? "تفضيلاتك" : "Your preferences"}</span>
+            {onLang && <div className="f-seg" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}>العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}>English</button></div>}
+            <div className="f-seg" role="group" aria-label={rtl ? "هوية الموقع" : "Site identity"}>
+              {(["forum", "palestine"] as Identity[]).map((id) => <button key={id} aria-pressed={identity === id} onClick={() => setIdentity(id)}><img src={`/brand/${id}/wepal-symbol.svg`} alt="" />{IDENTITY_LABEL[id][lang]}</button>)}
+            </div>
+          </section>
         </div>
-        <div><h4>{rtl ? "استكشف" : "Explore"}</h4>{NAV.slice(1, 5).map((n) => <a key={n.href} href={n.href}>{n.label[lang]}</a>)}</div>
-        <div><h4>{rtl ? "المنصة" : "Platform"}</h4><a href="/about">{rtl ? "عن ويبال" : "About"}</a><a href="/stories">{rtl ? "القصص" : "Stories"}</a><a href="/contact">{rtl ? "تواصل معنا" : "Contact"}</a><a href="/help">{rtl ? "المساعدة" : "Help"}</a></div>
-        <div><h4>{rtl ? "عالم المنتدى" : "Ecosystem"}</h4><p>{rtl ? "تعرّف إلى شبكة المبادرات والشركاء المرتبطة بالمنصة." : "Discover the initiatives and partners connected to the platform."}</p><a className="h-link is-light" href="/map">{rtl ? "استكشف الخريطة" : "Explore the map"}<Arrow size={16} /></a></div>
+
+        <div className="f-bottom"><span>© 2026 WePal. {rtl ? "جميع الحقوق محفوظة." : "All rights reserved."}</span><span className="wp-dots" aria-hidden="true"><i /><i /><i /></span><span>{rtl ? "صُنع في فلسطين" : "Made in Palestine"}</span></div>
       </div>
-      <div className="h-wrap h-footer-bottom"><span>© 2026 WePal. {rtl ? "جميع الحقوق محفوظة." : "All rights reserved."}</span><span>Palestine</span></div>
     </footer>
   );
 }

@@ -336,7 +336,7 @@ export default function Home() {
       <section id="join" className="h-section h-join-section">
         <div className="h-wrap h-join">
           <div className="h-partner" data-reveal>
-            <div className="h-partner-mark"><Logo className="h-wepal-mark" /><span>×</span><img className="h-sdf-logo" src="/brand/sdf-logo.webp" alt={rtl ? "المنتدى الاجتماعي التنموي" : "Social Developmental Forum"} /></div>
+            <div className="h-partner-mark"><Logo className="h-wepal-mark" /><span>×</span><img className="h-sdf-logo" src="/brand/sdf-logo-trim.webp" alt={rtl ? "المنتدى الاجتماعي التنموي" : "Social Developmental Forum"} /></div>
             <h3>{rtl ? "من الخبرة الميدانية إلى مساحة رقمية للحوار." : "From field experience to a digital space for dialogue."}</h3>
             <p>{rtl ? "تجمع ويبال بين العمل الشبابي والمعرفة العامة لتصنع تجربة رقمية فلسطينية أكثر قربًا ووضوحًا ومشاركة." : "Wepal combines youth work and public knowledge to create a Palestinian digital experience that is more accessible, clear and participatory."}</p>
             <a className="h-link" href="/about">{rtl ? "عن الشراكة" : "About the partnership"}<Arrow size={16} /></a>
@@ -355,7 +355,7 @@ export default function Home() {
         </div>
       </section>
 
-      <SiteFooter lang={lang} />
+      <SiteFooter lang={lang} onLang={changeLang} />
     </main>
   );
 }
