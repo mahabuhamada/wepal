@@ -92,7 +92,7 @@ export function useLang() {
   return [lang, change] as const;
 }
 
-export function SiteHeader({ lang, onLang, current }: { lang: Lang; onLang: (l: Lang) => void; current: string }) {
+export function SiteHeader({ lang, onLang, current, member = false }: { lang: Lang; onLang: (l: Lang) => void; current: string; member?: boolean }) {
   const rtl = lang === "ar";
   const Arrow = rtl ? ArrowLeft : ArrowRight;
   const [scrolled, setScrolled] = useState(false);
@@ -149,7 +149,9 @@ export function SiteHeader({ lang, onLang, current }: { lang: Lang; onLang: (l: 
             <IdentitySwitch lang={lang} variant="pill" />
             <div className={`h-lang ${rtl ? "is-ar" : "is-en"}`} role="group" aria-label="Language"><span className="h-lang-thumb" /><button onClick={() => onLang("ar")} aria-pressed={rtl}><LangFlag lang="ar" size={15} />عربي</button><button onClick={() => onLang("en")} aria-pressed={!rtl}><LangFlag lang="en" size={15} />EN</button></div>
             <button className="h-lang-mini" onClick={() => onLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><LangFlag lang={rtl ? "en" : "ar"} size={18} />{rtl ? "EN" : "ع"}</button>
-            <a className="h-login" href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a>
+            {member
+              ? <a className="h-login is-member" href="/dashboard"><UserRound size={15} />{rtl ? "مساحتي" : "My area"}</a>
+              : <a className="h-login" href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a>}
             <button className="h-burger" onClick={() => setMenuOpen(true)} aria-label={rtl ? "القائمة" : "Menu"}><Menu /></button>
           </div>
         </div>
