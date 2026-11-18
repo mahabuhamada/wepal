@@ -93,7 +93,7 @@
 
 /* Layout */
 .m-layout { width: var(--wrap); margin: 0 auto; padding: calc(var(--top-h) + 24px) 0 64px; display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 28px; align-items: start; }
-.m-main { display: grid; gap: var(--gap); min-width: 0; }
+.m-main { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--gap); min-width: 0; }
 
 /* Sidebar */
 .m-side { position: sticky; top: calc(var(--top-h) + 20px); display: flex; flex-direction: column; gap: 2px; max-height: calc(100vh - var(--top-h) - 40px); overflow-y: auto; padding: 10px; border-radius: 22px; background: #fff; border: var(--card-bd); box-shadow: var(--card-sh); scrollbar-width: thin; }
@@ -431,7 +431,7 @@
 
 /* ── 9 · Pages ── */
 /* Home (dashboard) */
-.dh { display: grid; gap: var(--gap); }
+.dh { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--gap); }
 .dh-hero { position: relative; isolation: isolate; overflow: hidden; display: grid; gap: 22px; padding: 30px; border-radius: 28px; color: #fff; background: linear-gradient(135deg, var(--n800) 0%, var(--n700) 55%, var(--b-deep) 100%); box-shadow: 0 30px 60px -30px rgba(16,25,66,.55); }
 .dh-glow { position: absolute; z-index: -1; inset: -40% -10% auto auto; width: 520px; height: 520px; border-radius: 50%; background: radial-gradient(circle, rgba(var(--c400-rgb),.35), transparent 65%); }
 [dir="rtl"] .dh-glow { inset: -40% auto auto -10%; }
