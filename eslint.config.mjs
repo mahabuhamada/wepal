@@ -14,6 +14,11 @@ const eslintConfig = defineConfig([
     "work/**",
   ]),
   {
+    // next/link client navigation fails in the vinext production build ("e is not a function"
+    // on click), so the site uses plain <a> links, which load the page normally.
+    rules: { "@next/next/no-html-link-for-pages": "off", "@next/next/no-location-assign-relative-destination": "off" },
+  },
+  {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {
       // These files are vendored verbatim from shadcn@4.17.0. Keep the

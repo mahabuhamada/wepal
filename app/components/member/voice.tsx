@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ClipboardList, Clock, FileText, Lock, MessageCircleQuestion, Search, ThumbsDown, ThumbsUp, Users, Vote } from "lucide-react";
 import { Card, Empty, MemberShell, PageHead, Progress, Tabs, useMember } from "./shell";
@@ -105,7 +104,7 @@ function Assistant() {
       <div className="m-chips">{ASK_SUGGESTIONS.map((s) => <button key={s.en} onClick={() => { setQ(tx(s)); setAsked(tx(s)); }}>{tx(s)}</button>)}</div>
       {asked && (
         <Card title={rtl ? `نتائج: «${asked}»` : `Results: "${asked}"`}>
-          <ul className="m-list">{hits.map((h) => <li key={h.title}><Link href={h.href}><span className="m-ico is-info"><BookOpen /></span><span><strong>{h.title}</strong><small>{h.kind}</small></span></Link></li>)}</ul>
+          <ul className="m-list">{hits.map((h) => <li key={h.title}><a href={h.href}><span className="m-ico is-info"><BookOpen /></span><span><strong>{h.title}</strong><small>{h.kind}</small></span></a></li>)}</ul>
         </Card>
       )}
       <p className="m-privacy"><Lock aria-hidden="true" />{rtl ? "لا نحفظ اسمك ولا حسابك مع سؤالك." : "We don't store your name or account with your question."}</p>

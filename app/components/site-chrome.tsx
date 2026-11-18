@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as RKeyboardEvent } from "react";
-import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
 import { EXTRA_PAGES, NAV, NEWS, RESOURCES, type Lang } from "./content";
 import { scrambleText } from "./lang-scramble";
@@ -109,7 +108,7 @@ export function SiteHeader({ lang, onLang, current, member = false }: { lang: La
     <>
       <header className={`h-header ${scrolled ? "is-scrolled" : ""}`}>
         <div className="h-header-inner">
-          <Link className="h-brand" href="/" aria-label="WePal"><Logo /></Link>
+          <a className="h-brand" href="/" aria-label="WePal"><Logo /></a>
           <nav className="h-nav" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"} onMouseLeave={resetIndicator}>
             <span className="h-nav-indicator" style={{ width: indicator.w, transform: `translateX(${indicator.x}px)`, opacity: indicator.visible ? 1 : 0 }} />
             {NAV.map((item, i) => { const Icon = item.icon; return (
