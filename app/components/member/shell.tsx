@@ -9,7 +9,7 @@ import { Logo } from "../identity";
 import { useLang } from "../site-chrome";
 import type { Lang, T } from "../content";
 import { ASK_SUGGESTIONS, GROUPS, MEMBERS, ME, NOTICES, ONLINE, ROOM_SEED, THREADS, WORKSPACES, type Member } from "./data";
-import { update, useStore, useToasts } from "./store";
+import { ago, MEMBER_FLAG, update, useStore, useToasts } from "./store";
 
 /* ── Context: current language for every member page ── */
 type Ctx = { lang: Lang; rtl: boolean; tx: (t: T) => string };
@@ -38,7 +38,7 @@ const NAV_MORE: NavItem[] = [
 /** Unread counts that react to the demo state (notifications read, messages sent). */
 function useCounts() {
   const s = useStore();
-  const notices = NOTICES.filter((n) => n.unread && !s.read[n.id]).length;
+  const notices = NOTICES.filter((n) => n.unread && !s.read[n.id]).length + (s.events ?? []).filter((e) => !s.read[e.id]).length;
   const messages = THREADS.reduce((sum, t) => sum + (s.read[t.id] ? 0 : t.unread), 0)
     + Object.entries(ROOM_SEED).reduce((sum, [id, r]) => sum + (WORKSPACES.find((w) => w.id === id)?.team.includes("me") && !s.read[id] ? r.unread : 0), 0);
   return { notices, messages };
@@ -53,6 +53,10 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
   const [sheet, setSheet] = useState(false);
   const [menu, setMenu] = useState<null | "notices" | "messages" | "me">(null);
   const [ask, setAsk] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  // Remember the signed-in state for the public site ("Account" tab goes to the dashboard).
+  useEffect(() => { try { window.localStorage.setItem(MEMBER_FLAG, "1"); } catch { /* storage blocked */ } }, []);
+  const signOut = () => { try { window.localStorage.removeItem(MEMBER_FLAG); } catch { /* storage blocked */ } };
   const barRef = useRef<HTMLDivElement>(null);
   useEffect(() => { document.body.style.overflow = sheet ? "hidden" : ""; return () => { document.body.style.overflow = ""; }; }, [sheet]);
   useEffect(() => {
@@ -83,23 +87,25 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
         <header className="m-top" ref={barRef}>
           <div className="m-top-inner">
             <a href="/dashboard" className="m-top-brand" aria-label="WePal"><Logo /></a>
-            <form className="m-top-search" role="search" onSubmit={(e) => { e.preventDefault(); const q = new FormData(e.currentTarget).get("q"); if (q) search(String(q)); }}>
-              <Search aria-hidden="true" /><input name="q" placeholder={rtl ? "ابحث أو اسأل…" : "Search or ask…"} aria-label={rtl ? "ابحث أو اسأل" : "Search or ask"} />
-            </form>
+            <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} onAsk={search} />
             <div className="m-top-actions">
+              <button className="m-top-btn m-search-open" onClick={() => setSearchOpen(true)} aria-label={rtl ? "ابحث" : "Search"}><Search /></button>
               <button className="m-top-btn is-lang" onClick={() => setLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><Languages /><span>{rtl ? "EN" : "ع"}</span></button>
               <div className="m-pop-wrap">
                 <button className={`m-top-btn ${menu === "messages" ? "is-on" : ""}`} onClick={() => setMenu(menu === "messages" ? null : "messages")} aria-label={rtl ? "الرسائل" : "Messages"} aria-expanded={menu === "messages"}><MessagesSquare />{counts.messages > 0 && <b className="m-dot">{counts.messages}</b>}</button>
                 {menu === "messages" && (
                   <div className="m-pop">
                     <div className="m-pop-head"><strong>{rtl ? "الرسائل" : "Messages"}</strong><a href="/messages">{rtl ? "كل الرسائل" : "All messages"}</a></div>
-                    {THREADS.map((t) => { const m = memberOrMe(t.with); const unread = !s.read[t.id] && t.unread > 0; return (
-                      <a key={t.id} href={`/messages?t=${t.id}`} className={`m-pop-row ${unread ? "is-unread" : ""}`}>
-                        <Avatar who={m} size={40} online={ONLINE.has(t.with)} />
-                        <span><strong>{tx(m.name)}</strong><small>{s.messages[t.id]?.at(-1)?.text ?? tx(t.last)}</small></span>
-                        <em>{tx(t.time)}</em>
+                    {[
+                      ...WORKSPACES.filter((w) => w.team.includes("me") && ROOM_SEED[w.id]).map((w) => { const sent = s.messages[w.id]?.at(-1); const seed = ROOM_SEED[w.id].messages.at(-1)!; return { id: w.id, href: `/projects/${w.id}#chat`, title: tx(w.title), who: null as string | null, text: sent ? (sent.text || "📎") : `${tx(memberOrMe(seed.from).name).split(" ")[0]}: ${tx(seed.text)}`, time: sent ? (rtl ? "الآن" : "Now") : tx(seed.time), unread: !s.read[w.id] && ROOM_SEED[w.id].unread > 0 }; }),
+                      ...THREADS.map((t) => { const sent = s.messages[t.id]?.at(-1); return { id: t.id, href: `/messages?t=${t.id}`, title: tx(memberOrMe(t.with).name), who: t.with as string | null, text: sent ? (sent.text || "📎") : tx(t.last), time: tx(t.time), unread: !s.read[t.id] && t.unread > 0 }; }),
+                    ].sort((a, b) => Number(b.unread) - Number(a.unread)).map((r) => (
+                      <a key={r.id} href={r.href} className={`m-pop-row ${r.unread ? "is-unread" : ""}`}>
+                        {r.who ? <Avatar who={memberOrMe(r.who)} size={40} online={ONLINE.has(r.who)} /> : <span className="i-room-ico is-sm"><FolderKanban /></span>}
+                        <span><strong>{r.title}</strong><small>{r.text}</small></span>
+                        <em>{r.time}</em>
                       </a>
-                    ); })}
+                    ))}
                   </div>
                 )}
               </div>
@@ -107,7 +113,13 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
                 <button className={`m-top-btn ${menu === "notices" ? "is-on" : ""}`} onClick={() => setMenu(menu === "notices" ? null : "notices")} aria-label={rtl ? "الإشعارات" : "Notifications"} aria-expanded={menu === "notices"}><Bell />{counts.notices > 0 && <b className="m-dot">{counts.notices}</b>}</button>
                 {menu === "notices" && (
                   <div className="m-pop">
-                    <div className="m-pop-head"><strong>{rtl ? "الإشعارات" : "Notifications"}</strong><button onClick={() => update((x) => ({ ...x, read: { ...x.read, ...Object.fromEntries(NOTICES.map((n) => [n.id, true])) } }))}>{rtl ? "تعليم الكل كمقروء" : "Mark all read"}</button></div>
+                    <div className="m-pop-head"><strong>{rtl ? "الإشعارات" : "Notifications"}</strong><button onClick={() => update((x) => ({ ...x, read: { ...x.read, ...Object.fromEntries([...NOTICES.map((n) => n.id), ...(x.events ?? []).map((e) => e.id)].map((id) => [id, true])) } }))}>{rtl ? "تعليم الكل كمقروء" : "Mark all read"}</button></div>
+                    {(s.events ?? []).map((e) => (
+                      <a key={e.id} href={e.href} className={`m-pop-row ${s.read[e.id] ? "" : "is-unread"}`} onClick={() => update((x) => ({ ...x, read: { ...x.read, [e.id]: true } }))}>
+                        <Avatar who={memberOrMe(e.who)} size={38} />
+                        <span><strong>{rtl ? `${tx(memberOrMe(e.who).name)} ردّ: ${e.text}` : `${tx(memberOrMe(e.who).name)} replied: ${e.text}`}</strong><small>{e.where} · {ago(e.time, rtl)}</small></span>
+                      </a>
+                    ))}
                     {NOTICES.map((n) => { const unread = n.unread && !s.read[n.id]; return (
                       <a key={n.id} href={n.href} className={`m-pop-row ${unread ? "is-unread" : ""}`} onClick={() => update((x) => ({ ...x, read: { ...x.read, [n.id]: true } }))}>
                         <span className={`m-ico is-${n.kind}`}>{n.kind === "reply" ? <MessageCircle /> : n.kind === "decision" ? <Vote /> : n.kind === "task" ? <FolderKanban /> : <Bell />}</span>
@@ -125,7 +137,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
                     <a href="/profile" className="m-pop-me"><Avatar who={{ ...ME, tone: 0 }} size={46} /><span><strong>{tx(ME.name)}</strong><small>{rtl ? "عرض ملفي" : "View my profile"}</small></span></a>
                     <a href="/settings"><Settings />{rtl ? "الإعدادات" : "Settings"}</a>
                     <a href="/"><Globe2 />{rtl ? "البوابة العامة" : "Public site"}</a>
-                    <a href="/login" className="m-logout"><LogOut />{rtl ? "تسجيل الخروج" : "Sign out"}</a>
+                    <a href="/login" className="m-logout" onClick={signOut}><LogOut />{rtl ? "تسجيل الخروج" : "Sign out"}</a>
                   </div>
                 )}
               </div>
@@ -194,13 +206,75 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
             </div>
             <div className="m-sheet-foot">
               <a href="/"><Compass />{rtl ? "البوابة العامة" : "Public site"}</a>
-              <a href="/login" className="m-logout"><LogOut />{rtl ? "تسجيل الخروج" : "Sign out"}</a>
+              <a href="/login" className="m-logout" onClick={signOut}><LogOut />{rtl ? "تسجيل الخروج" : "Sign out"}</a>
             </div>
           </div>
         </div>
         <Toasts />
       </main>
     </MemberCtx.Provider>
+  );
+}
+
+/** Search everything a member can reach: people, workspaces, groups and sections; or ask the library. */
+function GlobalSearch({ open, onClose, onAsk }: { open: boolean; onClose: () => void; onAsk: (q: string) => void }) {
+  const { rtl, tx } = useMember();
+  const [q, setQ] = useState("");
+  const [focus, setFocus] = useState(false);
+  const [sel, setSel] = useState(0);
+  const box = useRef<HTMLDivElement>(null);
+  const input = useRef<HTMLInputElement>(null);
+  useEffect(() => { if (open) input.current?.focus(); }, [open]);
+  useEffect(() => {
+    const out = (e: MouseEvent) => { if (box.current && !box.current.contains(e.target as Node)) { setFocus(false); onClose(); } };
+    const key = (e: KeyboardEvent) => { if (e.key === "/" && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) { e.preventDefault(); input.current?.focus(); } };
+    document.addEventListener("mousedown", out); document.addEventListener("keydown", key);
+    return () => { document.removeEventListener("mousedown", out); document.removeEventListener("keydown", key); };
+  }, [onClose]);
+  const term = q.trim().toLowerCase();
+  const has = (...v: string[]) => v.join(" ").toLowerCase().includes(term);
+  type Hit = { key: string; group: string; title: string; sub: string; href: string; icon: ReactNode };
+  const hits: Hit[] = !term ? [] : [
+    ...[...NAV_MAIN, ...NAV_MORE].filter((n) => has(tx(n.label))).map((n) => { const I = n.icon; return { key: `p-${n.key}`, group: rtl ? "الأقسام" : "Sections", title: tx(n.label), sub: rtl ? "قسم" : "Section", href: n.href, icon: <span className="m-ico is-info"><I /></span> }; }),
+    ...MEMBERS.filter((m) => has(tx(m.name), tx(m.city))).map((m) => ({ key: m.id, group: rtl ? "الأعضاء" : "Members", title: tx(m.name), sub: tx(m.city), href: `/members/${m.id}`, icon: <Avatar who={m} size={34} online={ONLINE.has(m.id)} /> })),
+    ...WORKSPACES.filter((w) => has(tx(w.title), tx(w.summary))).map((w) => ({ key: w.id, group: rtl ? "مساحات العمل" : "Workspaces", title: tx(w.title), sub: tx(w.summary), href: `/projects/${w.id}`, icon: <span className="m-ico is-task"><FolderKanban /></span> })),
+    ...GROUPS.filter((g) => has(tx(g.name), tx(g.about))).map((g) => ({ key: g.id, group: rtl ? "المجموعات" : "Groups", title: tx(g.name), sub: tx(g.kind), href: `/community/${g.id}`, icon: <span className="m-ico"><Users /></span> })),
+  ].slice(0, 9);
+  const total = hits.length + 1; // + "ask the library"
+  const go = (i: number) => { if (i < hits.length) window.location.assign(`${window.location.origin}${hits[i].href}`); else onAsk(q.trim()); };
+  const show = (focus || open) && !!term;
+  let lastGroup = "";
+  return (
+    <div className={`m-top-search ${open ? "is-open" : ""}`} ref={box}>
+      <label>
+        <Search aria-hidden="true" />
+        <input ref={input} value={q} onChange={(e) => { setQ(e.target.value); setSel(0); }} onFocus={() => setFocus(true)}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowDown") { e.preventDefault(); setSel((x) => Math.min(total - 1, x + 1)); }
+            if (e.key === "ArrowUp") { e.preventDefault(); setSel((x) => Math.max(0, x - 1)); }
+            if (e.key === "Enter" && term) { e.preventDefault(); go(sel); }
+            if (e.key === "Escape") { setQ(""); setFocus(false); onClose(); input.current?.blur(); }
+          }}
+          placeholder={rtl ? "ابحث عن عضو أو مساحة أو مجموعة، أو اسأل…" : "Search members, workspaces, groups, or ask…"} aria-label={rtl ? "ابحث أو اسأل" : "Search or ask"}
+          role="combobox" aria-expanded={show} aria-controls="m-results" />
+        {!q && <kbd aria-hidden="true">/</kbd>}
+      </label>
+      {show && (
+        <div className="m-results" id="m-results" role="listbox">
+          {hits.length === 0 && <div className="m-results-empty">{rtl ? "لا نتائج مطابقة في المنصة." : "No matches on the platform."}</div>}
+          {hits.map((h, i) => { const head = h.group !== lastGroup; lastGroup = h.group; return (
+            <div key={h.key}>
+              {head && <p>{h.group}</p>}
+              <a href={h.href} role="option" aria-selected={sel === i} className={sel === i ? "is-sel" : ""} onMouseEnter={() => setSel(i)}>{h.icon}<span><strong>{h.title}</strong><small>{h.sub}</small></span></a>
+            </div>
+          ); })}
+          <p>{rtl ? "المكتبة" : "Library"}</p>
+          <button type="button" role="option" aria-selected={sel === hits.length} className={`m-results-ask ${sel === hits.length ? "is-sel" : ""}`} onMouseEnter={() => setSel(hits.length)} onClick={() => onAsk(q.trim())}>
+            <MessageCircleQuestion aria-hidden="true" />{rtl ? `اسأل المكتبة عن «${q.trim()}»` : `Ask the library about "${q.trim()}"`}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 

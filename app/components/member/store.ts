@@ -24,6 +24,7 @@ type State = {
   taskStatus: Record<string, "todo" | "doing" | "done">;
   files: Record<string, (Att & { by: string; time: number })[]>;
   msgReacts: Record<string, string>;
+  events: { id: string; who: string; text: string; where: string; href: string; time: number }[];
   posts: NewPost[];
   answered: Record<string, boolean>;
   votes: Record<string, string>;
@@ -31,7 +32,7 @@ type State = {
 };
 
 const KEY = "wepal-demo-v1";
-const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {}, newTasks: [], taskStatus: {}, files: {}, msgReacts: {} };
+const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {}, newTasks: [], taskStatus: {}, files: {}, msgReacts: {}, events: [] };
 let state: State = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -105,3 +106,11 @@ export async function readFiles(list: FileList | File[]): Promise<Att[]> {
     return att;
   }));
 }
+
+/** Add a live notification (e.g. a teammate replied). Newest first, capped. */
+export function notify(e: { who: string; text: string; where: string; href: string }) {
+  update((x) => ({ ...x, events: [{ id: uid(), time: Date.now(), ...e }, ...(x.events ?? [])].slice(0, 30) }));
+}
+
+/** Remember that this browser is signed in to the members area (used by the public site). */
+export const MEMBER_FLAG = "wepal-member";

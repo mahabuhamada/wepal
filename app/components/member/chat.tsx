@@ -4,7 +4,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { CheckCheck, CornerUpLeft, Download, File as FileIcon, FileArchive, FileSpreadsheet, FileText, Image as ImageIcon, Paperclip, Send, SmilePlus, X } from "lucide-react";
 import { Avatar, memberOrMe, useMember } from "./shell";
 import { fmtSize, type SeedMessage } from "./data";
-import { ago, readFiles, toast, uid, update, useStore, type Att, type ChatMsg } from "./store";
+import { ago, notify, readFiles, toast, uid, update, useStore, type Att, type ChatMsg } from "./store";
 import type { T } from "../content";
 
 const QUICK = ["👍", "❤️", "😂", "🎉", "🙏"];
@@ -41,8 +41,10 @@ type Row = { key: string; from: string; text: string; time: string; day?: string
  * A conversation: direct or group. Seeded history + messages sent in this demo (kept in the store).
  * Supports attachments (files and images), quoted replies, quick reactions, typing indicators.
  */
-export function ChatRoom({ room, seed, group = false, replyFrom, replyText, header, placeholder }: {
+export function ChatRoom({ room, seed, group = false, replyFrom, replyText, header, placeholder, where, href }: {
   room: string; seed: SeedMessage[]; group?: boolean; replyFrom?: string; replyText?: T; header?: React.ReactNode; placeholder?: string;
+  /** Where this conversation lives, for the notification raised when someone replies. */
+  where?: string; href?: string;
 }) {
   const { rtl, tx } = useMember();
   const s = useStore();
@@ -76,6 +78,7 @@ export function ChatRoom({ room, seed, group = false, replyFrom, replyText, head
       window.setTimeout(() => {
         setTyping(null);
         update((x) => ({ ...x, messages: { ...x.messages, [room]: [...(x.messages[room] ?? []), { id: uid(), from: replyFrom, text: tx(replyText), time: Date.now() }] } }));
+        if (where && href) notify({ who: replyFrom, text: tx(replyText), where, href });
       }, 2600);
     }
   };
