@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as RKeyboardEvent } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
 import { EXTRA_PAGES, NAV, NEWS, RESOURCES, type Lang } from "./content";
 import { IDENTITY_SWITCH_ENABLED, Logo, useIdentity, type Identity } from "./identity";
 
@@ -40,6 +40,33 @@ const TABS = [
   { href: "/library", icon: Library, label: { ar: "المكتبة", en: "Library" } },
   { href: "/login", icon: UserRound, label: { ar: "حسابي", en: "Account" } },
 ] as const;
+
+/** Small round flags for the language switch: Palestine for Arabic, United Kingdom for English. */
+export function LangFlag({ lang, size = 16 }: { lang: Lang; size?: number }) {
+  if (lang === "ar") {
+    return (
+      <svg className="lang-flag" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+        <clipPath id="flag-ps"><circle cx="12" cy="12" r="12" /></clipPath>
+        <g clipPath="url(#flag-ps)">
+          <rect width="24" height="8" fill="#151515" /><rect y="8" width="24" height="8" fill="#fff" /><rect y="16" width="24" height="8" fill="#149954" />
+          <path d="M0 0 L11 12 L0 24 Z" fill="#E4312B" />
+        </g>
+      </svg>
+    );
+  }
+  return (
+    <svg className="lang-flag" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <clipPath id="flag-gb"><circle cx="12" cy="12" r="12" /></clipPath>
+      <g clipPath="url(#flag-gb)">
+        <rect width="24" height="24" fill="#012169" />
+        <path d="M0 0 L24 24 M24 0 L0 24" stroke="#fff" strokeWidth="5" />
+        <path d="M0 0 L24 24 M24 0 L0 24" stroke="#C8102E" strokeWidth="1.8" />
+        <path d="M12 0 V24 M0 12 H24" stroke="#fff" strokeWidth="7" />
+        <path d="M12 0 V24 M0 12 H24" stroke="#C8102E" strokeWidth="4" />
+      </g>
+    </svg>
+  );
+}
 
 const vars = (v: Record<string, string | number>) => v as CSSProperties;
 
@@ -112,8 +139,8 @@ export function SiteHeader({ lang, onLang, current }: { lang: Lang; onLang: (l: 
           <div className="h-actions">
             <button className="h-search-trigger" onClick={() => setPaletteOpen(true)} aria-label={rtl ? "بحث" : "Search"}><Search size={16} /><span>{rtl ? "ابحث" : "Search"}</span><kbd>Ctrl K</kbd></button>
             <IdentitySwitch lang={lang} variant="pill" />
-            <div className={`h-lang ${rtl ? "is-ar" : "is-en"}`} role="group" aria-label="Language"><span className="h-lang-thumb" /><button onClick={() => onLang("ar")} aria-pressed={rtl}>عربي</button><button onClick={() => onLang("en")} aria-pressed={!rtl}>EN</button></div>
-            <button className="h-lang-mini" onClick={() => onLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><Languages size={16} />{rtl ? "EN" : "ع"}</button>
+            <div className={`h-lang ${rtl ? "is-ar" : "is-en"}`} role="group" aria-label="Language"><span className="h-lang-thumb" /><button onClick={() => onLang("ar")} aria-pressed={rtl}><LangFlag lang="ar" size={15} />عربي</button><button onClick={() => onLang("en")} aria-pressed={!rtl}><LangFlag lang="en" size={15} />EN</button></div>
+            <button className="h-lang-mini" onClick={() => onLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><LangFlag lang={rtl ? "en" : "ar"} size={18} />{rtl ? "EN" : "ع"}</button>
             <a className="h-login" href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a>
             <button className="h-burger" onClick={() => setMenuOpen(true)} aria-label={rtl ? "القائمة" : "Menu"}><Menu /></button>
           </div>
@@ -124,7 +151,7 @@ export function SiteHeader({ lang, onLang, current }: { lang: Lang; onLang: (l: 
       <div className={`h-drawer ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
         <div className="h-drawer-top"><Logo variant="reverse" /><button onClick={() => setMenuOpen(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></div>
         <nav>{NAV.map((item, i) => { const Icon = item.icon; return <a key={item.href} href={item.href} className={item.href === current ? "is-active" : ""} style={vars({ "--i": i })} onClick={() => setMenuOpen(false)}><span>0{i + 1}</span><Icon size={20} />{item.label[lang]}<Arrow size={18} /></a>; })}</nav>
-        <div className="h-drawer-lang" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}>العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}>English</button></div>
+        <div className="h-drawer-lang" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}><LangFlag lang="ar" size={18} />العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}><LangFlag lang="en" size={18} />English</button></div>
         <IdentitySwitch lang={lang} variant="drawer" />
         <div className="h-drawer-foot"><button onClick={() => { setMenuOpen(false); setPaletteOpen(true); }}><Search size={17} />{rtl ? "بحث" : "Search"}</button><a href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a></div>
       </div>
@@ -256,7 +283,7 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
 
           <section className="f-card f-prefs">
             <span className="f-label"><SlidersHorizontal size={14} />{rtl ? "تفضيلاتك" : "Your preferences"}</span>
-            {onLang && <div className="f-seg" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}>العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}>English</button></div>}
+            {onLang && <div className="f-seg" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}><LangFlag lang="ar" size={18} />العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}><LangFlag lang="en" size={18} />English</button></div>}
             {IDENTITY_SWITCH_ENABLED && (
             <div className="f-seg" role="group" aria-label={rtl ? "هوية الموقع" : "Site identity"}>
               {(["forum", "palestine"] as Identity[]).map((id) => <button key={id} aria-pressed={identity === id} onClick={() => setIdentity(id)}><img src={`/brand/${id}/wepal-symbol.svg`} alt="" />{IDENTITY_LABEL[id][lang]}</button>)}
