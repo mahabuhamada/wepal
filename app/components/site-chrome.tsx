@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as RKeyboardEvent } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
 import { EXTRA_PAGES, NAV, NEWS, RESOURCES, type Lang } from "./content";
+import { scrambleText } from "./lang-scramble";
 import { IDENTITY_SWITCH_ENABLED, Logo, useIdentity, type Identity } from "./identity";
 
 const IDENTITY_LABEL: Record<Identity, { ar: string; en: string }> = {
@@ -41,41 +42,6 @@ const TABS = [
   { href: "/login", icon: UserRound, label: { ar: "حسابي", en: "Account" } },
 ] as const;
 
-/** Small rounded-rectangle flags for the language switch: Palestine for Arabic, United Kingdom for English. */
-export function LangFlag({ lang, size = 16 }: { lang: Lang; size?: number }) {
-  const h = Math.round(size * 0.8);
-  const w = Math.round(h * 1.4);
-  const id = `flag-${lang}`;
-  return (
-    <svg className="lang-flag" width={w} height={h} viewBox="0 0 28 20" aria-hidden="true">
-      <defs>
-        <clipPath id={`${id}-clip`}><rect width="28" height="20" rx="4.5" /></clipPath>
-        <linearGradient id={`${id}-sheen`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity=".28" /><stop offset=".5" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".12" />
-        </linearGradient>
-      </defs>
-      <g clipPath={`url(#${id}-clip)`}>
-        {lang === "ar" ? (
-          <>
-            <rect width="28" height="6.67" fill="#151515" /><rect y="6.67" width="28" height="6.67" fill="#fff" /><rect y="13.33" width="28" height="6.67" fill="#149954" />
-            <path d="M0 0 L11 10 L0 20 Z" fill="#E4312B" />
-          </>
-        ) : (
-          <>
-            <rect width="28" height="20" fill="#012169" />
-            <path d="M0 0 L28 20 M28 0 L0 20" stroke="#fff" strokeWidth="4" />
-            <path d="M0 0 L28 20 M28 0 L0 20" stroke="#C8102E" strokeWidth="1.4" />
-            <path d="M14 0 V20 M0 10 H28" stroke="#fff" strokeWidth="6" />
-            <path d="M14 0 V20 M0 10 H28" stroke="#C8102E" strokeWidth="3.4" />
-          </>
-        )}
-        <rect width="28" height="20" fill={`url(#${id}-sheen)`} />
-      </g>
-      <rect x=".5" y=".5" width="27" height="19" rx="4" fill="none" stroke="rgba(16,25,66,.18)" />
-    </svg>
-  );
-}
-
 const vars = (v: Record<string, string | number>) => v as CSSProperties;
 
 /** Language preference shared by every page (saved in localStorage when available). */
@@ -88,7 +54,13 @@ export function useLang() {
     const id = requestAnimationFrame(() => setLang(next));
     return () => cancelAnimationFrame(id);
   }, []);
-  const change = (next: Lang) => { setLang(next); try { window.localStorage.setItem("wepal-language", next); } catch { /* storage unavailable */ } };
+  const change = (next: Lang) => {
+    if (next === lang) return;
+    setLang(next);
+    try { window.localStorage.setItem("wepal-language", next); } catch { /* storage unavailable */ }
+    // Two frames: let React paint the new language first, then shuffle the letters into it.
+    requestAnimationFrame(() => requestAnimationFrame(() => scrambleText()));
+  };
   return [lang, change] as const;
 }
 
@@ -147,8 +119,7 @@ export function SiteHeader({ lang, onLang, current, member = false }: { lang: La
           <div className="h-actions">
             <button className="h-search-trigger" onClick={() => setPaletteOpen(true)} aria-label={rtl ? "بحث" : "Search"}><Search size={16} /><span>{rtl ? "ابحث" : "Search"}</span><kbd>Ctrl K</kbd></button>
             <IdentitySwitch lang={lang} variant="pill" />
-            <div className={`h-lang ${rtl ? "is-ar" : "is-en"}`} role="group" aria-label="Language"><span className="h-lang-thumb" /><button onClick={() => onLang("ar")} aria-pressed={rtl}><LangFlag lang="ar" size={15} />عربي</button><button onClick={() => onLang("en")} aria-pressed={!rtl}><LangFlag lang="en" size={15} />EN</button></div>
-            <button className="h-lang-mini" onClick={() => onLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><LangFlag lang={rtl ? "en" : "ar"} size={18} />{rtl ? "EN" : "ع"}</button>
+            <button className="h-lang-mini" onClick={() => onLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><Languages size={16} aria-hidden="true" /><span>{rtl ? "EN" : "ع"}</span></button>
             {member
               ? <a className="h-login is-member" href="/dashboard"><UserRound size={15} />{rtl ? "مساحتي" : "My area"}</a>
               : <a className="h-login" href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a>}
@@ -161,7 +132,7 @@ export function SiteHeader({ lang, onLang, current, member = false }: { lang: La
       <div className={`h-drawer ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
         <div className="h-drawer-top"><Logo variant="reverse" /><button onClick={() => setMenuOpen(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></div>
         <nav>{NAV.map((item, i) => { const Icon = item.icon; return <a key={item.href} href={item.href} className={item.href === current ? "is-active" : ""} style={vars({ "--i": i })} onClick={() => setMenuOpen(false)}><span>0{i + 1}</span><Icon size={20} />{item.label[lang]}<Arrow size={18} /></a>; })}</nav>
-        <div className="h-drawer-lang" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}><LangFlag lang="ar" size={18} />العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}><LangFlag lang="en" size={18} />English</button></div>
+        <div className="h-drawer-lang" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}><span className="lang-code">ع</span>العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}><span className="lang-code">EN</span>English</button></div>
         <IdentitySwitch lang={lang} variant="drawer" />
         <div className="h-drawer-foot"><button onClick={() => { setMenuOpen(false); setPaletteOpen(true); }}><Search size={17} />{rtl ? "بحث" : "Search"}</button><a href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a></div>
       </div>
@@ -294,7 +265,7 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
 
           <section className="f-card f-prefs">
             <span className="f-label"><SlidersHorizontal size={14} />{rtl ? "تفضيلاتك" : "Your preferences"}</span>
-            {onLang && <div className="f-seg" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}><LangFlag lang="ar" size={18} />العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}><LangFlag lang="en" size={18} />English</button></div>}
+            {onLang && <div className="f-seg" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}><span className="lang-code">ع</span>العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}><span className="lang-code">EN</span>English</button></div>}
             {IDENTITY_SWITCH_ENABLED && (
             <div className="f-seg" role="group" aria-label={rtl ? "هوية الموقع" : "Site identity"}>
               {(["forum", "palestine"] as Identity[]).map((id) => <button key={id} aria-pressed={identity === id} onClick={() => setIdentity(id)}><img src={`/brand/${id}/wepal-symbol.svg`} alt="" />{IDENTITY_LABEL[id][lang]}</button>)}

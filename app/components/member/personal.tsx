@@ -5,7 +5,6 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Award, Bell, CheckCheck, Download, Eye, Globe2, KeyRound, ListTodo, Lock, MapPin, MessageSquare, MessagesSquare, Pencil, Send, Settings, ShieldCheck, Trash2, UserRound, Vote } from "lucide-react";
 import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, memberOrMe, useMember } from "./shell";
 import { BADGES, GROUPS, ME, NOTICES, THREADS, TRACKS, WORKSPACES } from "./data";
-import { LangFlag } from "../site-chrome";
 
 function Profile() {
   const { rtl, tx } = useMember();
@@ -149,7 +148,7 @@ function SettingsView() {
         </div>
         <div className="m-card m-form">
           <div className="m-card-head"><h2><Globe2 aria-hidden="true" />{rtl ? "اللغة والعرض" : "Language & display"}</h2></div>
-          <p className="m-muted">{rtl ? "لغة الواجهة الحالية:" : "Current interface language:"} <strong><LangFlag lang={lang} size={14} /> {rtl ? "العربية" : "English"}</strong></p>
+          <p className="m-muted">{rtl ? "لغة الواجهة الحالية:" : "Current interface language:"} <strong><span className="lang-code">{lang === "ar" ? "ع" : "EN"}</span>{rtl ? "العربية" : "English"}</strong></p>
           <p className="m-muted">{rtl ? "بدّل اللغة من الشريط العلوي أو من قائمة «المزيد»." : "Switch language from the top bar or the \"More\" menu."}</p>
           <div className="m-card-head"><h2><KeyRound aria-hidden="true" />{rtl ? "كلمة المرور" : "Password"}</h2></div>
           <button className="m-btn">{rtl ? "تغيير كلمة المرور" : "Change password"}</button>

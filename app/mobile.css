@@ -2,7 +2,7 @@
    On phones the site behaves like a native app: a slim top app bar,
    a fixed bottom tab bar, safe-area aware spacing and touch-friendly targets. */
 
-.h-tabbar, .h-lang-mini, .h-drawer-lang { display: none; }
+.h-tabbar, .h-drawer-lang { display: none; }
 
 html { -webkit-text-size-adjust: 100%; }
 body { overflow-x: clip; }
@@ -123,7 +123,6 @@ body { overflow-x: clip; }
   .h-search-trigger { width: 34px !important; height: 34px; border-radius: 10px; }
   .h-search-trigger svg { width: 16px; height: 16px; }
   .h-lang-mini { height: 34px; padding: 0 10px; gap: 6px; border-radius: 10px; font-size: 12px; }
-  .h-lang-mini .lang-flag { width: 18px; height: 13px; }
 
   /* Tab bar: slimmer, smaller icons and labels */
   .h-tabbar { padding-top: 5px; }

@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft, ArrowRight, BookHeart, BookOpen, CalendarDays, ChevronDown,
   CircleHelp, Clock, Download, Eye, FileText, Info, Layers3, Library,
@@ -173,6 +174,7 @@ function ContactPage({ language }: { language: Language }) {
 function LoginPage({ language }: { language: Language }) {
   const rtl = language === "ar";
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
   const benefits: [typeof MessageCircle, string, string][] = [
     [MessageCircle, rtl ? "نقاشات أعمق" : "Deeper discussions", rtl ? "تابع الحوارات التي تهمك وشارك برأيك." : "Follow the conversations you care about and add your voice."],
     [Users, rtl ? "مجموعات اهتمام" : "Interest groups", rtl ? "انضم إلى من يشاركونك الأسئلة نفسها." : "Join people asking the same questions as you."],
@@ -197,7 +199,7 @@ function LoginPage({ language }: { language: Language }) {
           </div>
         </aside>
 
-        <form className="login-form" onSubmit={(e) => { e.preventDefault(); window.location.href = "/dashboard"; }}>
+        <form className="login-form" onSubmit={(e) => { e.preventDefault(); router.push("/dashboard"); }}>
           <div className="login-form-head">
             <span className="login-eyebrow"><UserRound aria-hidden="true" />{rtl ? "دخول الأعضاء" : "Member login"}</span>
             <h1>{rtl ? "أهلًا بعودتك" : "Welcome back"}</h1>
@@ -226,6 +228,8 @@ function LoginPage({ language }: { language: Language }) {
           <label className="login-remember"><input type="checkbox" /><span>{rtl ? "تذكرني على هذا الجهاز" : "Keep me signed in"}</span></label>
 
           <button type="submit" className="login-submit">{rtl ? "تسجيل الدخول" : "Sign in"}</button>
+          <div className="login-or"><span>{rtl ? "أو" : "or"}</span></div>
+          <Link href="/dashboard" className="login-direct"><Sparkles aria-hidden="true" />{rtl ? "دخول مباشر بحساب تجريبي" : "Enter directly with a demo account"}</Link>
 
           <p className="login-signup">{rtl ? "ليس لديك حساب؟" : "New to WePal?"} <a href="#">{rtl ? "أنشئ حسابًا مجانيًا" : "Create a free account"}</a></p>
           <p className="login-secure"><ShieldCheck aria-hidden="true" />{rtl ? "بياناتك محمية ولن نشاركها مع أي جهة." : "Your data is protected and never shared."}</p>
