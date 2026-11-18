@@ -234,7 +234,8 @@ function PalestineClock({ lang }: { lang: Lang }) {
   const mounted = useMounted();
   const [now, setNow] = useState(() => new Date());
   useEffect(() => { const id = window.setInterval(() => setNow(new Date()), 15000); return () => window.clearInterval(id); }, []);
-  const locale = lang === "ar" ? "ar-PS" : "en-GB";
+  // Western digits (0-9) everywhere, Arabic month/day names when the site is in Arabic.
+  const locale = lang === "ar" ? "ar-PS-u-nu-latn" : "en-GB";
   const time = mounted ? new Intl.DateTimeFormat(locale, { timeZone: "Asia/Hebron", hour: "2-digit", minute: "2-digit" }).format(now) : "--:--";
   const day = mounted ? new Intl.DateTimeFormat(locale, { timeZone: "Asia/Hebron", weekday: "long", day: "numeric", month: "long" }).format(now) : "";
   const hour = mounted ? Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Hebron", hour: "numeric", hourCycle: "h23" }).format(now)) : 12;
