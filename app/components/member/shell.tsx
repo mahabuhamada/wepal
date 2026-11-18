@@ -42,7 +42,7 @@ const NAV_MORE: NavItem[] = [
 ];
 
 /** Unread counts that react to the demo state (notifications read, messages sent). */
-function useCounts() {
+export function useCounts() {
   const s = useStore();
   const notices = NOTICES.filter((n) => n.unread && !s.read[n.id]).length + (s.events ?? []).filter((e) => !s.read[e.id]).length;
   // Muted conversations never add to the unread badge.
