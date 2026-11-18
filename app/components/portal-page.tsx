@@ -121,7 +121,7 @@ export default function PortalPage({ page }: { page: PortalPageType }) {
       {page === "map" && <MapPage language={language} />}
 
       {page !== "login" && <PageCta language={language} Arrow={Arrow} />}
-      <SiteFooter lang={language} />
+      <SiteFooter lang={language} onLang={switchLanguage} />
     </main>
   );
 }
@@ -155,7 +155,7 @@ function StoriesPage({ language, Arrow }: { language: Language; Arrow: typeof Ar
 
 function AboutPage({ language }: { language: Language }) {
   const rtl=language==="ar";
-  return <div className="portal-body shell"><section className="mission-panel"><div><span>{rtl?"رسالتنا":"Our mission"}</span><h2>{rtl?"معرفة موثوقة، وحوار يحترم الإنسان.":"Trusted knowledge and dialogue that respects people."}</h2><p>{rtl?"تعمل ويبال على جعل القضايا العامة أكثر وضوحًا وقربًا، وتوفير بيئة رقمية يمكن للناس أن يقرأوا فيها، يفهموا، ثم يشاركوا بوعي.":"Wepal makes public issues clearer and more accessible, creating a digital environment where people can read, understand and participate thoughtfully."}</p></div><div className="mission-symbol"><Sparkles/></div></section><div className="values-grid">{[[Target,rtl?"وضوح الهدف":"Clarity",rtl?"محتوى منظم يقود إلى فهم أفضل.":"Organized content that leads to better understanding."],[ShieldCheck,rtl?"الثقة والمسؤولية":"Trust",rtl?"مصادر واضحة ومعايير تحرير مسؤولة.":"Clear sources and responsible editorial standards."],[Users,rtl?"اتساع المشاركة":"Participation",rtl?"مساحة ترحب بالاختلاف وتحمي الاحترام.":"A space that welcomes difference and protects respect."],[Lightbulb,rtl?"معرفة قابلة للعمل":"Useful knowledge",rtl?"موارد تساعد الأفراد والمؤسسات على الفعل.":"Resources that help people and organizations act."]].map(([I,t,d])=>{const Ic=I as typeof Target;return <article key={t as string}><Ic/><h3>{t as string}</h3><p>{d as string}</p></article>})}</div><section className="sdf-relationship"><div className="partnership-mark"><Logo /><span>×</span><img className="sdf-logo-img" src="/brand/sdf-logo.webp" alt={rtl?"المنتدى الاجتماعي التنموي":"Social Developmental Forum"}/></div><div><span>{rtl?"الجذور المؤسسية":"Institutional roots"}</span><h2>{rtl?"خبرة ميدانية تمتد إلى الفضاء الرقمي.":"Field experience extending into the digital space."}</h2><p>{rtl?"تستفيد ويبال من خبرة المنتدى الاجتماعي التنموي في العمل الشبابي والمجتمعي، لتبني منصة تربط المعرفة بالمشاركة.":"Wepal builds on Social Developmental Forum’s youth and community experience to connect knowledge with participation."}</p><a href="https://sdf-pal.org">sdf-pal.org</a></div></section></div>;
+  return <div className="portal-body shell"><section className="mission-panel"><div><span>{rtl?"رسالتنا":"Our mission"}</span><h2>{rtl?"معرفة موثوقة، وحوار يحترم الإنسان.":"Trusted knowledge and dialogue that respects people."}</h2><p>{rtl?"تعمل ويبال على جعل القضايا العامة أكثر وضوحًا وقربًا، وتوفير بيئة رقمية يمكن للناس أن يقرأوا فيها، يفهموا، ثم يشاركوا بوعي.":"Wepal makes public issues clearer and more accessible, creating a digital environment where people can read, understand and participate thoughtfully."}</p></div><div className="mission-symbol"><Sparkles/></div></section><div className="values-grid">{[[Target,rtl?"وضوح الهدف":"Clarity",rtl?"محتوى منظم يقود إلى فهم أفضل.":"Organized content that leads to better understanding."],[ShieldCheck,rtl?"الثقة والمسؤولية":"Trust",rtl?"مصادر واضحة ومعايير تحرير مسؤولة.":"Clear sources and responsible editorial standards."],[Users,rtl?"اتساع المشاركة":"Participation",rtl?"مساحة ترحب بالاختلاف وتحمي الاحترام.":"A space that welcomes difference and protects respect."],[Lightbulb,rtl?"معرفة قابلة للعمل":"Useful knowledge",rtl?"موارد تساعد الأفراد والمؤسسات على الفعل.":"Resources that help people and organizations act."]].map(([I,t,d])=>{const Ic=I as typeof Target;return <article key={t as string}><Ic/><h3>{t as string}</h3><p>{d as string}</p></article>})}</div><section className="sdf-relationship"><div className="partnership-mark"><Logo /><span>×</span><img className="sdf-logo-img" src="/brand/sdf-logo-trim.webp" alt={rtl?"المنتدى الاجتماعي التنموي":"Social Developmental Forum"}/></div><div><span>{rtl?"الجذور المؤسسية":"Institutional roots"}</span><h2>{rtl?"خبرة ميدانية تمتد إلى الفضاء الرقمي.":"Field experience extending into the digital space."}</h2><p>{rtl?"تستفيد ويبال من خبرة المنتدى الاجتماعي التنموي في العمل الشبابي والمجتمعي، لتبني منصة تربط المعرفة بالمشاركة.":"Wepal builds on Social Developmental Forum’s youth and community experience to connect knowledge with participation."}</p><a href="https://sdf-pal.org">sdf-pal.org</a></div></section></div>;
 }
 
 function HelpPage({ language }: { language: Language }) {
@@ -184,7 +184,7 @@ function LoginPage({ language }: { language: Language }) {
         <aside className="login-panel">
           <img className="login-panel-photo" src="/images/facilitators.webp" alt="" />
           <div className="login-panel-inner">
-            <Logo />
+            <Logo variant="reverse" />
             <div className="login-panel-copy">
               <span className="wp-dots"><i /><i /><i /></span>
               <h2>{rtl ? "مكان واحد لمتابعة ما يهمك والمشاركة فيما تؤمن به." : "One place to follow what matters and take part in what you believe in."}</h2>

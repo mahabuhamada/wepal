@@ -17,7 +17,7 @@ body { overflow-x: clip; }
   .h-header, .h-header.is-scrolled { top: 0; width: 100%; border-radius: 0; border: 0; border-bottom: 1px solid rgba(16,25,66,.06); background: rgba(255,255,255,.86); padding-top: var(--safe-top); box-shadow: none; }
   .h-header.is-scrolled { background: rgba(255,255,255,.94); box-shadow: 0 6px 24px rgba(16,25,40,.08); }
   .h-header-inner, .h-header.is-scrolled .h-header-inner { height: var(--appbar-h); gap: 8px; padding-inline: 16px; }
-  .h-brand .wp-logo { height: 22px; }
+  .h-brand .wp-logo { height: 19px; }
   .h-actions { gap: 6px; min-width: 0; }
   .h-actions .h-identity, .h-actions .h-lang, .h-burger { display: none !important; }
   .h-search-trigger { width: 40px !important; height: 40px; border-radius: 12px; background: var(--tint); border-color: transparent; color: var(--ink); }
@@ -86,13 +86,20 @@ body { overflow-x: clip; }
   .home input, .home select, .home textarea { font-size: 16px !important; }
   .home button, .home a { touch-action: manipulation; }
 
-  /* Compact footer: links side by side, app-like */
-  .h-footer { padding: 44px 0 20px; }
-  .h-footer-grid { grid-template-columns: 1fr 1fr !important; gap: 28px 20px !important; padding-bottom: 28px; }
-  .h-footer-brand, .h-footer-grid > div:last-child { grid-column: 1 / -1; }
-  .h-footer-sdf img { width: 150px; }
-  .h-footer h4 { margin-bottom: 12px; }
-  .h-footer-grid > div:not(:first-child) > a:not(.h-link) { margin-bottom: 10px; }
+  /* Footer widgets: stacked cards */
+  .f-footer { padding: 28px 0 16px; }
+  .f-bento { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .f-brand, .f-question, .f-links, .f-prefs { grid-column: 1 / -1; }
+  .f-latest { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+  .f-latest img { width: 96px; height: 88px; flex: none; }
+  .f-latest > div { min-width: 0; padding: 12px 14px; }
+  .f-latest h4 { font-size: 14px; }
+  .f-go { display: none; }
+  .f-card { padding: 18px; border-radius: 20px; }
+  .f-latest.f-card { padding: 0; }
+  .f-question > p { font-size: 17px; }
+  .f-clock strong { font-size: 26px; }
+  .f-bottom { flex-direction: column; gap: 8px; text-align: center; }
 
   /* Login screen: drop the outer page gap under the app bar */
   .portal-login .login-screen { padding: calc(var(--appbar-h) + var(--safe-top) + 16px) 12px 20px; min-height: 0; }
