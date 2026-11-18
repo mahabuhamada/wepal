@@ -1,14 +1,25 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./home.css";
 import "./portal.css";
 import "./identity.css";
+import "./mobile.css";
 import { identityBootScript } from "./components/identity";
 
 export const metadata: Metadata = {
   title: "ويبال | معرفة وحوار فلسطيني",
   description: "أخبار ومصادر وتحليلات موثوقة عن الحوار والمصالحة والشأن العام الفلسطيني.",
-  icons: { icon: "/brand/forum/favicon.svg", shortcut: "/brand/forum/favicon.svg" },
+  icons: { icon: "/brand/forum/favicon.svg", shortcut: "/brand/forum/favicon.svg", apple: "/app/apple-touch-icon.png" },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "ويبال", statusBarStyle: "default" },
+  formatDetection: { telephone: false },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

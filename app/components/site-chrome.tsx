@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as RKeyboardEvent } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, ArrowUp, FileText, Menu, Newspaper, Search, X, CornerDownLeft } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound } from "lucide-react";
 import { EXTRA_PAGES, NAV, NEWS, RESOURCES, type Lang } from "./content";
 import { Logo, useIdentity, type Identity } from "./identity";
 
@@ -32,6 +32,13 @@ function IdentitySwitch({ lang, variant }: { lang: Lang; variant: "pill" | "draw
     </div>
   );
 }
+
+const TABS = [
+  { href: "/", icon: House, label: { ar: "الرئيسية", en: "Home" } },
+  { href: "/news", icon: Newspaper, label: { ar: "الأخبار", en: "News" } },
+  { href: "/library", icon: Library, label: { ar: "المكتبة", en: "Library" } },
+  { href: "/login", icon: UserRound, label: { ar: "حسابي", en: "Account" } },
+] as const;
 
 const vars = (v: Record<string, string | number>) => v as CSSProperties;
 
@@ -97,14 +104,15 @@ export function SiteHeader({ lang, onLang, current }: { lang: Lang; onLang: (l: 
           <Link className="h-brand" href="/" aria-label="WePal"><Logo /></Link>
           <nav className="h-nav" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"} onMouseLeave={resetIndicator}>
             <span className="h-nav-indicator" style={{ width: indicator.w, transform: `translateX(${indicator.x}px)`, opacity: indicator.visible ? 1 : 0 }} />
-            {NAV.map((item, i) => (
-              <a key={item.href} ref={(el) => { navRefs.current[i] = el; }} href={item.href} className={item.href === current ? "is-active" : ""} aria-current={item.href === current ? "page" : undefined} onMouseEnter={() => moveIndicator(i)} onFocus={() => moveIndicator(i)}>{item.label[lang]}</a>
-            ))}
+            {NAV.map((item, i) => { const Icon = item.icon; return (
+              <a key={item.href} ref={(el) => { navRefs.current[i] = el; }} href={item.href} className={item.href === current ? "is-active" : ""} aria-current={item.href === current ? "page" : undefined} onMouseEnter={() => moveIndicator(i)} onFocus={() => moveIndicator(i)}><Icon className="h-nav-icon" aria-hidden="true" />{item.label[lang]}</a>
+            ); })}
           </nav>
           <div className="h-actions">
             <button className="h-search-trigger" onClick={() => setPaletteOpen(true)} aria-label={rtl ? "بحث" : "Search"}><Search size={16} /><span>{rtl ? "ابحث" : "Search"}</span><kbd>Ctrl K</kbd></button>
             <IdentitySwitch lang={lang} variant="pill" />
             <div className={`h-lang ${rtl ? "is-ar" : "is-en"}`} role="group" aria-label="Language"><span className="h-lang-thumb" /><button onClick={() => onLang("ar")} aria-pressed={rtl}>عربي</button><button onClick={() => onLang("en")} aria-pressed={!rtl}>EN</button></div>
+            <button className="h-lang-mini" onClick={() => onLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><Languages size={16} />{rtl ? "EN" : "ع"}</button>
             <a className="h-login" href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a>
             <button className="h-burger" onClick={() => setMenuOpen(true)} aria-label={rtl ? "القائمة" : "Menu"}><Menu /></button>
           </div>
@@ -115,10 +123,18 @@ export function SiteHeader({ lang, onLang, current }: { lang: Lang; onLang: (l: 
       <div className={`h-drawer ${menuOpen ? "is-open" : ""}`} aria-hidden={!menuOpen}>
         <div className="h-drawer-top"><Logo variant="reverse" /><button onClick={() => setMenuOpen(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></div>
         <nav>{NAV.map((item, i) => { const Icon = item.icon; return <a key={item.href} href={item.href} className={item.href === current ? "is-active" : ""} style={vars({ "--i": i })} onClick={() => setMenuOpen(false)}><span>0{i + 1}</span><Icon size={20} />{item.label[lang]}<Arrow size={18} /></a>; })}</nav>
+        <div className="h-drawer-lang" role="group" aria-label={rtl ? "اللغة" : "Language"}><button aria-pressed={rtl} onClick={() => onLang("ar")}>العربية</button><button aria-pressed={!rtl} onClick={() => onLang("en")}>English</button></div>
         <IdentitySwitch lang={lang} variant="drawer" />
         <div className="h-drawer-foot"><button onClick={() => { setMenuOpen(false); setPaletteOpen(true); }}><Search size={17} />{rtl ? "بحث" : "Search"}</button><a href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a></div>
       </div>
 
+
+      <nav className="h-tabbar" aria-label={rtl ? "التنقل السريع" : "Quick navigation"}>
+        {TABS.map((t) => { const Icon = t.icon; const active = t.href === current; return (
+          <a key={t.href} href={t.href} className={active ? "is-active" : ""} aria-current={active ? "page" : undefined} onClick={(e) => { if (active) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }}><span className="h-tab-icon"><Icon /></span><span>{t.label[lang]}</span></a>
+        ); })}
+        <button onClick={() => setMenuOpen(true)} className={menuOpen ? "is-active" : ""} aria-label={rtl ? "القائمة الكاملة" : "Full menu"} aria-expanded={menuOpen}><span className="h-tab-icon"><LayoutGrid /></span><span>{rtl ? "المزيد" : "More"}</span></button>
+      </nav>
       {paletteOpen && <SearchPalette lang={lang} onClose={() => setPaletteOpen(false)} />}
 
       <button className={`h-top ${showTop ? "is-visible" : ""}`} onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label={rtl ? "إلى الأعلى" : "Back to top"}>
@@ -173,7 +189,6 @@ export function SiteFooter({ lang }: { lang: Lang }) {
         <div className="h-footer-brand">
           <Logo variant="reverse" />
           <p>{rtl ? "منصة فلسطينية للمعرفة والحوار العام." : "A Palestinian platform for knowledge and public dialogue."}</p>
-          <div className="h-footer-sdf"><small>{rtl ? "مبادرة من" : "An initiative of"}</small><img src="/brand/sdf-logo.webp" alt={rtl ? "المنتدى الاجتماعي التنموي" : "Social Developmental Forum"} /></div>
         </div>
         <div><h4>{rtl ? "استكشف" : "Explore"}</h4>{NAV.slice(1, 5).map((n) => <a key={n.href} href={n.href}>{n.label[lang]}</a>)}</div>
         <div><h4>{rtl ? "المنصة" : "Platform"}</h4><a href="/about">{rtl ? "عن ويبال" : "About"}</a><a href="/stories">{rtl ? "القصص" : "Stories"}</a><a href="/contact">{rtl ? "تواصل معنا" : "Contact"}</a><a href="/help">{rtl ? "المساعدة" : "Help"}</a></div>
