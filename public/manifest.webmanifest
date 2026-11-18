@@ -1,0 +1,23 @@
+{
+  "name": "ويبال | معرفة وحوار فلسطيني",
+  "short_name": "ويبال",
+  "description": "أخبار ومصادر وتحليلات موثوقة عن الحوار والمصالحة والشأن العام الفلسطيني.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6fb",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/app/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/app/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/app/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "الأخبار", "url": "/news" },
+    { "name": "المكتبة", "url": "/library" },
+    { "name": "دخول الأعضاء", "url": "/login" }
+  ]
+}
