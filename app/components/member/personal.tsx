@@ -158,6 +158,7 @@ function Toggle({ label, hint, defaultOn = true }: { label: string; hint?: strin
 
 function SettingsView() {
   const { rtl, tx, lang } = useMember();
+  const st = useStore();
   const [saved, setSaved] = useState(false);
   const save = (e: React.FormEvent) => { e.preventDefault(); setSaved(true); window.setTimeout(() => setSaved(false), 2200); };
   return (
@@ -167,6 +168,15 @@ function SettingsView() {
       <div className="m-grid-2">
         <form className="m-card m-form" onSubmit={save}>
           <div className="m-card-head"><h2><UserRound aria-hidden="true" />{rtl ? "الحساب والملف" : "Account & profile"}</h2></div>
+          <fieldset className="m-avatar-pick">
+            <legend>{rtl ? "صورتك الافتراضية" : "Your default picture"}</legend>
+            <div>{Array.from({ length: 9 }, (_, i) => i + 1).map((n) => (
+              <button type="button" key={n} aria-pressed={(st.myAvatar ?? ME.avatar) === n} aria-label={rtl ? `الشكل ${n}` : `Avatar ${n}`}
+                onClick={() => { update((x) => ({ ...x, myAvatar: n })); toast(rtl ? "تغيّرت صورتك" : "Picture updated"); }}>
+                <img src={`/avatars/a${n}.webp`} alt="" width={52} height={52} />
+              </button>
+            ))}</div>
+          </fieldset>
           <label>{rtl ? "الاسم" : "Name"}<input defaultValue={tx(ME.name)} /></label>
           <label>{rtl ? "المدينة" : "City"}<input defaultValue={tx(ME.city)} /></label>
           <label>{rtl ? "نبذة" : "Bio"}<textarea rows={3} defaultValue={tx(ME.bio)} /></label>

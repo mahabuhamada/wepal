@@ -9,6 +9,7 @@ export const ME = {
   id: "me",
   name: L("ليان أحمد", "Layan Ahmad"),
   initials: L("ل", "L"),
+  avatar: 2,
   city: L("رام الله", "Ramallah"),
   role: L("عضو المنصة", "Platform member"),
   bio: L(
@@ -33,16 +34,16 @@ export const STAGES: Record<Stage, T> = {
   done: L("منجزة", "Done"),
 };
 
-export type Member = { id: string; name: T; initials: T; city: T; track: Track; bio: T; groups: string[]; tone: number };
+export type Member = { id: string; name: T; initials: T; city: T; track: Track; bio: T; groups: string[]; tone: number; avatar?: number };
 export const MEMBERS: Member[] = [
-  { id: "m1", name: L("أحمد خليل", "Ahmad Khalil"), initials: L("أ", "A"), city: L("نابلس", "Nablus"), track: "research", bio: L("يدرس تجارب المصالحة المحلية.", "Studies local reconciliation experiences."), groups: ["g1", "g3"], tone: 1 },
-  { id: "m2", name: L("سارة يوسف", "Sara Yousef"), initials: L("س", "S"), city: L("غزة", "Gaza"), track: "digital", bio: L("تصنع فيديوهات قصيرة عن الشأن العام.", "Makes short videos on public affairs."), groups: ["g2"], tone: 2 },
-  { id: "m3", name: L("محمد عودة", "Mohammad Odeh"), initials: L("م", "M"), city: L("الخليل", "Hebron"), track: "initiative", bio: L("ينسّق جلسات حوار في الجامعات.", "Coordinates dialogue sessions at universities."), groups: ["g1", "g4"], tone: 3 },
-  { id: "m4", name: L("نور حمدان", "Noor Hamdan"), initials: L("ن", "N"), city: L("جنين", "Jenin"), track: "research", bio: L("مهتمة بمشاركة الشباب في الانتخابات المحلية.", "Focused on youth participation in local elections."), groups: ["g3"], tone: 4 },
-  { id: "m5", name: L("يزن سلامة", "Yazan Salameh"), initials: L("ي", "Y"), city: L("بيت لحم", "Bethlehem"), track: "digital", bio: L("مصمم ورسام إنفوغرافيك.", "Designer and infographic illustrator."), groups: ["g2", "g4"], tone: 5 },
-  { id: "m6", name: L("رهف ناصر", "Rahaf Nasser"), initials: L("ر", "R"), city: L("طولكرم", "Tulkarm"), track: "initiative", bio: L("تعمل على مبادرة مكتبات الأحياء.", "Works on a neighbourhood libraries initiative."), groups: ["g1"], tone: 6 },
-  { id: "m7", name: L("عمر بركات", "Omar Barakat"), initials: L("ع", "O"), city: L("رام الله", "Ramallah"), track: "research", bio: L("يكتب أوراق سياسات قصيرة.", "Writes short policy papers."), groups: ["g3", "g4"], tone: 1 },
-  { id: "m8", name: L("هبة عيسى", "Heba Issa"), initials: L("ه", "H"), city: L("أريحا", "Jericho"), track: "initiative", bio: L("تيسّر لقاءات مجتمعية.", "Facilitates community meetings."), groups: ["g2"], tone: 2 },
+  { id: "m1", avatar: 3, name: L("أحمد خليل", "Ahmad Khalil"), initials: L("أ", "A"), city: L("نابلس", "Nablus"), track: "research", bio: L("يدرس تجارب المصالحة المحلية.", "Studies local reconciliation experiences."), groups: ["g1", "g3"], tone: 1 },
+  { id: "m2", avatar: 5, name: L("سارة يوسف", "Sara Yousef"), initials: L("س", "S"), city: L("غزة", "Gaza"), track: "digital", bio: L("تصنع فيديوهات قصيرة عن الشأن العام.", "Makes short videos on public affairs."), groups: ["g2"], tone: 2 },
+  { id: "m3", avatar: 8, name: L("محمد عودة", "Mohammad Odeh"), initials: L("م", "M"), city: L("الخليل", "Hebron"), track: "initiative", bio: L("ينسّق جلسات حوار في الجامعات.", "Coordinates dialogue sessions at universities."), groups: ["g1", "g4"], tone: 3 },
+  { id: "m4", avatar: 7, name: L("نور حمدان", "Noor Hamdan"), initials: L("ن", "N"), city: L("جنين", "Jenin"), track: "research", bio: L("مهتمة بمشاركة الشباب في الانتخابات المحلية.", "Focused on youth participation in local elections."), groups: ["g3"], tone: 4 },
+  { id: "m5", avatar: 4, name: L("يزن سلامة", "Yazan Salameh"), initials: L("ي", "Y"), city: L("بيت لحم", "Bethlehem"), track: "digital", bio: L("مصمم ورسام إنفوغرافيك.", "Designer and infographic illustrator."), groups: ["g2", "g4"], tone: 5 },
+  { id: "m6", avatar: 9, name: L("رهف ناصر", "Rahaf Nasser"), initials: L("ر", "R"), city: L("طولكرم", "Tulkarm"), track: "initiative", bio: L("تعمل على مبادرة مكتبات الأحياء.", "Works on a neighbourhood libraries initiative."), groups: ["g1"], tone: 6 },
+  { id: "m7", avatar: 6, name: L("عمر بركات", "Omar Barakat"), initials: L("ع", "O"), city: L("رام الله", "Ramallah"), track: "research", bio: L("يكتب أوراق سياسات قصيرة.", "Writes short policy papers."), groups: ["g3", "g4"], tone: 1 },
+  { id: "m8", avatar: 1, name: L("هبة عيسى", "Heba Issa"), initials: L("ه", "H"), city: L("أريحا", "Jericho"), track: "initiative", bio: L("تيسّر لقاءات مجتمعية.", "Facilitates community meetings."), groups: ["g2"], tone: 2 },
 ];
 export const memberById = (id: string) => MEMBERS.find((m) => m.id === id);
 

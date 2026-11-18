@@ -206,10 +206,18 @@ function Toasts() {
 }
 
 /* ── Building blocks ── */
-export function Avatar({ who, size = 36, online = false }: { who: Pick<Member, "initials"> & { tone?: number }; size?: number; online?: boolean }) {
+/** Member picture: an illustrated default avatar (identity colours) when set, otherwise initials. */
+export function Avatar({ who, size = 36, online = false }: { who: Pick<Member, "initials"> & { id?: string; tone?: number; avatar?: number }; size?: number; online?: boolean }) {
   const { tx } = useMember();
   const tone = "tone" in who && who.tone ? who.tone : 0;
-  return <span className={`m-avatar tone-${tone} ${online ? "is-online" : ""}`} style={{ width: size, height: size, fontSize: size * 0.42 }} aria-hidden="true">{tx(who.initials)}</span>;
+  const st = useStore();
+  const n = ("id" in who && who.id === "me" && st.myAvatar) || ("avatar" in who ? who.avatar : undefined);
+  const pic = n ? `/avatars/a${n}.webp` : null;
+  return (
+    <span className={`m-avatar tone-${tone} ${pic ? "has-pic" : ""} ${online ? "is-online" : ""}`} style={{ width: size, height: size, fontSize: size * 0.42 }} aria-hidden="true">
+      {pic ? <img src={pic} alt="" width={size} height={size} loading="lazy" decoding="async" /> : tx(who.initials)}
+    </span>
+  );
 }
 export const memberOrMe = (id: string) => (id === "me" ? { ...ME, tone: 0 } : MEMBERS.find((m) => m.id === id)!);
 

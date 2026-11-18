@@ -20,6 +20,7 @@ type State = {
   posts: NewPost[];
   answered: Record<string, boolean>;
   votes: Record<string, string>;
+  myAvatar?: number;
 };
 
 const KEY = "wepal-demo-v1";

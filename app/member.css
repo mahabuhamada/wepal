@@ -700,3 +700,12 @@ a.m-promo:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(16,2
   .m-fab-btn { width: 46px; height: 46px; }
 }
 @media (max-width: 760px) { .d-num { display: none; } .d-todos li { gap: 10px; } }
+.m-avatar.has-pic { background: var(--tint); }
+.m-avatar.has-pic img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+.m-avatar-pick { margin: 0; padding: 0; border: 0; }
+.m-avatar-pick legend { margin-bottom: 8px; color: var(--n800); font-size: 13.5px; font-weight: 700; }
+.m-avatar-pick > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.m-avatar-pick button { padding: 3px; border: 2px solid transparent; border-radius: 50%; background: none; cursor: pointer; transition: border-color .2s, transform .2s var(--ease); }
+.m-avatar-pick button:hover { transform: translateY(-2px); }
+.m-avatar-pick button[aria-pressed="true"] { border-color: var(--b500); }
+.m-avatar-pick img { display: block; width: 52px; height: 52px; border-radius: 50%; }
