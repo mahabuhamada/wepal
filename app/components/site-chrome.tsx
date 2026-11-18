@@ -104,9 +104,9 @@ export function SiteHeader({ lang, onLang, current }: { lang: Lang; onLang: (l: 
           <Link className="h-brand" href="/" aria-label="WePal"><Logo /></Link>
           <nav className="h-nav" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"} onMouseLeave={resetIndicator}>
             <span className="h-nav-indicator" style={{ width: indicator.w, transform: `translateX(${indicator.x}px)`, opacity: indicator.visible ? 1 : 0 }} />
-            {NAV.map((item, i) => (
-              <a key={item.href} ref={(el) => { navRefs.current[i] = el; }} href={item.href} className={item.href === current ? "is-active" : ""} aria-current={item.href === current ? "page" : undefined} onMouseEnter={() => moveIndicator(i)} onFocus={() => moveIndicator(i)}>{item.label[lang]}</a>
-            ))}
+            {NAV.map((item, i) => { const Icon = item.icon; return (
+              <a key={item.href} ref={(el) => { navRefs.current[i] = el; }} href={item.href} className={item.href === current ? "is-active" : ""} aria-current={item.href === current ? "page" : undefined} onMouseEnter={() => moveIndicator(i)} onFocus={() => moveIndicator(i)}><Icon className="h-nav-icon" aria-hidden="true" />{item.label[lang]}</a>
+            ); })}
           </nav>
           <div className="h-actions">
             <button className="h-search-trigger" onClick={() => setPaletteOpen(true)} aria-label={rtl ? "بحث" : "Search"}><Search size={16} /><span>{rtl ? "ابحث" : "Search"}</span><kbd>Ctrl K</kbd></button>
@@ -189,7 +189,6 @@ export function SiteFooter({ lang }: { lang: Lang }) {
         <div className="h-footer-brand">
           <Logo variant="reverse" />
           <p>{rtl ? "منصة فلسطينية للمعرفة والحوار العام." : "A Palestinian platform for knowledge and public dialogue."}</p>
-          <div className="h-footer-sdf"><small>{rtl ? "مبادرة من" : "An initiative of"}</small><img src="/brand/sdf-logo.webp" alt={rtl ? "المنتدى الاجتماعي التنموي" : "Social Developmental Forum"} /></div>
         </div>
         <div><h4>{rtl ? "استكشف" : "Explore"}</h4>{NAV.slice(1, 5).map((n) => <a key={n.href} href={n.href}>{n.label[lang]}</a>)}</div>
         <div><h4>{rtl ? "المنصة" : "Platform"}</h4><a href="/about">{rtl ? "عن ويبال" : "About"}</a><a href="/stories">{rtl ? "القصص" : "Stories"}</a><a href="/contact">{rtl ? "تواصل معنا" : "Contact"}</a><a href="/help">{rtl ? "المساعدة" : "Help"}</a></div>

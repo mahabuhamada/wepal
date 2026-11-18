@@ -17,7 +17,7 @@ body { overflow-x: clip; }
   .h-header, .h-header.is-scrolled { top: 0; width: 100%; border-radius: 0; border: 0; border-bottom: 1px solid rgba(16,25,66,.06); background: rgba(255,255,255,.86); padding-top: var(--safe-top); box-shadow: none; }
   .h-header.is-scrolled { background: rgba(255,255,255,.94); box-shadow: 0 6px 24px rgba(16,25,40,.08); }
   .h-header-inner, .h-header.is-scrolled .h-header-inner { height: var(--appbar-h); gap: 8px; padding-inline: 16px; }
-  .h-brand .wp-logo { height: 26px; }
+  .h-brand .wp-logo { height: 22px; }
   .h-actions { gap: 6px; min-width: 0; }
   .h-actions .h-identity, .h-actions .h-lang, .h-burger { display: none !important; }
   .h-search-trigger { width: 40px !important; height: 40px; border-radius: 12px; background: var(--tint); border-color: transparent; color: var(--ink); }

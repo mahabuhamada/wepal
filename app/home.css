@@ -512,3 +512,13 @@ html:has(.home) { scroll-padding-top: 40px; }
 
 .h-res:hover { background: #fff; border-color: var(--hover-line); box-shadow: 0 12px 28px rgba(16,25,40,.08); }
 .h-results-head { padding: 4px 6px 10px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+
+/* Nav icons + slightly smaller logo */
+.h-nav a { display: inline-flex; align-items: center; gap: 6px; }
+.h-nav-icon { width: 15px; height: 15px; flex: none; opacity: .7; transition: opacity .25s, color .25s; }
+.h-nav a:hover .h-nav-icon, .h-nav a.is-active .h-nav-icon { opacity: 1; color: var(--b500); }
+.h-brand .wp-logo { height: 27px; }
+.h-footer-brand > .wp-logo { height: 32px; }
+@media (max-width: 1320px) { .h-nav-icon { display: none; } }
+.h-login, .h-search-trigger, .h-search-trigger kbd { white-space: nowrap; flex: none; }
+@media (max-width: 1500px) { .h-search-trigger kbd { display: none; } }
