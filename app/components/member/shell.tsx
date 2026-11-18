@@ -202,7 +202,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
 
         {/* Mobile: tab bar + sheet with every section */}
         <nav className="h-tabbar m-tabbar" aria-label={rtl ? "تنقل الأعضاء" : "Members navigation"}>
-          {[NAV_MAIN[0], NAV_MAIN[1], NAV_MAIN[2], NAV_MAIN[3]].map((raw) => { const t = counted(raw); const Icon = t.icon; const on = t.key === active; return (
+          {[NAV_MAIN[0], NAV_MAIN[3], NAV_MAIN[2], NAV_MAIN[1]].map((raw) => { const t = counted(raw); const Icon = t.icon; const on = t.key === active; return (
             <a key={t.key} href={t.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined}>
               <span className="h-tab-icon"><Icon />{!!t.count && <b className="m-dot">{t.count}</b>}</span><span>{tx(t.label)}</span>
             </a>
