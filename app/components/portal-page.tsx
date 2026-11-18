@@ -1,11 +1,11 @@
 "use client";
 
-import { type FormEvent } from "react";
+import { type FormEvent, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, ArrowRight, BookHeart, BookOpen, CalendarDays, ChevronDown,
   CircleHelp, Clock, Download, Eye, FileText, Info, Layers3, Library,
-  Lightbulb, LockKeyhole, Mail, Map, MapPin, MessageCircle, Newspaper,
+  Lightbulb, EyeOff, LockKeyhole, Mail, Map, MapPin, MessageCircle, Newspaper,
   PenLine, Phone, Search, Send, ShieldCheck, Sparkles, Target,
   UserRound, Users,
 } from "lucide-react";
@@ -95,6 +95,7 @@ export default function PortalPage({ page }: { page: PortalPageType }) {
     <main className={`home portal-site portal-v3 portal-${page}`} dir={rtl ? "rtl" : "ltr"} lang={language}>
       <SiteHeader lang={language} onLang={switchLanguage} current={`/${page}`} />
 
+      {page !== "login" && (
       <section className="portal-hero">
         <div className="portal-hero-pattern" />
         <div className="shell portal-hero-inner">
@@ -106,6 +107,7 @@ export default function PortalPage({ page }: { page: PortalPageType }) {
           <div className="portal-hero-art" aria-hidden="true"><div className="art-ring ring-one" /><div className="art-ring ring-two" /><div className="art-icon"><Icon /></div><span className="art-dot dot-one" /><span className="art-dot dot-two" /></div>
         </div>
       </section>
+      )}
 
       {page === "news" && <NewsPage language={language} Arrow={Arrow} />}
       {page === "library" && <LibraryPage language={language} Arrow={Arrow} />}
@@ -169,8 +171,68 @@ function ContactPage({ language }: { language: Language }) {
 }
 
 function LoginPage({ language }: { language: Language }) {
-  const rtl=language==="ar";
-  return <div className="portal-body shell login-body"><div className="login-benefits"><div className="login-brand"><Logo /><span>{rtl?"مجتمع ويبال":"Wepal community"}</span></div><h2>{rtl?"مكان واحد لمتابعة ما يهمك والمشاركة فيما تؤمن به.":"One place to follow what matters and participate in what you believe in."}</h2>{[[MessageCircle,rtl?"نقاشات أكثر عمقًا":"Deeper discussions"],[Users,rtl?"مجموعات تجمع الاهتمامات":"Interest-based groups"],[BookOpen,rtl?"مكتبة شخصية للمواد المحفوظة":"A personal saved library"]].map(([I,t])=>{const Ic=I as typeof MessageCircle;return <div key={t as string}><Ic/><span>{t as string}</span></div>})}</div><form className="login-card" onSubmit={(e)=>e.preventDefault()}><span>{rtl?"أهلًا بعودتك":"Welcome back"}</span><h2>{rtl?"دخول الأعضاء":"Member login"}</h2><p>{rtl?"أدخل بيانات حسابك للمتابعة.":"Enter your account details to continue."}</p><label>{rtl?"البريد الإلكتروني":"Email"}<div><Mail/><input type="email" required/></div></label><label>{rtl?"كلمة المرور":"Password"}<div><LockKeyhole/><input type="password" required/><Eye/></div></label><div className="login-options"><label><input type="checkbox"/>{rtl?"تذكرني":"Remember me"}</label><a href="#">{rtl?"نسيت كلمة المرور؟":"Forgot password?"}</a></div><button type="submit">{rtl?"دخول":"Sign in"}</button><small>{rtl?"ليس لديك حساب؟":"New to Wepal?"} <a href="#">{rtl?"إنشاء حساب":"Create account"}</a></small></form></div>;
+  const rtl = language === "ar";
+  const [showPassword, setShowPassword] = useState(false);
+  const benefits: [typeof MessageCircle, string, string][] = [
+    [MessageCircle, rtl ? "نقاشات أعمق" : "Deeper discussions", rtl ? "تابع الحوارات التي تهمك وشارك برأيك." : "Follow the conversations you care about and add your voice."],
+    [Users, rtl ? "مجموعات اهتمام" : "Interest groups", rtl ? "انضم إلى من يشاركونك الأسئلة نفسها." : "Join people asking the same questions as you."],
+    [BookOpen, rtl ? "مكتبتك الخاصة" : "Your own library", rtl ? "كل ما حفظته من مواد في مكان واحد." : "Everything you saved, in one place."],
+  ];
+  return (
+    <section className="login-screen">
+      <div className="login-shell">
+        <aside className="login-panel">
+          <img className="login-panel-photo" src="/images/facilitators.webp" alt="" />
+          <div className="login-panel-inner">
+            <Logo />
+            <div className="login-panel-copy">
+              <span className="wp-dots"><i /><i /><i /></span>
+              <h2>{rtl ? "مكان واحد لمتابعة ما يهمك والمشاركة فيما تؤمن به." : "One place to follow what matters and take part in what you believe in."}</h2>
+            </div>
+            <ul>
+              {benefits.map(([Ic, title, desc]) => (
+                <li key={title}><Ic aria-hidden="true" /><div><strong>{title}</strong><span>{desc}</span></div></li>
+              ))}
+            </ul>
+          </div>
+        </aside>
+
+        <form className="login-form" onSubmit={(e) => e.preventDefault()}>
+          <div className="login-form-head">
+            <span className="login-eyebrow"><UserRound aria-hidden="true" />{rtl ? "دخول الأعضاء" : "Member login"}</span>
+            <h1>{rtl ? "أهلًا بعودتك" : "Welcome back"}</h1>
+            <p>{rtl ? "سجّل دخولك لمتابعة النقاشات والمجموعات والمواد التي حفظتها." : "Sign in to continue your discussions, groups and saved resources."}</p>
+          </div>
+
+          <div className="login-field">
+            <label htmlFor="login-email">{rtl ? "البريد الإلكتروني" : "Email"}</label>
+            <div className="login-input"><Mail aria-hidden="true" /><input id="login-email" type="email" autoComplete="email" placeholder="name@example.com" dir="ltr" required /></div>
+          </div>
+
+          <div className="login-field">
+            <div className="login-field-row">
+              <label htmlFor="login-password">{rtl ? "كلمة المرور" : "Password"}</label>
+              <a href="#">{rtl ? "نسيت كلمة المرور؟" : "Forgot password?"}</a>
+            </div>
+            <div className="login-input">
+              <LockKeyhole aria-hidden="true" />
+              <input id="login-password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="••••••••" dir="ltr" required />
+              <button type="button" className="login-eye" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? (rtl ? "إخفاء كلمة المرور" : "Hide password") : (rtl ? "إظهار كلمة المرور" : "Show password")}>
+                {showPassword ? <EyeOff /> : <Eye />}
+              </button>
+            </div>
+          </div>
+
+          <label className="login-remember"><input type="checkbox" /><span>{rtl ? "تذكرني على هذا الجهاز" : "Keep me signed in"}</span></label>
+
+          <button type="submit" className="login-submit">{rtl ? "تسجيل الدخول" : "Sign in"}</button>
+
+          <p className="login-signup">{rtl ? "ليس لديك حساب؟" : "New to WePal?"} <a href="#">{rtl ? "أنشئ حسابًا مجانيًا" : "Create a free account"}</a></p>
+          <p className="login-secure"><ShieldCheck aria-hidden="true" />{rtl ? "بياناتك محمية ولن نشاركها مع أي جهة." : "Your data is protected and never shared."}</p>
+        </form>
+      </div>
+    </section>
+  );
 }
 
 function MapPage({ language }: { language: Language }) {
