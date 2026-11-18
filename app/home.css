@@ -621,3 +621,9 @@ html.lang-out main > *:not(.h-header):not(.m-top) { opacity: 0; transition: opac
 html.lang-out :is(.h-header, .m-top) :is(nav, form, .h-actions, .m-top-actions) { opacity: 0; transition: opacity .16s ease; }
 html.lang-in main > *:not(.h-header):not(.m-top), html.lang-in :is(.h-header, .m-top) :is(nav, form, .h-actions, .m-top-actions) { animation: langIn .42s cubic-bezier(.2,.7,.2,1) both; }
 @keyframes langIn { from { opacity: 0; filter: blur(4px); } }
+/* Keep the partner/newsletter cards inside the column on narrow phones */
+@media (max-width: 760px) {
+  .h-join { grid-template-columns: minmax(0, 1fr); }
+  .h-partner, .h-newsletter { min-width: 0; }
+  .h-partner-mark { flex-wrap: wrap; justify-content: center; max-width: 100%; box-sizing: border-box; }
+}
