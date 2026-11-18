@@ -10,7 +10,7 @@ const KEY = "wepal-identity";
  * The Palestine identity is paused for now. Set to true to bring back the switcher
  * (header, menu, footer) and let visitors use the Palestine colours again.
  */
-export const IDENTITY_SWITCH_ENABLED = true;
+export const IDENTITY_SWITCH_ENABLED = false;
 
 /** Inline script for <head>: applies the saved identity before first paint (no colour flash). */
 export const identityBootScript = `(function(){try{var v=${IDENTITY_SWITCH_ENABLED ? `localStorage.getItem('${KEY}')` : "'forum'"};if(v!=='palestine'&&v!=='forum')v='forum';document.documentElement.setAttribute('data-identity',v);var l=document.querySelector('link[rel="icon"]');if(l)l.href='/brand/'+v+'/favicon.svg';}catch(e){document.documentElement.setAttribute('data-identity','forum');}})();`;
