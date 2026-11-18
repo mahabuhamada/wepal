@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Award, Bell, CheckCheck, Download, Eye, Globe2, KeyRound, ListTodo, Lock, MapPin, MessageSquare, MessagesSquare, Pencil, Send, Settings, ShieldCheck, Trash2, UserRound, Vote } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Award, Bell, CheckCheck, Download, Eye, FolderKanban, Globe2, KeyRound, ListTodo, Lock, MapPin, MessageSquare, MessagesSquare, Pencil, Search, Settings, ShieldCheck, Trash2, UserRound, Vote } from "lucide-react";
 import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, memberOrMe, useMember } from "./shell";
-import { AUTO_REPLY, BADGES, GROUPS, ME, NOTICES, ONLINE, THREADS, TRACKS, WORKSPACES } from "./data";
+import { AUTO_REPLY, BADGES, GROUPS, ME, NOTICES, ONLINE, ROOM_SEED, THREADS, TRACKS, WORKSPACES } from "./data";
+import { ChatRoom } from "./chat";
 import { ago, toast, update, useStore } from "./store";
 import { PostCard, useFeed } from "./social";
 
@@ -52,70 +53,77 @@ function Profile() {
   );
 }
 
+type Room = { id: string; kind: "direct" | "work"; title: string; sub: string; who?: string; last: string; time: string; unread: number; online?: boolean };
+
 function Messages() {
   const { rtl, tx } = useMember();
   const s = useStore();
   const [open, setOpen] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
-  const [typing, setTyping] = useState<string | null>(null);
-  const endRef = useRef<HTMLLIElement>(null);
-  // Open a conversation from ?t=<thread> or ?to=<member> (links from the top bar and member pages).
+  const [filter, setFilter] = useState<"all" | "direct" | "work">("all");
+  const [q, setQ] = useState("");
+  // Open a conversation from ?t=<room> or ?to=<member> (links from the top bar, member and team pages).
   useEffect(() => {
     const qs = new URLSearchParams(window.location.search);
-    const byThread = qs.get("t"); const byMember = qs.get("to");
-    const th = THREADS.find((t) => t.id === byThread) ?? THREADS.find((t) => t.with === byMember);
-    if (!th) return;
-    const id = requestAnimationFrame(() => setOpen(th.id));
-    update((x) => ({ ...x, read: { ...x.read, [th.id]: true } }));
-    return () => cancelAnimationFrame(id);
+    const byRoom = qs.get("t"); const byMember = qs.get("to");
+    const id = byRoom ?? THREADS.find((t) => t.with === byMember)?.id;
+    if (!id) return;
+    const f = requestAnimationFrame(() => setOpen(id));
+    return () => cancelAnimationFrame(f);
   }, []);
-  useEffect(() => { endRef.current?.scrollIntoView({ block: "end", behavior: "smooth" }); }, [open, s.messages, typing]);
-  const th = THREADS.find((t) => t.id === open);
-  const pick = (id: string) => { setOpen(id); update((x) => ({ ...x, read: { ...x.read, [id]: true } })); };
-  const send = (e: React.FormEvent) => {
-    e.preventDefault(); if (!th || !draft.trim()) return;
-    const tid = th.id;
-    update((x) => ({ ...x, messages: { ...x.messages, [tid]: [...(x.messages[tid] ?? []), { from: "me", text: draft.trim(), time: Date.now() }] } }));
-    setDraft("");
-    // Simulated reply so the conversation feels alive: typing… then an answer.
-    window.setTimeout(() => setTyping(tid), 700);
-    window.setTimeout(() => {
-      setTyping(null);
-      update((x) => ({ ...x, messages: { ...x.messages, [tid]: [...(x.messages[tid] ?? []), { from: th.with, text: tx(AUTO_REPLY[tid]), time: Date.now() }] } }));
-    }, 2400);
+  const lastOf = (id: string, fallback: string, time: string) => {
+    const m = s.messages[id]?.at(-1);
+    return m ? { last: `${m.from === "me" ? (rtl ? "أنت: " : "You: ") : ""}${m.text || (m.attachments?.length ? (rtl ? "📎 مرفق" : "📎 Attachment") : "")}`, time: ago(m.time, rtl) } : { last: fallback, time };
   };
+  const rooms: Room[] = [
+    ...WORKSPACES.filter((w) => w.team.includes("me") && ROOM_SEED[w.id]).map((w) => {
+      const seed = ROOM_SEED[w.id]; const sl = seed.messages.at(-1)!; const l = lastOf(w.id, `${tx(memberOrMe(sl.from).name).split(" ")[0]}: ${tx(sl.text)}`, tx(sl.time));
+      return { id: w.id, kind: "work" as const, title: tx(w.title), sub: rtl ? `${w.team.length} أعضاء` : `${w.team.length} members`, ...l, unread: s.read[w.id] ? 0 : seed.unread };
+    }),
+    ...THREADS.map((t) => {
+      const m = memberOrMe(t.with); const l = lastOf(t.id, tx(t.last), tx(t.time));
+      return { id: t.id, kind: "direct" as const, title: tx(m.name), sub: tx(m.city), who: t.with, ...l, unread: s.read[t.id] ? 0 : t.unread, online: ONLINE.has(t.with) };
+    }),
+  ];
+  const shown = rooms.filter((r) => (filter === "all" || r.kind === filter) && (!q.trim() || r.title.toLowerCase().includes(q.trim().toLowerCase())));
+  const room = rooms.find((r) => r.id === open);
+  const thread = THREADS.find((t) => t.id === open);
+  const ws = WORKSPACES.find((w) => w.id === open);
+  const unreadAll = rooms.reduce((n, r) => n + r.unread, 0);
+
   return (
     <>
-      <PageHead icon={MessagesSquare} kicker={{ ar: "الرسائل", en: "Messages" }} title={{ ar: "الرسائل الخاصة", en: "Direct messages" }} />
-      <div className={`m-chat ${th ? "has-open" : ""}`}>
-        <ul className="m-threads" aria-label={rtl ? "المحادثات" : "Conversations"}>
-          {THREADS.map((t) => { const m = memberOrMe(t.with); const extra = s.messages[t.id]; const last = extra?.at(-1); const unread = !s.read[t.id] && t.unread > 0; return (
-            <li key={t.id}><button className={`${open === t.id ? "is-active" : ""} ${unread ? "is-unread" : ""}`} onClick={() => pick(t.id)}>
-              <Avatar who={m} size={44} online={ONLINE.has(t.with)} />
-              <span><span className="m-thread-top"><strong>{tx(m.name)}</strong><small>{last ? ago(last.time, rtl) : tx(t.time)}</small></span><span className="m-thread-last">{typing === t.id ? <em className="m-typing-text">{rtl ? "يكتب…" : "typing…"}</em> : last ? `${last.from === "me" ? (rtl ? "أنت: " : "You: ") : ""}${last.text}` : tx(t.last)}</span></span>
-              {unread && <b className="m-count">{t.unread}</b>}
-            </button></li>
-          ); })}
-        </ul>
+      <PageHead icon={MessagesSquare} kicker={{ ar: "الرسائل", en: "Messages" }} title={{ ar: "الرسائل", en: "Messages" }} lead={rtl ? `محادثاتك المباشرة ومحادثات مساحات عملك في مكان واحد${unreadAll ? ` · ${unreadAll} غير مقروءة` : ""}.` : `Your direct chats and workspace chats in one place${unreadAll ? ` · ${unreadAll} unread` : ""}.`} />
+      <div className={`m-chat ${room ? "has-open" : ""}`}>
+        <aside className="i-list">
+          <label className="m-search i-search"><Search aria-hidden="true" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={rtl ? "ابحث في المحادثات" : "Search conversations"} aria-label={rtl ? "ابحث في المحادثات" : "Search conversations"} /></label>
+          <div className="i-filter" role="group" aria-label={rtl ? "نوع المحادثة" : "Conversation type"}>
+            {([["all", rtl ? "الكل" : "All"], ["direct", rtl ? "مباشرة" : "Direct"], ["work", rtl ? "المساحات" : "Workspaces"]] as const).map(([k, l]) => <button key={k} aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}
+          </div>
+          <ul className="m-threads" aria-label={rtl ? "المحادثات" : "Conversations"}>
+            {shown.map((r) => (
+              <li key={r.id}><button className={`${open === r.id ? "is-active" : ""} ${r.unread ? "is-unread" : ""}`} onClick={() => setOpen(r.id)}>
+                {r.kind === "work" ? <span className="i-room-ico"><FolderKanban /></span> : <Avatar who={memberOrMe(r.who!)} size={44} online={r.online} />}
+                <span><span className="m-thread-top"><strong>{r.title}</strong><small>{r.time}</small></span><span className="m-thread-last">{r.last}</span></span>
+                {r.unread > 0 && <b className="m-count">{r.unread}</b>}
+              </button></li>
+            ))}
+            {shown.length === 0 && <li className="m-muted i-none">{rtl ? "لا محادثات مطابقة" : "No matching conversations"}</li>}
+          </ul>
+        </aside>
         <section className="m-conv">
-          {!th ? <Empty icon={MessageSquare} title={rtl ? "اختر محادثة للبدء" : "Pick a conversation"} /> : (
-            <>
-              <header>
-                <button className="m-conv-back" onClick={() => setOpen(null)} aria-label={rtl ? "رجوع" : "Back"}>{rtl ? <ArrowRight /> : <ArrowLeft />}</button>
-                <Avatar who={memberOrMe(th.with)} size={38} online={ONLINE.has(th.with)} />
-                <a href={`/members/${th.with}`}><strong>{tx(memberOrMe(th.with).name)}</strong><small>{typing === th.id ? (rtl ? "يكتب…" : "typing…") : ONLINE.has(th.with) ? (rtl ? "متصل الآن" : "Online now") : (rtl ? "غير متصل" : "Offline")}</small></a>
-              </header>
-              <ol className="m-bubbles">
-                {th.messages.map((msg, i) => <li key={i} className={msg.from === "me" ? "is-me" : ""}><p>{tx(msg.text)}</p><small>{tx(msg.time)}</small></li>)}
-                {(s.messages[th.id] ?? []).map((msg, i) => <li key={`x${i}`} className={`is-new ${msg.from === "me" ? "is-me" : ""}`}><p>{msg.text}</p><small>{ago(msg.time, rtl)}{msg.from === "me" && <CheckCheck className="m-seen" aria-label={rtl ? "قُرئت" : "Seen"} />}</small></li>)}
-                {typing === th.id && <li className="m-typing" aria-label={rtl ? "يكتب" : "Typing"}><span /><span /><span /></li>}
-                <li ref={endRef} aria-hidden="true" className="m-end" />
-              </ol>
-              <form onSubmit={send}>
-                <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={rtl ? "اكتب رسالة…" : "Write a message…"} aria-label={rtl ? "رسالة" : "Message"} />
-                <button className="m-btn is-primary is-icon" disabled={!draft.trim()} aria-label={rtl ? "إرسال" : "Send"}><Send /></button>
-              </form>
-            </>
+          {!room ? <Empty icon={MessageSquare} title={rtl ? "اختر محادثة" : "Pick a conversation"} text={rtl ? "أو افتح ملف عضو واضغط «راسِل» لبدء محادثة جديدة." : "Or open a member's profile and tap Message to start one."} /> : (
+            <ChatRoom key={room.id} room={room.id} group={room.kind === "work"}
+              seed={ws ? ROOM_SEED[ws.id].messages : (thread?.messages ?? []).map((m) => ({ from: m.from, text: m.text, time: m.time }))}
+              replyFrom={ws ? ws.team.find((m) => m !== "me") : thread?.with}
+              replyText={ws ? { ar: "تمام، وصلت 👍", en: "Got it 👍" } : AUTO_REPLY[room.id]}
+              header={
+                <header className="c-head">
+                  <button className="m-conv-back" onClick={() => setOpen(null)} aria-label={rtl ? "رجوع" : "Back"}>{rtl ? <ArrowRight /> : <ArrowLeft />}</button>
+                  {ws ? <span className="i-room-ico is-sm"><FolderKanban /></span> : <Avatar who={memberOrMe(room.who!)} size={38} online={room.online} />}
+                  <a href={ws ? `/projects/${ws.id}#chat` : `/members/${room.who}`}><strong>{room.title}</strong><small>{ws ? ws.team.map((m) => tx(memberOrMe(m).name).split(" ")[0]).join(rtl ? "، " : ", ") : room.online ? (rtl ? "متصل الآن" : "Online now") : room.sub}</small></a>
+                  {ws && <a className="m-btn is-sm" href={`/projects/${ws.id}`}>{rtl ? "افتح المساحة" : "Open workspace"}</a>}
+                </header>
+              } />
           )}
         </section>
       </div>

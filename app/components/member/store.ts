@@ -7,7 +7,10 @@ import { useSyncExternalStore } from "react";
 
 export type Reaction = "like" | "love" | "idea" | "agree";
 export type Comment = { id: string; author: string; text: string; time: number };
-export type NewPost = { id: string; group: string; text: string; time: number; kind: "post" | "question" };
+export type Att = { name: string; size: number; type: string; preview?: string };
+export type ChatMsg = { id?: string; from: "me" | string; text: string; time: number; attachments?: Att[]; replyTo?: { who: string; text: string }; reactions?: Record<string, string[]> };
+export type NewTask = { id: string; ws: string; title: string; status: "todo" | "doing" | "done"; time: number };
+export type NewPost = { id: string; group: string; text: string; time: number; kind: "post" | "question"; attachments?: Att[] };
 
 type State = {
   reactions: Record<string, Reaction | undefined>;
@@ -16,7 +19,11 @@ type State = {
   joined: Record<string, boolean>;
   read: Record<string, boolean>;
   tasks: Record<string, boolean>;
-  messages: Record<string, { from: "me" | string; text: string; time: number }[]>;
+  messages: Record<string, ChatMsg[]>;
+  newTasks: NewTask[];
+  taskStatus: Record<string, "todo" | "doing" | "done">;
+  files: Record<string, (Att & { by: string; time: number })[]>;
+  msgReacts: Record<string, string>;
   posts: NewPost[];
   answered: Record<string, boolean>;
   votes: Record<string, string>;
@@ -24,7 +31,7 @@ type State = {
 };
 
 const KEY = "wepal-demo-v1";
-const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {} };
+const EMPTY: State = { reactions: {}, comments: {}, saved: {}, joined: {}, read: {}, tasks: {}, messages: {}, posts: [], answered: {}, votes: {}, newTasks: [], taskStatus: {}, files: {}, msgReacts: {} };
 let state: State = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();
@@ -78,4 +85,23 @@ export function ago(t: number, rtl: boolean) {
   const h = Math.round(m / 60);
   if (h < 24) return rtl ? `قبل ${h} س` : `${h}h ago`;
   return rtl ? `قبل ${Math.round(h / 24)} يوم` : `${Math.round(h / 24)}d ago`;
+}
+
+/** Read picked files into attachments. Images get a small preview (max 480px) so they show in chats. */
+export async function readFiles(list: FileList | File[]): Promise<Att[]> {
+  const files = Array.from(list).slice(0, 6);
+  return Promise.all(files.map(async (f) => {
+    const att: Att = { name: f.name, size: f.size, type: f.type || "application/octet-stream" };
+    if (!f.type.startsWith("image/")) return att;
+    try {
+      const url = URL.createObjectURL(f);
+      const img = await new Promise<HTMLImageElement>((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = url; });
+      const scale = Math.min(1, 480 / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      att.preview = c.toDataURL("image/jpeg", 0.72);
+    } catch { /* unreadable image: keep it as a file */ }
+    return att;
+  }));
 }

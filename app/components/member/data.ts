@@ -218,3 +218,42 @@ export const AUTO_REPLY: Record<string, T> = {
   th2: L("ممتاز، أخبرني إن احتجت شيئًا.", "Great, let me know if you need anything."),
   th3: L("بكل سرور 😊", "My pleasure 😊"),
 };
+
+/* ════════ Conversations & files ════════ */
+
+export type Attachment = { name: string; size: number; type: string; preview?: string };
+export type SeedMessage = { from: string; text: T; time: T; day?: T; attachments?: Attachment[] };
+
+/** Group chat seed for each workspace I'm in (the team talks here). */
+export const ROOM_SEED: Record<string, { unread: number; messages: SeedMessage[] }> = {
+  w1: {
+    unread: 3,
+    messages: [
+      { from: "m4", day: L("أمس", "Yesterday"), text: L("صباح الخير يا فريق! رفعت إطار المقارنة في الملفات.", "Morning team! I uploaded the comparison framework to Files."), time: L("09:12", "09:12"), attachments: [{ name: "إطار-المقارنة.pdf", size: 412000, type: "application/pdf" }] },
+      { from: "me", text: L("رائع، سأبدأ بتفريغ مقابلات جنين اليوم.", "Great, I'll start transcribing the Jenin interviews today."), time: L("09:20", "09:20") },
+      { from: "m1", day: L("اليوم", "Today"), text: L("رفعت ثلاث مقابلات جديدة من نابلس 🎙️", "I uploaded three new interviews from Nablus 🎙️"), time: L("10:05", "10:05"), attachments: [{ name: "مقابلات-نابلس.zip", size: 18400000, type: "application/zip" }] },
+      { from: "m1", text: L("وهذه صورة من جلسة الأمس للتوثيق.", "And a photo from yesterday's session for the record."), time: L("10:06", "10:06"), attachments: [{ name: "جلسة-نابلس.webp", size: 96000, type: "image/webp", preview: "/images/nablus.webp" }] },
+      { from: "m4", text: L("هل نلتقي الخميس لمراجعة الفصل الأول؟", "Shall we meet Thursday to review chapter one?"), time: L("10:30", "10:30") },
+    ],
+  },
+  w2: {
+    unread: 1,
+    messages: [
+      { from: "m5", day: L("أمس", "Yesterday"), text: L("الغلاف جاهز، رأيكم؟", "Cover is ready, thoughts?"), time: L("16:40", "16:40"), attachments: [{ name: "غلاف-اقرأ-الخبر.webp", size: 120000, type: "image/webp", preview: "/images/library.webp" }] },
+      { from: "me", text: L("جميل جدًا 👏", "Looks great 👏"), time: L("16:52", "16:52") },
+      { from: "m2", day: L("اليوم", "Today"), text: L("نص الحلقة الثالثة جاهز للمراجعة، أرجو الملاحظات قبل المساء.", "Episode three script is ready for review, notes before evening please."), time: L("11:15", "11:15"), attachments: [{ name: "الحلقة-3-نص.docx", size: 38000, type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }] },
+    ],
+  },
+  w5: { unread: 0, messages: [{ from: "m3", day: L("الشهر الماضي", "Last month"), text: L("نُشر الدليل في المكتبة 🎉 شكرًا للجميع.", "The guide is live in the Library 🎉 Thanks everyone."), time: L("14:00", "14:00") }] },
+};
+
+/** Files shared in each workspace, besides attachments posted in its chat. */
+export const WS_FILES: Record<string, (Attachment & { by: string; when: T })[]> = {
+  w1: [
+    { name: "خطة-البحث.pdf", size: 820000, type: "application/pdf", by: "me", when: L("قبل أسبوعين", "2 weeks ago") },
+    { name: "دليل-المقابلة.docx", size: 54000, type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", by: "m1", when: L("قبل 10 أيام", "10 days ago") },
+  ],
+  w2: [{ name: "جدول-الحلقات.xlsx", size: 22000, type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", by: "m2", when: L("قبل أسبوع", "1 week ago") }],
+};
+
+export const fmtSize = (b: number) => (b >= 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1e3))} KB`);

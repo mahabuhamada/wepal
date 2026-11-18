@@ -1,10 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Bookmark, HelpCircle, ImageIcon, MessageCircle, Send, Share2, ThumbsUp } from "lucide-react";
+import { Bookmark, HelpCircle, MessageCircle, Paperclip, PenLine, Send, Share2, ThumbsUp } from "lucide-react";
+import { AttachmentView } from "./chat";
 import { Avatar, memberOrMe, useMember } from "./shell";
 import { GROUPS, ME, type Post, type Group } from "./data";
-import { ago, toast, uid, update, useStore, type Reaction } from "./store";
+
+type FeedPostAtt = { attachments?: Att[] };
+import { ago, readFiles, toast, uid, update, useStore, type Att, type Reaction } from "./store";
 
 const REACTIONS: { key: Reaction; emoji: string; label: { ar: string; en: string } }[] = [
   { key: "like", emoji: "👍", label: { ar: "أعجبني", en: "Like" } },
@@ -13,7 +16,7 @@ const REACTIONS: { key: Reaction; emoji: string; label: { ar: string; en: string
   { key: "agree", emoji: "🤝", label: { ar: "أتفق", en: "Agree" } },
 ];
 
-type FeedPost = Post & { group: Group };
+type FeedPost = Post & { group: Group } & FeedPostAtt;
 
 /** One post in the feed: author, group, text, optional image, reactions, inline comments, save, share. */
 export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup?: boolean }) {
@@ -57,6 +60,7 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
       </header>
       <p className="s-text">{tx(post.text)}</p>
       {post.img && <img className="s-img" src={post.img} alt="" loading="lazy" />}
+      {!!post.attachments?.length && <div className="s-atts">{post.attachments.map((a, i) => <AttachmentView key={i} a={a} />)}</div>}
 
       <div className="s-counts">
         {reacts > 0 && <span className="s-emojis">{["👍", "❤️", "💡"].slice(0, Math.min(3, Math.ceil(reacts / 6))).map((e) => <i key={e}>{e}</i>)}<b>{reacts}</b></span>}
@@ -110,10 +114,13 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
   const [group, setGroup] = useState(fixedGroup ?? myGroups[0]?.id ?? GROUPS[0].id);
   const [kind, setKind] = useState<"post" | "question">("post");
   const [focus, setFocus] = useState(false);
+  const [files, setFiles] = useState<Att[]>([]);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const pick = async (list: FileList | null) => { if (list?.length) { const a = await readFiles(list); setFiles((f) => [...f, ...a].slice(0, 4)); setFocus(true); } };
   const submit = (e: React.FormEvent) => {
-    e.preventDefault(); if (!text.trim()) return;
-    update((x) => ({ ...x, posts: [{ id: uid(), group, text: text.trim(), time: Date.now(), kind }, ...x.posts] }));
-    setText(""); setFocus(false);
+    e.preventDefault(); if (!text.trim() && !files.length) return;
+    update((x) => ({ ...x, posts: [{ id: uid(), group, text: text.trim(), time: Date.now(), kind, attachments: files.length ? files : undefined }, ...x.posts] }));
+    setText(""); setFiles([]); setFocus(false);
     toast(rtl ? "نُشر منشورك" : "Your post is live");
   };
   return (
@@ -124,9 +131,12 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
           placeholder={kind === "question" ? (rtl ? "ما سؤالك للمجتمع؟" : "What's your question for the community?") : (rtl ? `بماذا تفكّر يا ${tx(ME.name).split(" ")[0]}؟` : `What's on your mind, ${tx(ME.name).split(" ")[0]}?`)}
           aria-label={rtl ? "منشور جديد" : "New post"} />
       </div>
+      {files.length > 0 && <div className="s-pending">{files.map((f, i) => <AttachmentView key={i} a={f} compact onRemove={() => setFiles((x) => x.filter((_, j) => j !== i))} />)}</div>}
       <div className="s-composer-bar">
+        <button type="button" className="s-attach" onClick={() => fileRef.current?.click()}><Paperclip />{rtl ? "صورة أو ملف" : "Photo or file"}</button>
+        <input ref={fileRef} type="file" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
         <div className="s-kinds" role="group" aria-label={rtl ? "نوع المنشور" : "Post type"}>
-          <button type="button" aria-pressed={kind === "post"} onClick={() => setKind("post")}><ImageIcon />{rtl ? "منشور" : "Post"}</button>
+          <button type="button" aria-pressed={kind === "post"} onClick={() => setKind("post")}><PenLine />{rtl ? "منشور" : "Post"}</button>
           <button type="button" aria-pressed={kind === "question"} onClick={() => setKind("question")}><HelpCircle />{rtl ? "سؤال" : "Question"}</button>
         </div>
         {!fixedGroup && (
@@ -134,7 +144,7 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
             {(myGroups.length ? myGroups : GROUPS).map((g) => <option key={g.id} value={g.id}>{tx(g.name)}</option>)}
           </select>
         )}
-        <button className="m-btn is-primary is-sm" disabled={!text.trim()}><Send />{rtl ? "انشر" : "Post"}</button>
+        <button className="m-btn is-primary is-sm" disabled={!text.trim() && !files.length}><Send />{rtl ? "انشر" : "Post"}</button>
       </div>
     </form>
   );
@@ -147,7 +157,7 @@ export function useFeed(groupId?: string) {
   const mine: FeedPost[] = s.posts.filter((p) => !groupId || p.group === groupId).map((p) => {
     const g = GROUPS.find((x) => x.id === p.group)!;
     const time = ago(p.time, lang === "ar");
-    return { id: p.id, author: "me", text: { ar: p.text, en: p.text }, time: { ar: time, en: time }, replies: 0, reacts: 0, kind: p.kind, group: g };
+    return { id: p.id, author: "me", text: { ar: p.text, en: p.text }, time: { ar: time, en: time }, replies: 0, reacts: 0, kind: p.kind, group: g, attachments: p.attachments };
   });
   const seeded: FeedPost[] = GROUPS.filter((g) => !groupId || g.id === groupId).flatMap((g) => g.posts.map((p) => ({ ...p, group: g })));
   return [...mine, ...seeded];

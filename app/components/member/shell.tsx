@@ -2,13 +2,13 @@
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  Bell, BookOpen, ClipboardList, Compass, FolderKanban, Globe2, House, Languages, LayoutGrid, LogOut, MessageCircle,
+  Bell, BookOpen, Compass, FolderKanban, Globe2, House, Languages, LayoutGrid, LogOut, MessageCircle,
   MessageCircleQuestion, MessagesSquare, Search, Settings, Sparkles, UserRound, Users, Vote, X, type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../identity";
 import { useLang } from "../site-chrome";
 import type { Lang, T } from "../content";
-import { ASK_SUGGESTIONS, GROUPS, MEMBERS, ME, NOTICES, ONLINE, THREADS, WORKSPACES, type Member } from "./data";
+import { ASK_SUGGESTIONS, GROUPS, MEMBERS, ME, NOTICES, ONLINE, ROOM_SEED, THREADS, WORKSPACES, type Member } from "./data";
 import { update, useStore, useToasts } from "./store";
 
 /* ── Context: current language for every member page ── */
@@ -24,10 +24,12 @@ type NavItem = { key: MemberRoute | "library"; href: string; icon: LucideIcon; l
 
 const NAV_MAIN: NavItem[] = [
   { key: "dashboard", href: "/dashboard", icon: House, label: { ar: "الرئيسية", en: "Home" } },
-  { key: "community", href: "/community", icon: Users, label: { ar: "المجتمع", en: "Community" } },
+  { key: "messages", href: "/messages", icon: MessagesSquare, label: { ar: "الرسائل", en: "Messages" } },
   { key: "projects", href: "/projects", icon: FolderKanban, label: { ar: "مساحات العمل", en: "Workspaces" } },
-  { key: "surveys", href: "/surveys", icon: ClipboardList, label: { ar: "الاستبيانات", en: "Surveys" } },
-  { key: "consultations", href: "/consultations", icon: Vote, label: { ar: "المشاورات", en: "Consultations" } },
+  { key: "community", href: "/community", icon: Users, label: { ar: "المجتمع", en: "Community" } },
+  { key: "surveys", href: "/surveys", icon: Vote, label: { ar: "شارك برأيك", en: "Have your say" } },
+];
+const NAV_MORE: NavItem[] = [
   { key: "members", href: "/members", icon: UserRound, label: { ar: "الأعضاء", en: "Members" } },
   { key: "assistant", href: "/assistant", icon: MessageCircleQuestion, label: { ar: "اسأل", en: "Ask" } },
   { key: "library", href: "/library", icon: BookOpen, label: { ar: "المكتبة", en: "Library" } },
@@ -37,7 +39,8 @@ const NAV_MAIN: NavItem[] = [
 function useCounts() {
   const s = useStore();
   const notices = NOTICES.filter((n) => n.unread && !s.read[n.id]).length;
-  const messages = THREADS.reduce((sum, t) => sum + (s.read[t.id] ? 0 : t.unread), 0);
+  const messages = THREADS.reduce((sum, t) => sum + (s.read[t.id] ? 0 : t.unread), 0)
+    + Object.entries(ROOM_SEED).reduce((sum, [id, r]) => sum + (WORKSPACES.find((w) => w.id === id)?.team.includes("me") && !s.read[id] ? r.unread : 0), 0);
   return { notices, messages };
 }
 
@@ -64,7 +67,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
   const counted = (item: NavItem): NavItem => item.key === "messages" ? { ...item, count: counts.messages } : item.key === "notifications" ? { ...item, count: counts.notices } : item;
 
   const link = (raw: NavItem, onClick?: () => void) => {
-    const item = counted(raw); const Icon = item.icon; const on = item.key === active;
+    const item = counted(raw); const Icon = item.icon; const on = item.key === active || (item.key === "surveys" && active === "consultations");
     return (
       <a key={item.key} href={item.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined} onClick={onClick}>
         <Icon aria-hidden="true" /><span>{tx(item.label)}</span>{!!item.count && <b className="m-count">{item.count}</b>}
@@ -133,6 +136,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
         <div className="m-layout">
           <aside className="m-side" aria-label={rtl ? "منطقة الأعضاء" : "Members area"}>
             <nav>{NAV_MAIN.map((i) => link(i))}</nav>
+            <nav className="m-side-more">{NAV_MORE.map((i) => link(i))}</nav>
             {myGroups.length > 0 && (
               <div className="m-side-group">
                 <p className="m-side-label">{rtl ? "مجموعاتي" : "My groups"}</p>
@@ -154,7 +158,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
         </div>
 
         {/* Floating "search & ask" */}
-        {active !== "assistant" && (
+        {active !== "assistant" && active !== "messages" && (
           <div className={`m-fab ${ask ? "is-open" : ""}`}>
             {ask && (
               <div className="m-fab-panel" role="dialog" aria-label={rtl ? "ابحث واسأل" : "Search & ask"}>
@@ -172,7 +176,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
 
         {/* Mobile: tab bar + sheet with every section */}
         <nav className="h-tabbar m-tabbar" aria-label={rtl ? "تنقل الأعضاء" : "Members navigation"}>
-          {[NAV_MAIN[0], NAV_MAIN[1], NAV_MAIN[2], { key: "messages" as const, href: "/messages", icon: MessageCircle, label: { ar: "الرسائل", en: "Messages" } }].map((raw) => { const t = counted(raw); const Icon = t.icon; const on = t.key === active; return (
+          {[NAV_MAIN[0], NAV_MAIN[1], NAV_MAIN[2], NAV_MAIN[3]].map((raw) => { const t = counted(raw); const Icon = t.icon; const on = t.key === active; return (
             <a key={t.key} href={t.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined}>
               <span className="h-tab-icon"><Icon />{!!t.count && <b className="m-dot">{t.count}</b>}</span><span>{tx(t.label)}</span>
             </a>
@@ -186,7 +190,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
               <button onClick={() => setSheet(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button>
             </div>
             <div className="m-sheet-grid">
-              {[...NAV_MAIN, { key: "notifications" as const, href: "/notifications", icon: Bell, label: { ar: "الإشعارات", en: "Notifications" } }, { key: "profile" as const, href: "/profile", icon: UserRound, label: { ar: "ملفي", en: "Profile" } }, { key: "settings" as const, href: "/settings", icon: Settings, label: { ar: "الإعدادات", en: "Settings" } }].map((i) => link(i, () => setSheet(false)))}
+              {[...NAV_MAIN, ...NAV_MORE, { key: "notifications" as const, href: "/notifications", icon: Bell, label: { ar: "الإشعارات", en: "Notifications" } }, { key: "profile" as const, href: "/profile", icon: UserRound, label: { ar: "ملفي", en: "Profile" } }, { key: "settings" as const, href: "/settings", icon: Settings, label: { ar: "الإعدادات", en: "Settings" } }].map((i) => link(i, () => setSheet(false)))}
             </div>
             <div className="m-sheet-foot">
               <a href="/"><Compass />{rtl ? "البوابة العامة" : "Public site"}</a>

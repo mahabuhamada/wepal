@@ -7,6 +7,17 @@ import { ASK_SUGGESTIONS, CONSULTATIONS, SURVEYS } from "./data";
 import { toast, update, useStore } from "./store";
 import { NEWS, RESOURCES } from "../content";
 
+/** "Have your say" groups surveys and consultations: a switch between the two pages. */
+function Participate({ current }: { current: "surveys" | "consultations" }) {
+  const { rtl } = useMember();
+  return (
+    <nav className="p-switch" aria-label={rtl ? "شارك برأيك" : "Have your say"}>
+      <a href="/surveys" aria-current={current === "surveys" ? "page" : undefined}><ClipboardList aria-hidden="true" />{rtl ? "الاستبيانات" : "Surveys"}</a>
+      <a href="/consultations" aria-current={current === "consultations" ? "page" : undefined}><Vote aria-hidden="true" />{rtl ? "المشاورات" : "Consultations"}</a>
+    </nav>
+  );
+}
+
 function Surveys() {
   const { rtl, tx } = useMember();
   const Arrow = rtl ? ArrowLeft : ArrowRight;
@@ -22,7 +33,8 @@ function Surveys() {
   const featured = SURVEYS.find((s) => s.status === "open" && !answered[s.id]);
   return (
     <>
-      <PageHead icon={ClipboardList} kicker={{ ar: "بحث مجتمعي منظّم", en: "Structured community research" }} title={{ ar: "الاستبيانات", en: "Surveys" }} lead={{ ar: "استطلاعات قصيرة تجمع رأي الأعضاء وتحوّله إلى قراءة موثّقة.", en: "Short surveys that turn members' views into a documented reading." }} />
+      <Participate current="surveys" />
+      <PageHead icon={ClipboardList} kicker={{ ar: "شارك برأيك", en: "Have your say" }} title={{ ar: "الاستبيانات", en: "Surveys" }} lead={{ ar: "استطلاعات قصيرة تجمع رأي الأعضاء وتحوّله إلى قراءة موثّقة.", en: "Short surveys that turn members' views into a documented reading." }} />
       {featured && tab === "open" && (
         <div className="m-feature">
           <span className="m-kicker"><ClipboardList aria-hidden="true" />{rtl ? "الاستبيان المميز" : "Featured survey"}</span>
@@ -63,7 +75,8 @@ function Consultations() {
   };
   return (
     <>
-      <PageHead icon={Vote} kicker={{ ar: "المشاورات", en: "Consultations" }} title={{ ar: "الاستشارات المجتمعية", en: "Community consultations" }} lead={{ ar: "صوّت على عبارات قصيرة لنعرف أين نتفق وأين نختلف.", en: "Vote on short statements to see where we agree and differ." }} />
+      <Participate current="consultations" />
+      <PageHead icon={Vote} kicker={{ ar: "شارك برأيك", en: "Have your say" }} title={{ ar: "الاستشارات المجتمعية", en: "Community consultations" }} lead={{ ar: "صوّت على عبارات قصيرة لنعرف أين نتفق وأين نختلف.", en: "Vote on short statements to see where we agree and differ." }} />
       {open ? (
         <section className="m-consult">
           <div className="m-consult-head">
