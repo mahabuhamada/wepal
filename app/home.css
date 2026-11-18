@@ -588,3 +588,23 @@ html:has(.home) { scroll-padding-top: 40px; }
 .h-lang button:not([aria-pressed="true"]) .lang-flag { opacity: .6; filter: saturate(.55); }
 .h-lang button:hover .lang-flag, .h-lang-mini:hover .lang-flag, .h-drawer-lang button:hover .lang-flag, .f-seg button:hover .lang-flag { transform: translateY(-1px) rotate(-4deg); opacity: 1; filter: none; box-shadow: 0 4px 10px rgba(16,25,66,.25); }
 .h-drawer-lang button, .f-seg button { display: flex; align-items: center; justify-content: center; gap: 9px; }
+
+/* ════════ Menu refinement: one control height, lighter buttons ════════ */
+.h-header { --ctl-h: 34px; }
+.h-header-inner { height: 62px; gap: 16px; padding-inline: 16px 14px; }
+.h-header.is-scrolled .h-header-inner { height: 56px; }
+.h-nav { gap: 0; }
+.h-nav a { gap: 6px; padding: 0 12px; height: var(--ctl-h); font-size: 13.5px; font-weight: 650; }
+.h-nav-icon { width: 14px; height: 14px; }
+.h-nav-indicator { height: var(--ctl-h); margin-top: calc(var(--ctl-h) / -2); }
+.h-actions { gap: 6px; }
+.h-search-trigger { height: var(--ctl-h); gap: 6px; padding: 0 12px !important; font-size: 12.5px; background: transparent; }
+.h-search-trigger svg { width: 15px; height: 15px; }
+.h-lang { height: var(--ctl-h); padding: 3px; }
+.h-lang button { height: calc(var(--ctl-h) - 6px); padding: 0 10px; gap: 6px; font-size: 12px; }
+.h-lang .lang-flag { width: 17px; height: 12px; }
+.h-identity { height: var(--ctl-h); }
+.h-identity button { width: 30px; height: calc(var(--ctl-h) - 6px); }
+.h-login { display: inline-flex; align-items: center; height: var(--ctl-h); padding: 0 16px; font-size: 12.5px; font-weight: 750; }
+.h-login:hover { transform: none; }
+@media (max-width: 1180px) { .h-search-trigger { width: var(--ctl-h) !important; padding: 0 !important; } .h-nav a { padding: 0 10px; } }
