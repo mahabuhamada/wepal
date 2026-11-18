@@ -63,7 +63,11 @@ export function useLang() {
   return [lang, change] as const;
 }
 
-export function SiteHeader({ lang, onLang, current, member = false }: { lang: Lang; onLang: (l: Lang) => void; current: string; member?: boolean }) {
+export function SiteHeader({ lang, onLang, current, member: memberProp = false }: { lang: Lang; onLang: (l: Lang) => void; current: string; member?: boolean }) {
+  // Signed in to the members area in this browser: show "My area" instead of "Member login".
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => { let v = false; try { v = window.localStorage.getItem("wepal-member") === "1"; } catch { /* storage blocked */ } const id = requestAnimationFrame(() => setSignedIn(v)); return () => cancelAnimationFrame(id); }, []);
+  const member = memberProp || signedIn;
   const rtl = lang === "ar";
   const Arrow = rtl ? ArrowLeft : ArrowRight;
   const [scrolled, setScrolled] = useState(false);
@@ -138,7 +142,7 @@ export function SiteHeader({ lang, onLang, current, member = false }: { lang: La
 
 
       <nav className="h-tabbar" aria-label={rtl ? "التنقل السريع" : "Quick navigation"}>
-        {TABS.map((t) => { const Icon = t.icon; const active = t.href === current; return (
+        {TABS.map((raw) => { const t = raw.href === "/login" && member ? { ...raw, href: "/dashboard", label: { ar: "مساحتي", en: "My area" } } : raw; const Icon = t.icon; const active = t.href === current; return (
           <a key={t.href} href={t.href} className={active ? "is-active" : ""} aria-current={active ? "page" : undefined} onClick={(e) => { if (active) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }}><span className="h-tab-icon"><Icon /></span><span>{t.label[lang]}</span></a>
         ); })}
         <button onClick={() => setMenuOpen(true)} className={menuOpen ? "is-active" : ""} aria-label={rtl ? "القائمة الكاملة" : "Full menu"} aria-expanded={menuOpen}><span className="h-tab-icon"><LayoutGrid /></span><span>{rtl ? "المزيد" : "More"}</span></button>

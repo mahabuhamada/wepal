@@ -112,7 +112,7 @@ function Messages() {
         </aside>
         <section className="m-conv">
           {!room ? <Empty icon={MessageSquare} title={rtl ? "اختر محادثة" : "Pick a conversation"} text={rtl ? "أو افتح ملف عضو واضغط «راسِل» لبدء محادثة جديدة." : "Or open a member's profile and tap Message to start one."} /> : (
-            <ChatRoom key={room.id} room={room.id} group={room.kind === "work"}
+            <ChatRoom key={room.id} room={room.id} group={room.kind === "work"} where={room.title} href={`/messages?t=${room.id}`}
               seed={ws ? ROOM_SEED[ws.id].messages : (thread?.messages ?? []).map((m) => ({ from: m.from, text: m.text, time: m.time }))}
               replyFrom={ws ? ws.team.find((m) => m !== "me") : thread?.with}
               replyText={ws ? { ar: "تمام، وصلت 👍", en: "Got it 👍" } : AUTO_REPLY[room.id]}
@@ -139,9 +139,10 @@ function Notifications() {
   const [tab, setTab] = useState<"all" | "unread">("all");
   const needs = NOTICES.filter((n) => n.kind !== "info");
   const info = NOTICES.filter((n) => n.kind === "info");
-  const unread = NOTICES.filter((n) => !isRead(n.id)).length;
+  const events = s.events ?? [];
+  const unread = NOTICES.filter((n) => !isRead(n.id)).length + events.filter((e) => !s.read[e.id]).length;
   const show = (list: typeof NOTICES) => list.filter((n) => tab === "all" || !isRead(n.id));
-  const markAll = () => update((x) => ({ ...x, read: { ...x.read, ...Object.fromEntries(NOTICES.map((n) => [n.id, true])) } }));
+  const markAll = () => update((x) => ({ ...x, read: { ...x.read, ...Object.fromEntries([...NOTICES.map((n) => n.id), ...(x.events ?? []).map((e) => e.id)].map((id) => [id, true])) } }));
   const row = (n: (typeof NOTICES)[number]) => (
     <li key={n.id} className={isRead(n.id) ? "" : "is-unread"}><a href={n.href} onClick={() => update((x) => ({ ...x, read: { ...x.read, [n.id]: true } }))}>
       <span className={`m-ico is-${n.kind}`}>{n.kind === "reply" ? <MessageSquare /> : n.kind === "task" ? <ListTodo /> : n.kind === "decision" ? <Vote /> : <Bell />}</span>
@@ -153,6 +154,16 @@ function Notifications() {
       <PageHead icon={Bell} kicker={{ ar: "الإشعارات", en: "Notifications" }} title={{ ar: "الإشعارات", en: "Notifications" }} lead={rtl ? `غير المقروءة: ${unread}` : `Unread: ${unread}`}
         actions={<button className="m-btn" onClick={() => { markAll(); toast(rtl ? "عُلّمت كلها كمقروءة" : "All marked as read"); }} disabled={!unread}><CheckCheck />{rtl ? "تعليم الكل كمقروء" : "Mark all read"}</button>} />
       <div className="m-toolbar"><Tabs label={rtl ? "العرض" : "View"} value={tab} onChange={setTab} items={[{ key: "all", label: rtl ? "الكل" : "All" }, { key: "unread", label: rtl ? "غير المقروءة" : "Unread", count: unread }]} /></div>
+      {events.filter((e) => tab === "all" || !s.read[e.id]).length > 0 && (
+        <Card title={rtl ? "جديد الآن" : "Just now"}>
+          <ul className="m-list">{events.filter((e) => tab === "all" || !s.read[e.id]).map((e) => (
+            <li key={e.id} className={s.read[e.id] ? "" : "is-unread"}><a href={e.href} onClick={() => update((x) => ({ ...x, read: { ...x.read, [e.id]: true } }))}>
+              <Avatar who={memberOrMe(e.who)} size={38} />
+              <span><strong>{rtl ? `${tx(memberOrMe(e.who).name)} ردّ: ${e.text}` : `${tx(memberOrMe(e.who).name)} replied: ${e.text}`}</strong><small>{e.where} · {ago(e.time, rtl)}</small></span><Arrow className="m-go" />
+            </a></li>
+          ))}</ul>
+        </Card>
+      )}
       <Card title={rtl ? "يحتاج ردّك" : "Needs your response"}>{show(needs).length ? <ul className="m-list">{show(needs).map(row)}</ul> : <Empty icon={CheckCheck} title={rtl ? "لا شيء ينتظر ردّك." : "Nothing needs a response."} />}</Card>
       <Card title={rtl ? "للعلم" : "For your information"}>{show(info).length ? <ul className="m-list">{show(info).map(row)}</ul> : <Empty icon={Bell} title={rtl ? "لا إشعارات أخرى." : "No other notifications."} />}</Card>
     </>

@@ -18,6 +18,7 @@ function Dashboard() {
   const s = useStore();
   const feed = useFeed();
   const [hour, setHour] = useState<number | null>(null);
+  const [allTodos, setAllTodos] = useState(false);
   useEffect(() => { const id = requestAnimationFrame(() => setHour(new Date().getHours())); return () => cancelAnimationFrame(id); }, []);
   const first = tx(ME.name).split(" ")[0];
   const hello = hour === null ? (rtl ? "أهلًا" : "Hello") : hour < 12 ? (rtl ? "صباح الخير" : "Good morning") : (rtl ? "مساء الخير" : "Good evening");
@@ -104,7 +105,7 @@ function Dashboard() {
       <div className="d2-row" id="focus">
         <Card title={rtl ? "المطلوب مني" : "Asked of me"} className="d2-span" action={<span className="d2-pill">{n}</span>}>
           {n === 0 ? <p className="m-muted">{rtl ? "أنجزت كل شيء 🎉" : "All done 🎉"}</p> : (
-            <ol className="d-todos">
+            <ol className={`d-todos ${allTodos ? "is-all" : ""}`}>
               {todos.map((t, i) => (
                 <li key={t.id}>
                   <span className="d-num">{i + 1}</span>
@@ -115,6 +116,7 @@ function Dashboard() {
               ))}
             </ol>
           )}
+          {n > 3 && <button className="m-btn is-sm d-todos-more" onClick={() => setAllTodos((v) => !v)} aria-expanded={allTodos}>{allTodos ? (rtl ? "عرض أقل" : "Show less") : (rtl ? `عرض الكل (${n})` : `Show all (${n})`)}</button>}
         </Card>
         <Card title={rtl ? "المواعيد القادمة" : "Upcoming"}>
           <div className="d2-agenda">

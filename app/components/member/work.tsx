@@ -180,7 +180,7 @@ function WorkspaceDetail() {
 
       {tab === "chat" && (member ? (
         <div className="w-chat">
-          <ChatRoom room={ws.id} seed={ROOM_SEED[ws.id]?.messages ?? []} group replyFrom={ws.team.find((m) => m !== "me")} replyText={{ ar: "تمام، وصلت 👍 سأطّلع عليها.", en: "Got it 👍 I'll take a look." }}
+          <ChatRoom room={ws.id} seed={ROOM_SEED[ws.id]?.messages ?? []} group where={tx(ws.title)} href={`/projects/${ws.id}#chat`} replyFrom={ws.team.find((m) => m !== "me")} replyText={{ ar: "تمام، وصلت 👍 سأطّلع عليها.", en: "Got it 👍 I'll take a look." }}
             header={<header className="c-head"><span className="w-chat-ico"><FolderKanban /></span><span><strong>{tx(ws.title)}</strong><small>{ws.team.map((m) => tx(memberOrMe(m).name).split(" ")[0]).join(rtl ? "، " : ", ")}</small></span><span className="m-team">{ws.team.slice(0, 4).map((m) => <Avatar key={m} who={memberOrMe(m)} size={28} />)}</span></header>}
             placeholder={rtl ? "اكتب للفريق… (يمكنك سحب الملفات وإفلاتها هنا)" : "Message the team… (you can drop files here)"} />
         </div>
