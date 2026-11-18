@@ -114,3 +114,35 @@ body { overflow-x: clip; }
 @media (display-mode: standalone) {
   .h-tabbar { padding-bottom: max(var(--safe-bottom, 0px), 6px); }
 }
+
+/* ════════ Mobile menu refinement ════════ */
+@media (max-width: 760px) {
+  :root { --appbar-h: 54px; --tabbar-h: 58px; }
+  .h-header-inner, .h-header.is-scrolled .h-header-inner { padding-inline: 14px; }
+  .h-actions { gap: 6px; }
+  .h-search-trigger { width: 34px !important; height: 34px; border-radius: 10px; }
+  .h-search-trigger svg { width: 16px; height: 16px; }
+  .h-lang-mini { height: 34px; padding: 0 10px; gap: 6px; border-radius: 10px; font-size: 12px; }
+  .h-lang-mini .lang-flag { width: 18px; height: 13px; }
+
+  /* Tab bar: slimmer, smaller icons and labels */
+  .h-tabbar { padding-top: 5px; }
+  .h-tabbar > a, .h-tabbar > button { gap: 2px; font-size: 10.5px; font-weight: 650; }
+  .h-tab-icon { width: 46px; height: 28px; }
+  .h-tab-icon svg { width: 19px; height: 19px; stroke-width: 1.9; }
+
+  /* "More" menu: calmer, more compact list */
+  .h-drawer-top .wp-logo { height: 20px; }
+  .h-drawer-top button { width: 38px; height: 38px; }
+  .h-drawer-top button svg { width: 20px; height: 20px; }
+  .h-drawer nav { gap: 0; margin-top: 18px; }
+  .h-drawer nav a { gap: 12px; padding: 13px 4px; font-size: 16px; font-weight: 650; }
+  .h-drawer nav a > span { min-width: 18px; font-size: 11px; }
+  .h-drawer nav a > svg:not(:last-child) { width: 18px; height: 18px; opacity: .85; }
+  .h-drawer nav a > svg:last-child { width: 16px; height: 16px; opacity: .35; }
+  .h-drawer nav a.is-active { color: var(--c-light); }
+  .h-drawer-lang { margin-top: 16px; padding: 4px; border-radius: 14px; }
+  .h-drawer-lang button { height: 38px; border-radius: 10px; font-size: 14px; }
+  .h-drawer-foot { gap: 8px; }
+  .h-drawer-foot button, .h-drawer-foot a { height: 44px; border-radius: 12px; font-size: 14px; }
+}
