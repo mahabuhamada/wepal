@@ -79,3 +79,9 @@ html.identity-switching *, html.identity-switching *::before, html.identity-swit
 .h-partner-mark .wp-logo, .portal-v3 .partnership-mark .wp-logo { height: var(--mark-h); }
 .h-partner-mark > img.h-sdf-logo, .portal-v3 .partnership-mark > img.sdf-logo-img { width: auto !important; height: var(--mark-h) !important; max-width: none; flex: none; }
 .h-partner-mark > span, .portal-v3 .partnership-mark > span { font-size: 16px; line-height: 1; }
+/* SDF logo larger than the WePal mark so its Arabic text reads clearly */
+.h-partner-mark > img.h-sdf-logo, .portal-v3 .partnership-mark > img.sdf-logo-img { height: 54px !important; }
+@media (max-width: 560px) {
+  .h-partner-mark, .portal-v3 .partnership-mark { --mark-h: 24px; gap: 12px; padding: 12px 14px; }
+  .h-partner-mark > img.h-sdf-logo, .portal-v3 .partnership-mark > img.sdf-logo-img { height: 44px !important; }
+}
