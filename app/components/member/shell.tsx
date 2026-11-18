@@ -39,8 +39,9 @@ const NAV_MORE: NavItem[] = [
 function useCounts() {
   const s = useStore();
   const notices = NOTICES.filter((n) => n.unread && !s.read[n.id]).length + (s.events ?? []).filter((e) => !s.read[e.id]).length;
-  const messages = THREADS.reduce((sum, t) => sum + (s.read[t.id] ? 0 : t.unread), 0)
-    + Object.entries(ROOM_SEED).reduce((sum, [id, r]) => sum + (WORKSPACES.find((w) => w.id === id)?.team.includes("me") && !s.read[id] ? r.unread : 0), 0);
+  // Muted conversations never add to the unread badge.
+  const messages = THREADS.reduce((sum, t) => sum + (s.read[t.id] || s.muted[t.id] ? 0 : t.unread), 0)
+    + Object.entries(ROOM_SEED).reduce((sum, [id, r]) => sum + (WORKSPACES.find((w) => w.id === id)?.team.includes("me") && !s.read[id] && !s.muted[id] ? r.unread : 0), 0);
   return { notices, messages };
 }
 
@@ -274,6 +275,27 @@ function GlobalSearch({ open, onClose, onAsk }: { open: boolean; onClose: () => 
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Side panel on desktop, bottom sheet on phones. Closes on Escape or backdrop. */
+export function Panel({ open, onClose, title, children, footer }: { open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode }) {
+  const { rtl } = useMember();
+  useEffect(() => {
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", esc); document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", esc); document.body.style.overflow = ""; };
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="m-panel" onClick={onClose}>
+      <aside className="m-panel-box" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
+        <header className="m-panel-head"><h2>{title}</h2><button onClick={onClose} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></header>
+        <div className="m-panel-body">{children}</div>
+        {footer && <footer className="m-panel-foot">{footer}</footer>}
+      </aside>
     </div>
   );
 }

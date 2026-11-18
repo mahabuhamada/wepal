@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Award, Bell, CheckCheck, Download, Eye, FolderKanban, Globe2, KeyRound, ListTodo, Lock, MapPin, MessageSquare, MessagesSquare, Pencil, Search, Settings, ShieldCheck, Trash2, UserRound, Vote } from "lucide-react";
+import { ArrowLeft, ArrowRight, Award, Bell, BellOff, CheckCheck, Download, Eye, FolderKanban, Globe2, KeyRound, ListTodo, Lock, MapPin, MessageSquare, MessagesSquare, Pencil, Search, Settings, ShieldCheck, Trash2, UserRound, Vote } from "lucide-react";
 import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, memberOrMe, useMember } from "./shell";
 import { AUTO_REPLY, BADGES, GROUPS, ME, NOTICES, ONLINE, ROOM_SEED, THREADS, TRACKS, WORKSPACES } from "./data";
 import { ChatRoom } from "./chat";
@@ -77,11 +77,11 @@ function Messages() {
   const rooms: Room[] = [
     ...WORKSPACES.filter((w) => w.team.includes("me") && ROOM_SEED[w.id]).map((w) => {
       const seed = ROOM_SEED[w.id]; const sl = seed.messages.at(-1)!; const l = lastOf(w.id, `${tx(memberOrMe(sl.from).name).split(" ")[0]}: ${tx(sl.text)}`, tx(sl.time));
-      return { id: w.id, kind: "work" as const, title: tx(w.title), sub: rtl ? `${w.team.length} أعضاء` : `${w.team.length} members`, ...l, unread: s.read[w.id] ? 0 : seed.unread };
+      return { id: w.id, kind: "work" as const, title: tx(w.title), sub: rtl ? `${w.team.length} أعضاء` : `${w.team.length} members`, ...l, unread: s.read[w.id] || s.muted[w.id] ? 0 : seed.unread };
     }),
     ...THREADS.map((t) => {
       const m = memberOrMe(t.with); const l = lastOf(t.id, tx(t.last), tx(t.time));
-      return { id: t.id, kind: "direct" as const, title: tx(m.name), sub: tx(m.city), who: t.with, ...l, unread: s.read[t.id] ? 0 : t.unread, online: ONLINE.has(t.with) };
+      return { id: t.id, kind: "direct" as const, title: tx(m.name), sub: tx(m.city), who: t.with, ...l, unread: s.read[t.id] || s.muted[t.id] ? 0 : t.unread, online: ONLINE.has(t.with) };
     }),
   ];
   const shown = rooms.filter((r) => (filter === "all" || r.kind === filter) && (!q.trim() || r.title.toLowerCase().includes(q.trim().toLowerCase())));
@@ -104,7 +104,7 @@ function Messages() {
               <li key={r.id}><button className={`${open === r.id ? "is-active" : ""} ${r.unread ? "is-unread" : ""}`} onClick={() => setOpen(r.id)}>
                 {r.kind === "work" ? <span className="i-room-ico"><FolderKanban /></span> : <Avatar who={memberOrMe(r.who!)} size={44} online={r.online} />}
                 <span><span className="m-thread-top"><strong>{r.title}</strong><small>{r.time}</small></span><span className="m-thread-last">{r.last}</span></span>
-                {r.unread > 0 && <b className="m-count">{r.unread}</b>}
+                {s.muted[r.id] ? <BellOff className="i-muted" aria-label={rtl ? "مكتومة" : "Muted"} /> : r.unread > 0 && <b className="m-count">{r.unread}</b>}
               </button></li>
             ))}
             {shown.length === 0 && <li className="m-muted i-none">{rtl ? "لا محادثات مطابقة" : "No matching conversations"}</li>}
@@ -112,7 +112,7 @@ function Messages() {
         </aside>
         <section className="m-conv">
           {!room ? <Empty icon={MessageSquare} title={rtl ? "اختر محادثة" : "Pick a conversation"} text={rtl ? "أو افتح ملف عضو واضغط «راسِل» لبدء محادثة جديدة." : "Or open a member's profile and tap Message to start one."} /> : (
-            <ChatRoom key={room.id} room={room.id} group={room.kind === "work"} where={room.title} href={`/messages?t=${room.id}`}
+            <ChatRoom key={room.id} room={room.id} group={room.kind === "work"} people={ws ? ws.team : room.who ? [room.who] : []} where={room.title} href={`/messages?t=${room.id}`}
               seed={ws ? ROOM_SEED[ws.id].messages : (thread?.messages ?? []).map((m) => ({ from: m.from, text: m.text, time: m.time }))}
               replyFrom={ws ? ws.team.find((m) => m !== "me") : thread?.with}
               replyText={ws ? { ar: "تمام، وصلت 👍", en: "Got it 👍" } : AUTO_REPLY[room.id]}
