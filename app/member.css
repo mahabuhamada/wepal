@@ -437,8 +437,8 @@
 [dir="rtl"] .dh-glow { inset: -40% auto auto -10%; }
 .dh-hero::after { content: ""; position: absolute; z-index: -1; inset: auto auto -120px -60px; width: 300px; height: 300px; border-radius: 50%; border: 44px solid rgba(255,255,255,.05); }
 [dir="rtl"] .dh-hero::after { inset: auto -60px -120px auto; }
-.dh-dots { position: absolute; top: 24px; inset-inline-end: 26px; display: flex; gap: 6px; }
-.dh-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--c400); }
+.dh-dots { display: flex; gap: 6px; margin-top: 4px; }
+.dh-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--c400); }
 .dh-dots i:nth-child(2) { background: #fff; } .dh-dots i:nth-child(3) { background: var(--y400); }
 .dh-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .dh-hello { display: grid; gap: 10px; justify-items: start; max-width: 640px; }

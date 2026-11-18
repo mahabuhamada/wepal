@@ -90,7 +90,7 @@ function Dashboard() {
     <div className="dh">
       {/* ── Welcome ── */}
       <section className="dh-hero" aria-labelledby="dh-title">
-        <span className="dh-glow" aria-hidden="true" /><span className="dh-dots" aria-hidden="true"><i /><i /><i /></span>
+        <span className="dh-glow" aria-hidden="true" />
         <div className="dh-hero-top">
           <div className="dh-hello">
             <span className="dh-when"><Icon aria-hidden="true" />{hello}{today && <> · {today}</>}</span>
@@ -105,6 +105,7 @@ function Dashboard() {
             <span className="dh-ring"><Avatar who={{ ...ME, tone: 0 }} size={84} /></span>
             <strong>{tx(ME.name)}</strong>
             <small>{tx(ME.city)} · {rtl ? "3 شارات" : "3 badges"}</small>
+            <span className="dh-dots" aria-hidden="true"><i /><i /><i /></span>
           </a>
         </div>
         <div className="dh-stats">
