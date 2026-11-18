@@ -119,18 +119,26 @@ function Dashboard() {
 
       {/* ── My places ── */}
       <section className="dh-places" aria-label={rtl ? "أماكني" : "My places"}>
-        <div className="d-stories">
-          {myWork.map((w) => (
-            <a key={w.id} href={`/projects/${w.id}`} className={`d-story is-work ${roomUnread(w.id) ? "is-fresh" : ""}`}>
-              <span className="d-ring"><span className="d-bubble"><FolderKanban /></span></span><span className="d-story-label">{tx(w.title)}</span>
-            </a>
-          ))}
+        <div className="dh-places-row">
+          {myWork.map((w) => {
+            const n = roomUnread(w.id);
+            return (
+              <a key={w.id} href={`/projects/${w.id}`} className="dh-place is-work">
+                <span className="dh-place-ic"><FolderKanban aria-hidden="true" />{n > 0 && <i className="dh-place-dot" />}</span>
+                <span className="dh-place-txt"><strong>{tx(w.title)}</strong><small>{n > 0 ? (rtl ? (n === 1 ? "رسالة جديدة" : n === 2 ? "رسالتان جديدتان" : `${n} رسائل جديدة`) : `${n} new message${n === 1 ? "" : "s"}`) : (rtl ? "مساحة عمل" : "Workspace")}</small></span>
+              </a>
+            );
+          })}
           {myGroups.map((g) => (
-            <a key={g.id} href={`/community/${g.id}`} className={`d-story is-group ${g.posts.length > 1 ? "is-fresh" : ""}`}>
-              <span className="d-ring"><span className="d-bubble">{tx(g.name).slice(0, 1)}</span></span><span className="d-story-label">{tx(g.name)}</span>
+            <a key={g.id} href={`/community/${g.id}`} className="dh-place is-group">
+              <span className="dh-place-ic">{tx(g.name).slice(0, 1)}{g.posts.length > 1 && <i className="dh-place-dot" />}</span>
+              <span className="dh-place-txt"><strong>{tx(g.name)}</strong><small>{rtl ? `مجموعة · ${g.members} عضوًا` : `Group · ${g.members} members`}</small></span>
             </a>
           ))}
-          <a href="/community" className="d-story is-explore"><span className="d-ring"><span className="d-bubble"><Compass /></span></span><span className="d-story-label">{rtl ? "اكتشف" : "Explore"}</span></a>
+          <a href="/community" className="dh-place is-explore">
+            <span className="dh-place-ic"><Compass aria-hidden="true" /></span>
+            <span className="dh-place-txt"><strong>{rtl ? "اكتشف المزيد" : "Discover more"}</strong><small>{rtl ? "مجموعات ومساحات" : "Groups and spaces"}</small></span>
+          </a>
         </div>
       </section>
 
