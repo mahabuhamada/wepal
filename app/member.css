@@ -283,7 +283,7 @@
 .s-post { padding: 18px; animation: hIn .45s var(--ease) backwards; scroll-margin-top: calc(var(--top-h) + 16px); }
 .s-post:target { border-color: var(--b500); box-shadow: 0 0 0 4px rgba(var(--b500-rgb),.12); }
 .s-post header { display: flex; align-items: center; gap: 11px; margin-bottom: 10px; }
-.s-post header > div { display: grid; flex: 1; min-width: 0; }
+.s-post header > div:not(.s-menu) { display: grid; flex: 1; min-width: 0; }
 .s-post header strong { color: var(--n800); font-size: 14.5px; }
 .s-post header small { color: var(--ink-3); font-size: 12.5px; }
 .s-post header a:hover strong, .s-post header small a:hover { color: var(--b500); }
