@@ -1,7 +1,6 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
-import Link from "next/link";
 import {
   ArrowLeft, ArrowRight, BookHeart, BookOpen, CalendarDays, ChevronDown,
   CircleHelp, Clock, Download, Eye, FileText, Info, Layers3, Library,
@@ -100,7 +99,7 @@ export default function PortalPage({ page }: { page: PortalPageType }) {
         <div className="portal-hero-pattern" />
         <div className="shell portal-hero-inner">
           <div className="portal-hero-copy">
-            <div className="portal-breadcrumb"><Link href="/">{rtl ? "الرئيسية" : "Home"}</Link><Arrow size={13} /><span>{text.kicker}</span></div>
+            <div className="portal-breadcrumb"><a href="/">{rtl ? "الرئيسية" : "Home"}</a><Arrow size={13} /><span>{text.kicker}</span></div>
             <div className="portal-kicker"><Icon size={16} />{text.kicker}</div>
             <h1>{text.title}</h1><p>{text.text}</p><div className="portal-hero-pills">{pageTags[page][language].map((tag,index)=><span key={tag}><i>{String(index+1).padStart(2,"0")}</i>{tag}</span>)}</div>
           </div>
@@ -197,7 +196,7 @@ function LoginPage({ language }: { language: Language }) {
           </div>
         </aside>
 
-        <form className="login-form" onSubmit={(e) => { e.preventDefault(); window.location.href = "/dashboard"; }}>
+        <form className="login-form" onSubmit={(e) => { e.preventDefault(); window.location.assign(`${window.location.origin}/dashboard`); }}>
           <div className="login-form-head">
             <span className="login-eyebrow"><UserRound aria-hidden="true" />{rtl ? "دخول الأعضاء" : "Member login"}</span>
             <h1>{rtl ? "أهلًا بعودتك" : "Welcome back"}</h1>
@@ -226,6 +225,8 @@ function LoginPage({ language }: { language: Language }) {
           <label className="login-remember"><input type="checkbox" /><span>{rtl ? "تذكرني على هذا الجهاز" : "Keep me signed in"}</span></label>
 
           <button type="submit" className="login-submit">{rtl ? "تسجيل الدخول" : "Sign in"}</button>
+          <div className="login-or"><span>{rtl ? "أو" : "or"}</span></div>
+          <a href="/dashboard" className="login-direct"><Sparkles aria-hidden="true" />{rtl ? "دخول مباشر بحساب تجريبي" : "Enter directly with a demo account"}</a>
 
           <p className="login-signup">{rtl ? "ليس لديك حساب؟" : "New to WePal?"} <a href="#">{rtl ? "أنشئ حسابًا مجانيًا" : "Create a free account"}</a></p>
           <p className="login-secure"><ShieldCheck aria-hidden="true" />{rtl ? "بياناتك محمية ولن نشاركها مع أي جهة." : "Your data is protected and never shared."}</p>

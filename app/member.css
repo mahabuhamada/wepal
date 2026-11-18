@@ -338,11 +338,12 @@ a.m-promo:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(16,2
   .m-grid-3 { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
-  .m-layout { grid-template-columns: 1fr; padding-top: 96px; }
-  .m-side { display: none; }
+  .m-layout { grid-template-columns: 200px minmax(0, 1fr); gap: 16px; }
   .m-grid-2 { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
+  .m-layout { grid-template-columns: 1fr; }
+  .m-side { display: none; }
   .m-layout { width: calc(100% - 32px); padding: calc(var(--appbar-h) + var(--safe-top) + 18px) 0 calc(var(--tabbar-h) + var(--safe-bottom) + 24px); }
   .m-main { gap: 14px; }
   .m-head h1 { font-size: 24px; }

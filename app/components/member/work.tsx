@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, CalendarDays, CheckCircle2, Circle, FolderKanban, Plus, Search, Users } from "lucide-react";
@@ -34,7 +33,7 @@ function Workspaces() {
       {list.length === 0 ? <Empty icon={Search} title={rtl ? "لا مساحات عمل تطابق بحثك" : "No workspaces match"} text={rtl ? "جرّب كلمة أخرى أو بدّل النطاق." : "Try another word or switch scope."} /> : (
         <div className="m-cards">
           {list.map((w) => (
-            <Link key={w.id} href={`/projects/${w.id}`} className={`m-ws track-${w.track}`}>
+            <a key={w.id} href={`/projects/${w.id}`} className={`m-ws track-${w.track}`}>
               <div className="m-ws-top"><span className="m-tag">{tx(TRACKS[w.track])}</span><span className={`m-stage stage-${w.stage}`}>{tx(STAGES[w.stage])}</span></div>
               <h3>{tx(w.title)}</h3>
               <p>{tx(w.summary)}</p>
@@ -44,7 +43,7 @@ function Workspaces() {
                 <small><CalendarDays aria-hidden="true" />{tx(w.due)}</small>
                 <Arrow className="m-go" />
               </div>
-            </Link>
+            </a>
           ))}
         </div>
       )}
@@ -63,7 +62,7 @@ function WorkspaceDetail() {
 
   return (
     <>
-      <Link className="m-back" href="/projects">{rtl ? <ArrowRight /> : <ArrowLeft />}{rtl ? "مساحات العمل" : "Workspaces"}</Link>
+      <a className="m-back" href="/projects">{rtl ? <ArrowRight /> : <ArrowLeft />}{rtl ? "مساحات العمل" : "Workspaces"}</a>
       <PageHead icon={FolderKanban} kicker={TRACKS[ws.track]} title={ws.title} lead={ws.summary}
         actions={<span className={`m-stage stage-${ws.stage} is-lg`}>{tx(STAGES[ws.stage])}</span>} />
 
@@ -89,7 +88,7 @@ function WorkspaceDetail() {
           </Card>
           <Card title={rtl ? "فريق مساحة العمل" : "Workspace team"}>
             <ul className="m-people">
-              {ws.team.map((id) => { const m = memberOrMe(id); return <li key={id}><Link href={id === "me" ? "/profile" : `/members/${id}`}><Avatar who={m} size={34} /><span><strong>{tx(m.name)}</strong><small>{tx(m.city)}</small></span><Arrow className="m-go" /></Link></li>; })}
+              {ws.team.map((id) => { const m = memberOrMe(id); return <li key={id}><a href={id === "me" ? "/profile" : `/members/${id}`}><Avatar who={m} size={34} /><span><strong>{tx(m.name)}</strong><small>{tx(m.city)}</small></span><Arrow className="m-go" /></a></li>; })}
             </ul>
           </Card>
         </div>

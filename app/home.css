@@ -583,10 +583,7 @@ html:has(.home) { scroll-padding-top: 40px; }
 @media (prefers-reduced-motion: reduce) { .f-live, .f-question > p { animation: none; } }
 
 /* Language flags */
-.lang-flag { flex: none; border-radius: 4px; box-shadow: 0 1px 3px rgba(16,25,66,.22); transition: transform .3s var(--ease), opacity .25s, filter .25s, box-shadow .3s; }
 .h-lang button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
-.h-lang button:not([aria-pressed="true"]) .lang-flag { opacity: .6; filter: saturate(.55); }
-.h-lang button:hover .lang-flag, .h-lang-mini:hover .lang-flag, .h-drawer-lang button:hover .lang-flag, .f-seg button:hover .lang-flag { transform: translateY(-1px) rotate(-4deg); opacity: 1; filter: none; box-shadow: 0 4px 10px rgba(16,25,66,.25); }
 .h-drawer-lang button, .f-seg button { display: flex; align-items: center; justify-content: center; gap: 9px; }
 
 /* ════════ Menu refinement: one control height, lighter buttons ════════ */
@@ -602,10 +599,19 @@ html:has(.home) { scroll-padding-top: 40px; }
 .h-search-trigger svg { width: 15px; height: 15px; }
 .h-lang { height: var(--ctl-h); padding: 3px; }
 .h-lang button { height: calc(var(--ctl-h) - 6px); padding: 0 10px; gap: 6px; font-size: 12px; }
-.h-lang .lang-flag { width: 17px; height: 12px; }
 .h-identity { height: var(--ctl-h); }
 .h-identity button { width: 30px; height: calc(var(--ctl-h) - 6px); }
 .h-login { display: inline-flex; align-items: center; height: var(--ctl-h); padding: 0 16px; font-size: 12.5px; font-weight: 750; }
 .h-login:hover { transform: none; }
 @media (max-width: 1180px) { .h-search-trigger { width: var(--ctl-h) !important; padding: 0 !important; } .h-nav a { padding: 0 10px; } }
 @media (max-width: 1024px) { .h-login { display: none; } }
+
+/* Language switch: one compact toggle (icon + target language code) on every screen */
+.h-lang { display: none !important; }
+.h-lang-mini { display: inline-flex; align-items: center; gap: 6px; height: var(--ctl-h, 34px); padding: 0 12px; border: 0; border-radius: 999px; background: var(--tint); color: var(--n800); font: inherit; font-size: 12.5px; font-weight: 800; cursor: pointer; transition: background .2s, color .2s; }
+.h-lang-mini svg { color: var(--b500); transition: transform .45s var(--ease); }
+.h-lang-mini:hover { background: var(--c100); }
+.h-lang-mini:hover svg { transform: rotate(-12deg) scale(1.08); }
+.lang-code { display: inline-grid; place-items: center; min-width: 26px; height: 20px; padding: 0 5px; border-radius: 6px; background: rgba(var(--b500-rgb),.12); color: var(--b500); font-size: 11px; font-weight: 800; line-height: 1; }
+.h-drawer-lang .lang-code, .f-seg .lang-code { background: rgba(255,255,255,.14); color: inherit; }
+.h-drawer-lang button[aria-pressed="true"] .lang-code, .f-seg button[aria-pressed="true"] .lang-code { background: var(--c100); color: var(--b500); }

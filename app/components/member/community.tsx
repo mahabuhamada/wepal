@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, MapPin, MessageSquare, Search, Send, UserRound, Users } from "lucide-react";
@@ -24,7 +23,7 @@ function Community() {
   return (
     <>
       <PageHead icon={Users} kicker={{ ar: "المجتمع", en: "Community" }} title={{ ar: "المجتمع", en: "Community" }} lead={{ ar: "مجموعات دائمة حسب منطقتك ومسارك.", en: "Ongoing groups by region and track." }}
-        actions={<Link className="m-btn" href="/members"><UserRound />{rtl ? "دليل الأعضاء" : "Member directory"}</Link>} />
+        actions={<a className="m-btn" href="/members"><UserRound />{rtl ? "دليل الأعضاء" : "Member directory"}</a>} />
       <div className="m-toolbar">
         <Tabs label={rtl ? "المجموعات" : "Groups"} value={tab} onChange={setTab} items={[{ key: "mine", label: rtl ? "مجموعاتي" : "My groups", count: mineCount }, { key: "all", label: rtl ? "كل المجموعات" : "All groups", count: GROUPS.length }]} />
         <label className="m-search"><Search aria-hidden="true" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder={rtl ? "ابحث عن مجموعة" : "Find a group"} aria-label={rtl ? "ابحث عن مجموعة بالاسم" : "Search groups by name"} /></label>
@@ -33,16 +32,16 @@ function Community() {
         <div className="m-cards">
           {list.map((g) => (
             <article key={g.id} className="m-group">
-              <Link href={`/community/${g.id}`} className="m-group-link">
+              <a href={`/community/${g.id}`} className="m-group-link">
                 <span className="m-group-badge">{tx(g.name).slice(0, 1)}</span>
                 <span className="m-tag">{tx(g.kind)}</span>
                 <h3>{tx(g.name)}</h3>
                 <p>{tx(g.about)}</p>
                 <small><Users aria-hidden="true" />{g.members + (joined[g.id] && !g.joined ? 1 : !joined[g.id] && g.joined ? -1 : 0)} {rtl ? "عضوًا" : "members"} · <MessageSquare aria-hidden="true" />{g.posts.length} {rtl ? "نقاشات" : "threads"}</small>
-              </Link>
+              </a>
               <div className="m-group-foot">
                 <button className={`m-btn is-sm ${joined[g.id] ? "" : "is-primary"}`} onClick={() => toggle(g.id)}>{joined[g.id] ? (rtl ? "مغادرة" : "Leave") : (rtl ? "انضم" : "Join")}</button>
-                <Link className="m-more" href={`/community/${g.id}`}>{rtl ? "عرض المجموعة" : "View group"}<Arrow /></Link>
+                <a className="m-more" href={`/community/${g.id}`}>{rtl ? "عرض المجموعة" : "View group"}<Arrow /></a>
               </div>
             </article>
           ))}
@@ -64,7 +63,7 @@ function Group() {
 
   return (
     <>
-      <Link className="m-back" href="/community">{rtl ? <ArrowRight /> : <ArrowLeft />}{rtl ? "المجتمع" : "Community"}</Link>
+      <a className="m-back" href="/community">{rtl ? <ArrowRight /> : <ArrowLeft />}{rtl ? "المجتمع" : "Community"}</a>
       <PageHead icon={Users} kicker={g.kind} title={g.name} lead={g.about}
         actions={<button className={`m-btn ${joined[g.id] ? "" : "is-primary"}`} onClick={() => toggle(g.id)}>{joined[g.id] ? (rtl ? "أنت عضو · مغادرة" : "Member · Leave") : (rtl ? "انضم إلى المجموعة" : "Join group")}</button>} />
       <div className="m-grid-3">
@@ -79,15 +78,15 @@ function Group() {
           <Card title={rtl ? "النقاشات" : "Discussions"}>
             <ul className="m-feed">
               {mine.map((text, i) => <li key={`mine-${i}`}><div><Avatar who={{ ...ME, tone: 0 }} size={38} /><span><span className="m-feed-meta"><strong>{tx(ME.name)}</strong> · {rtl ? "الآن" : "Now"}</span><p>{text}</p></span></div></li>)}
-              {g.posts.map((p) => { const a = memberById(p.author)!; return <li key={p.id}><div><Avatar who={a} size={38} /><span><span className="m-feed-meta"><Link href={`/members/${a.id}`}><strong>{tx(a.name)}</strong></Link> · {tx(p.time)}</span><p>{tx(p.text)}</p><small><MessageSquare aria-hidden="true" />{p.replies} {rtl ? "ردود" : "replies"}</small></span></div></li>; })}
+              {g.posts.map((p) => { const a = memberById(p.author)!; return <li key={p.id}><div><Avatar who={a} size={38} /><span><span className="m-feed-meta"><a href={`/members/${a.id}`}><strong>{tx(a.name)}</strong></a> · {tx(p.time)}</span><p>{tx(p.text)}</p><small><MessageSquare aria-hidden="true" />{p.replies} {rtl ? "ردود" : "replies"}</small></span></div></li>; })}
             </ul>
           </Card>
         </div>
         <Card title={rtl ? `الأعضاء (${g.members})` : `Members (${g.members})`}>
           <ul className="m-people">
-            {people.map((m) => <li key={m.id}><Link href={`/members/${m.id}`}><Avatar who={m} size={34} /><span><strong>{tx(m.name)}</strong><small>{tx(m.city)}</small></span></Link></li>)}
+            {people.map((m) => <li key={m.id}><a href={`/members/${m.id}`}><Avatar who={m} size={34} /><span><strong>{tx(m.name)}</strong><small>{tx(m.city)}</small></span></a></li>)}
           </ul>
-          <Link className="m-more" href="/members">{rtl ? "دليل الأعضاء" : "Member directory"}{rtl ? <ArrowLeft /> : <ArrowRight />}</Link>
+          <a className="m-more" href="/members">{rtl ? "دليل الأعضاء" : "Member directory"}{rtl ? <ArrowLeft /> : <ArrowRight />}</a>
         </Card>
       </div>
     </>
@@ -110,12 +109,12 @@ function Members() {
       {list.length === 0 ? <Empty icon={Search} title={rtl ? "لا أعضاء بهذا البحث" : "No members match"} /> : (
         <div className="m-cards is-people">
           {list.map((m) => (
-            <Link key={m.id} href={`/members/${m.id}`} className="m-person">
+            <a key={m.id} href={`/members/${m.id}`} className="m-person">
               <Avatar who={m} size={56} />
               <strong>{tx(m.name)}</strong>
               <small><MapPin aria-hidden="true" />{tx(m.city)}</small>
               <span className="m-tag">{tx(TRACKS[m.track])}</span>
-            </Link>
+            </a>
           ))}
         </div>
       )}
@@ -132,18 +131,18 @@ function MemberProfile() {
   const work = WORKSPACES.filter((w) => w.team.includes(m.id));
   return (
     <>
-      <Link className="m-back" href="/members">{rtl ? <ArrowRight /> : <ArrowLeft />}{rtl ? "الأعضاء" : "Members"}</Link>
+      <a className="m-back" href="/members">{rtl ? <ArrowRight /> : <ArrowLeft />}{rtl ? "الأعضاء" : "Members"}</a>
       <div className="m-profile-hero">
         <Avatar who={m} size={88} />
         <div><h1>{tx(m.name)}</h1><p className="m-muted"><MapPin aria-hidden="true" />{tx(m.city)} · {tx(TRACKS[m.track])}</p><p>{tx(m.bio)}</p></div>
-        <Link className="m-btn is-primary" href="/messages"><MessageSquare />{rtl ? `راسِل ${tx(m.name).split(" ")[0]}` : `Message ${tx(m.name).split(" ")[0]}`}</Link>
+        <a className="m-btn is-primary" href="/messages"><MessageSquare />{rtl ? `راسِل ${tx(m.name).split(" ")[0]}` : `Message ${tx(m.name).split(" ")[0]}`}</a>
       </div>
       <div className="m-grid-2">
         <Card title={rtl ? "مساحات العمل" : "Workspaces"}>
-          {work.length === 0 ? <Empty icon={Users} title={rtl ? "لا مساحات عمل ظاهرة" : "No visible workspaces"} /> : <ul className="m-list">{work.map((w) => <li key={w.id}><Link href={`/projects/${w.id}`}><span><strong>{tx(w.title)}</strong><small>{tx(TRACKS[w.track])}</small></span></Link></li>)}</ul>}
+          {work.length === 0 ? <Empty icon={Users} title={rtl ? "لا مساحات عمل ظاهرة" : "No visible workspaces"} /> : <ul className="m-list">{work.map((w) => <li key={w.id}><a href={`/projects/${w.id}`}><span><strong>{tx(w.title)}</strong><small>{tx(TRACKS[w.track])}</small></span></a></li>)}</ul>}
         </Card>
         <Card title={rtl ? "المجموعات" : "Groups"}>
-          <ul className="m-list">{groups.map((g) => <li key={g.id}><Link href={`/community/${g.id}`}><span><strong>{tx(g.name)}</strong><small>{tx(g.kind)} · {g.members} {rtl ? "عضوًا" : "members"}</small></span></Link></li>)}</ul>
+          <ul className="m-list">{groups.map((g) => <li key={g.id}><a href={`/community/${g.id}`}><span><strong>{tx(g.name)}</strong><small>{tx(g.kind)} · {g.members} {rtl ? "عضوًا" : "members"}</small></span></a></li>)}</ul>
         </Card>
       </div>
     </>

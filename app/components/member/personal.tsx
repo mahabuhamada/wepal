@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, Award, Bell, CheckCheck, Download, Eye, Globe2, KeyRound, ListTodo, Lock, MapPin, MessageSquare, MessagesSquare, Pencil, Send, Settings, ShieldCheck, Trash2, UserRound, Vote } from "lucide-react";
 import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, memberOrMe, useMember } from "./shell";
 import { BADGES, GROUPS, ME, NOTICES, THREADS, TRACKS, WORKSPACES } from "./data";
-import { LangFlag } from "../site-chrome";
 
 function Profile() {
   const { rtl, tx } = useMember();
@@ -22,7 +20,7 @@ function Profile() {
           <p>{tx(ME.bio)}</p>
           <div className="m-chips is-static">{ME.interests.map((i) => <span key={i.en}>{tx(i)}</span>)}</div>
         </div>
-        <Link className="m-btn" href="/settings"><Pencil />{rtl ? "تعديل" : "Edit"}</Link>
+        <a className="m-btn" href="/settings"><Pencil />{rtl ? "تعديل" : "Edit"}</a>
       </div>
       <div className="m-stats">
         <div className="m-stat"><Award aria-hidden="true" /><strong>{ME.points}</strong><span>{rtl ? "نقطة" : "points"}</span></div>
@@ -32,16 +30,16 @@ function Profile() {
       </div>
       <div className="m-grid-2">
         <Card title={rtl ? "مساحات العمل المشارك فيها" : "Workspaces I'm in"}>
-          <ul className="m-list">{work.map((w) => <li key={w.id}><Link href={`/projects/${w.id}`}><span><strong>{tx(w.title)}</strong><small>{tx(TRACKS[w.track])} · {w.progress}%</small></span></Link></li>)}</ul>
+          <ul className="m-list">{work.map((w) => <li key={w.id}><a href={`/projects/${w.id}`}><span><strong>{tx(w.title)}</strong><small>{tx(TRACKS[w.track])} · {w.progress}%</small></span></a></li>)}</ul>
         </Card>
         <Card title={rtl ? "الشارات والإنجازات" : "Badges & achievements"}>
           <ul className="m-badges">{BADGES.map((b) => <li key={b.id} className={b.earned ? "is-earned" : ""}><Award aria-hidden="true" /><span>{tx(b.title)}</span>{!b.earned && <small>{rtl ? "قريبًا" : "Locked"}</small>}</li>)}</ul>
         </Card>
       </div>
       <Card title={rtl ? "مجموعاتي" : "My groups"}>
-        <div className="m-chips is-static">{groups.map((g) => <Link key={g.id} href={`/community/${g.id}`}>{tx(g.name)}</Link>)}</div>
+        <div className="m-chips is-static">{groups.map((g) => <a key={g.id} href={`/community/${g.id}`}>{tx(g.name)}</a>)}</div>
       </Card>
-      <p className="m-privacy"><Eye aria-hidden="true" />{rtl ? "يرى الأعضاء الآخرون اسمك ومساحات عملك وشاراتك. غيّر ذلك من " : "Other members see your name, workspaces and badges. Change this in "}<Link href="/settings">{rtl ? "إعدادات الخصوصية" : "privacy settings"}</Link>.</p>
+      <p className="m-privacy"><Eye aria-hidden="true" />{rtl ? "يرى الأعضاء الآخرون اسمك ومساحات عملك وشاراتك. غيّر ذلك من " : "Other members see your name, workspaces and badges. Change this in "}<a href="/settings">{rtl ? "إعدادات الخصوصية" : "privacy settings"}</a>.</p>
     </>
   );
 }
@@ -68,7 +66,7 @@ function Messages() {
         <section className="m-conv">
           {!th ? <Empty icon={MessageSquare} title={rtl ? "اختر محادثة للبدء" : "Pick a conversation"} /> : (
             <>
-              <header><button className="m-conv-back" onClick={() => setOpen(null)} aria-label={rtl ? "رجوع" : "Back"}>{rtl ? <ArrowRight /> : <ArrowLeft />}</button><Avatar who={memberOrMe(th.with)} size={36} /><Link href={`/members/${th.with}`}><strong>{tx(memberOrMe(th.with).name)}</strong></Link></header>
+              <header><button className="m-conv-back" onClick={() => setOpen(null)} aria-label={rtl ? "رجوع" : "Back"}>{rtl ? <ArrowRight /> : <ArrowLeft />}</button><Avatar who={memberOrMe(th.with)} size={36} /><a href={`/members/${th.with}`}><strong>{tx(memberOrMe(th.with).name)}</strong></a></header>
               <ol className="m-bubbles">
                 {th.messages.map((msg, i) => <li key={i} className={msg.from === "me" ? "is-me" : ""}><p>{tx(msg.text)}</p><small>{tx(msg.time)}</small></li>)}
                 {(extra[th.id] ?? []).map((text, i) => <li key={`x${i}`} className="is-me"><p>{text}</p><small>{rtl ? "الآن" : "Now"}</small></li>)}
@@ -95,10 +93,10 @@ function Notifications() {
   const unread = NOTICES.filter((n) => !read[n.id]).length;
   const show = (list: typeof NOTICES) => list.filter((n) => tab === "all" || !read[n.id]);
   const row = (n: (typeof NOTICES)[number]) => (
-    <li key={n.id} className={read[n.id] ? "" : "is-unread"}><Link href={n.href} onClick={() => setRead((r) => ({ ...r, [n.id]: true }))}>
+    <li key={n.id} className={read[n.id] ? "" : "is-unread"}><a href={n.href} onClick={() => setRead((r) => ({ ...r, [n.id]: true }))}>
       <span className={`m-ico is-${n.kind}`}>{n.kind === "reply" ? <MessageSquare /> : n.kind === "task" ? <ListTodo /> : n.kind === "decision" ? <Vote /> : <Bell />}</span>
       <span><strong>{tx(n.text)}</strong><small>{tx(n.where)} · {tx(n.time)}</small></span><Arrow className="m-go" />
-    </Link></li>
+    </a></li>
   );
   return (
     <>
@@ -138,7 +136,7 @@ function SettingsView() {
           <Toggle label={rtl ? "إظهار الصورة" : "Show photo"} />
           <Toggle label={rtl ? "إظهار مساحات العمل" : "Show workspaces"} />
           <Toggle label={rtl ? "إظهار سجل الإنجازات" : "Show achievements"} defaultOn={false} />
-          <Link className="m-more" href="/profile">{rtl ? "اعرض ملفي كما يراه الآخرون" : "View my profile as others see it"}{rtl ? <ArrowLeft /> : <ArrowRight />}</Link>
+          <a className="m-more" href="/profile">{rtl ? "اعرض ملفي كما يراه الآخرون" : "View my profile as others see it"}{rtl ? <ArrowLeft /> : <ArrowRight />}</a>
         </div>
         <div className="m-card m-form">
           <div className="m-card-head"><h2><Bell aria-hidden="true" />{rtl ? "التنبيهات" : "Alerts"}</h2></div>
@@ -149,7 +147,7 @@ function SettingsView() {
         </div>
         <div className="m-card m-form">
           <div className="m-card-head"><h2><Globe2 aria-hidden="true" />{rtl ? "اللغة والعرض" : "Language & display"}</h2></div>
-          <p className="m-muted">{rtl ? "لغة الواجهة الحالية:" : "Current interface language:"} <strong><LangFlag lang={lang} size={14} /> {rtl ? "العربية" : "English"}</strong></p>
+          <p className="m-muted">{rtl ? "لغة الواجهة الحالية:" : "Current interface language:"} <strong><span className="lang-code">{lang === "ar" ? "ع" : "EN"}</span>{rtl ? "العربية" : "English"}</strong></p>
           <p className="m-muted">{rtl ? "بدّل اللغة من الشريط العلوي أو من قائمة «المزيد»." : "Switch language from the top bar or the \"More\" menu."}</p>
           <div className="m-card-head"><h2><KeyRound aria-hidden="true" />{rtl ? "كلمة المرور" : "Password"}</h2></div>
           <button className="m-btn">{rtl ? "تغيير كلمة المرور" : "Change password"}</button>

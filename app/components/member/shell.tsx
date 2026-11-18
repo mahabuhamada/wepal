@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import {
   Bell, BookOpen, ClipboardList, FolderKanban, Globe2, House, LayoutGrid, LogOut, MessageCircle,
@@ -56,9 +55,9 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
   const link = (item: NavItem, onClick?: () => void) => {
     const Icon = item.icon; const on = item.key === active;
     return (
-      <Link key={item.key} href={item.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined} onClick={onClick}>
+      <a key={item.key} href={item.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined} onClick={onClick}>
         <Icon aria-hidden="true" /><span>{tx(item.label)}</span>{!!item.count && <b className="m-count">{item.count}</b>}
-      </Link>
+      </a>
     );
   };
 
@@ -68,10 +67,10 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
         <SiteHeader lang={lang} onLang={setLang} current={`/${active}`} member />
         <div className="m-layout">
           <aside className="m-side" aria-label={rtl ? "منطقة الأعضاء" : "Members area"}>
-            <Link href="/profile" className="m-me">
+            <a href="/profile" className="m-me">
               <Avatar who={ME} size={44} />
               <span><strong>{tx(ME.name)}</strong><small>{tx(ME.role)}</small></span>
-            </Link>
+            </a>
             <nav>
               <p className="m-side-label">{rtl ? "مساحتي" : "Mine"}</p>
               {NAV_PERSONAL.map((i) => link(i))}
@@ -80,8 +79,8 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
             </nav>
             <div className="m-side-foot">
               {link({ key: "settings", href: "/settings", icon: Settings, label: { ar: "الإعدادات", en: "Settings" } })}
-              <Link href="/"><Globe2 aria-hidden="true" /><span>{rtl ? "البوابة العامة" : "Public site"}</span></Link>
-              <Link href="/login" className="m-logout"><LogOut aria-hidden="true" /><span>{rtl ? "تسجيل الخروج" : "Sign out"}</span></Link>
+              <a href="/"><Globe2 aria-hidden="true" /><span>{rtl ? "البوابة العامة" : "Public site"}</span></a>
+              <a href="/login" className="m-logout"><LogOut aria-hidden="true" /><span>{rtl ? "تسجيل الخروج" : "Sign out"}</span></a>
             </div>
           </aside>
           <section className="m-main">{children}</section>
@@ -90,16 +89,16 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
         {/* Mobile: member tab bar + full menu sheet */}
         <nav className="h-tabbar m-tabbar" aria-label={rtl ? "تنقل الأعضاء" : "Members navigation"}>
           {TABS.map((t) => { const Icon = t.icon; const on = t.key === active; return (
-            <Link key={t.key} href={t.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined}>
+            <a key={t.key} href={t.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined}>
               <span className="h-tab-icon"><Icon />{!!t.count && <b className="m-dot">{t.count}</b>}</span><span>{tx(t.label)}</span>
-            </Link>
+            </a>
           ); })}
           <button onClick={() => setSheet(true)} aria-expanded={sheet} className={sheet ? "is-active" : ""}><span className="h-tab-icon"><LayoutGrid /></span><span>{rtl ? "المزيد" : "More"}</span></button>
         </nav>
         <div className={`m-sheet ${sheet ? "is-open" : ""}`} aria-hidden={!sheet} onClick={() => setSheet(false)}>
           <div className="m-sheet-box" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={rtl ? "كل الأقسام" : "All sections"}>
             <div className="m-sheet-head">
-              <Link href="/profile" className="m-me"><Avatar who={ME} size={40} /><span><strong>{tx(ME.name)}</strong><small>{tx(ME.role)}</small></span></Link>
+              <a href="/profile" className="m-me"><Avatar who={ME} size={40} /><span><strong>{tx(ME.name)}</strong><small>{tx(ME.role)}</small></span></a>
               <button onClick={() => setSheet(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button>
             </div>
             <div className="m-sheet-grid">
@@ -107,8 +106,8 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
             </div>
             <div className="m-sheet-foot">
               <button onClick={() => setLang(rtl ? "en" : "ar")}>{rtl ? "English" : "العربية"}</button>
-              <Link href="/">{rtl ? "البوابة العامة" : "Public site"}</Link>
-              <Link href="/login" className="m-logout">{rtl ? "تسجيل الخروج" : "Sign out"}</Link>
+              <a href="/">{rtl ? "البوابة العامة" : "Public site"}</a>
+              <a href="/login" className="m-logout">{rtl ? "تسجيل الخروج" : "Sign out"}</a>
             </div>
           </div>
         </div>
