@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as RKeyboardEvent } from "react";
 import { ArrowLeft, ArrowRight, ArrowUp, FileText, House, LayoutGrid, Library, Menu, Newspaper, Search, X, CornerDownLeft, Languages, UserRound, Moon, Sun, MessageCircleQuestion, Shuffle, Compass, SlidersHorizontal } from "lucide-react";
 import { EXTRA_PAGES, NAV, NEWS, RESOURCES, type Lang } from "./content";
-import { scrambleText } from "./lang-scramble";
+import { switchLanguageGently } from "./lang-transition";
 import { IDENTITY_SWITCH_ENABLED, Logo, useIdentity, type Identity } from "./identity";
 
 const IDENTITY_LABEL: Record<Identity, { ar: string; en: string }> = {
@@ -55,10 +55,10 @@ export function useLang() {
   }, []);
   const change = (next: Lang) => {
     if (next === lang) return;
-    setLang(next);
-    try { window.localStorage.setItem("wepal-language", next); } catch { /* storage unavailable */ }
-    // Two frames: let React paint the new language first, then shuffle the letters into it.
-    requestAnimationFrame(() => requestAnimationFrame(() => scrambleText()));
+    switchLanguageGently(() => {
+      setLang(next);
+      try { window.localStorage.setItem("wepal-language", next); } catch { /* storage unavailable */ }
+    });
   };
   return [lang, change] as const;
 }

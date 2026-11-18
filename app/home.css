@@ -615,3 +615,9 @@ html:has(.home) { scroll-padding-top: 40px; }
 .lang-code { display: inline-grid; place-items: center; min-width: 26px; height: 20px; padding: 0 5px; border-radius: 6px; background: rgba(var(--b500-rgb),.12); color: var(--b500); font-size: 11px; font-weight: 800; line-height: 1; }
 .h-drawer-lang .lang-code, .f-seg .lang-code { background: rgba(255,255,255,.14); color: inherit; }
 .h-drawer-lang button[aria-pressed="true"] .lang-code, .f-seg button[aria-pressed="true"] .lang-code { background: var(--c100); color: var(--b500); }
+
+/* Gentle language switch (see lang-transition.ts) */
+html.lang-out main > *:not(.h-header):not(.m-top) { opacity: 0; transition: opacity .16s ease; }
+html.lang-out :is(.h-header, .m-top) :is(nav, form, .h-actions, .m-top-actions) { opacity: 0; transition: opacity .16s ease; }
+html.lang-in main > *:not(.h-header):not(.m-top), html.lang-in :is(.h-header, .m-top) :is(nav, form, .h-actions, .m-top-actions) { animation: langIn .42s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes langIn { from { opacity: 0; filter: blur(4px); } }

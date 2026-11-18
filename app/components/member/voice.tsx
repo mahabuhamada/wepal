@@ -1,16 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ClipboardList, Clock, FileText, Lock, MessageCircleQuestion, Search, ThumbsDown, ThumbsUp, Users, Vote } from "lucide-react";
 import { Card, Empty, MemberShell, PageHead, Progress, Tabs, useMember } from "./shell";
 import { ASK_SUGGESTIONS, CONSULTATIONS, SURVEYS } from "./data";
+import { toast, update, useStore } from "./store";
 import { NEWS, RESOURCES } from "../content";
 
 function Surveys() {
   const { rtl, tx } = useMember();
   const Arrow = rtl ? ArrowLeft : ArrowRight;
   const [tab, setTab] = useState<"open" | "done">("open");
-  const [answered, setAnswered] = useState<Record<string, boolean>>(() => Object.fromEntries(SURVEYS.map((s) => [s.id, s.answered])));
+  const st = useStore();
+  const answered: Record<string, boolean> = Object.fromEntries(SURVEYS.map((s) => [s.id, st.answered[s.id] ?? s.answered]));
+  const setAnswered = (fn: (a: Record<string, boolean>) => Record<string, boolean>) => {
+    const next = fn(answered);
+    update((x) => ({ ...x, answered: { ...x.answered, ...next } }));
+    toast(rtl ? "شكرًا، سُجّلت مشاركتك 🙌" : "Thanks, your answer is in 🙌");
+  };
   const list = SURVEYS.filter((s) => s.status === tab);
   const featured = SURVEYS.find((s) => s.status === "open" && !answered[s.id]);
   return (
@@ -48,7 +55,12 @@ function Consultations() {
   const { rtl, tx } = useMember();
   const open = CONSULTATIONS.find((c) => c.status === "open");
   const past = CONSULTATIONS.filter((c) => c.status === "past");
-  const [votes, setVotes] = useState<Record<number, "agree" | "disagree" | "pass">>({});
+  const st = useStore();
+  const votes: Record<number, "agree" | "disagree" | "pass"> = Object.fromEntries(Object.entries(st.votes).filter(([k]) => k.startsWith("c1:")).map(([k, v]) => [Number(k.slice(3)), v as "agree" | "disagree" | "pass"]));
+  const setVotes = (fn: (v: typeof votes) => typeof votes) => {
+    const next = fn(votes);
+    update((x) => ({ ...x, votes: { ...x.votes, ...Object.fromEntries(Object.entries(next).map(([k, v]) => [`c1:${k}`, v])) } }));
+  };
   return (
     <>
       <PageHead icon={Vote} kicker={{ ar: "المشاورات", en: "Consultations" }} title={{ ar: "الاستشارات المجتمعية", en: "Community consultations" }} lead={{ ar: "صوّت على عبارات قصيرة لنعرف أين نتفق وأين نختلف.", en: "Vote on short statements to see where we agree and differ." }} />
@@ -89,6 +101,13 @@ function Assistant() {
   const { rtl, tx, lang } = useMember();
   const [q, setQ] = useState("");
   const [asked, setAsked] = useState("");
+  // Questions sent from the top bar or the floating "search & ask" button arrive as ?q=.
+  useEffect(() => {
+    const fromUrl = new URLSearchParams(window.location.search).get("q");
+    if (!fromUrl) return;
+    const id = requestAnimationFrame(() => { setQ(fromUrl); setAsked(fromUrl); });
+    return () => cancelAnimationFrame(id);
+  }, []);
   const words = asked.toLowerCase().split(/\s+/).filter((w) => w.length > 2);
   const hits = asked ? [
     ...RESOURCES.map((r) => ({ kind: rtl ? "المكتبة" : "Library", title: r.title[lang], href: "/library" })),
