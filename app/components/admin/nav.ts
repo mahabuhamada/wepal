@@ -1,5 +1,5 @@
 import {
-  BookOpen, ClipboardCheck, ClipboardList, EyeOff, FileText, Flag, FolderInput, HelpCircle, History, Inbox,
+  BookOpen, ClipboardCheck, ClipboardList, EyeOff, Flag, FolderInput, HelpCircle, History, Inbox,
   KeyRound, LayoutDashboard, Lightbulb, MessageCircle, MessagesSquare, Newspaper, Palette, ScrollText, SearchX, Send,
   Settings, Sparkles, Ticket, Users, UsersRound, Workflow, type LucideIcon,
 } from "lucide-react";
@@ -41,9 +41,8 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   {
     id: "content", label: L("المحتوى", "Content"), color: "#6a5bd6", items: [
       { key: "news", icon: Newspaper, label: L("الأخبار", "News"), lead: L("أخبار المنصة: كتابة ومراجعة ونشر.", "Platform news: write, review and publish.") },
-      { key: "analyses", icon: FileText, label: L("التحليلات", "Analyses"), lead: L("التحليلات والمقالات المعمّقة.", "In-depth analyses and articles.") },
       { key: "stories", icon: Sparkles, label: L("القصص", "Stories"), lead: L("قصص الأعضاء والأثر.", "Member and impact stories.") },
-      { key: "library", icon: BookOpen, label: L("المكتبة", "Library"), lead: L("الأدلة والملفات والمصادر.", "Guides, files and resources.") },
+      { key: "library", icon: BookOpen, label: L("المكتبة", "Library"), lead: L("الفيديو والبودكاست والأدلة والتحليلات والصور.", "Videos, podcasts, guides, analyses and images.") },
       { key: "faq", icon: HelpCircle, label: L("الأسئلة الشائعة", "FAQ"), lead: L("أسئلة الزوار والأعضاء وأجوبتها.", "Visitor and member questions and answers.") },
       { key: "assistant", icon: Workflow, label: L("مركز المساعد", "Assistant hub"), lead: L("ما يعرفه المساعد ومصادره وتغطيته.", "What the assistant knows, its sources and coverage.") },
       { key: "search-queries", icon: SearchX, label: L("أسئلة البحث", "Search queries"), lead: L("ما يبحث عنه الناس ولا يجدونه.", "What people search for and don't find.") },

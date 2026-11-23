@@ -37,6 +37,7 @@ export function UsersSection() {
     const id = requestAnimationFrame(() => {
       setRegion(p.get("region") ?? ""); setArea(p.get("area") ?? "");
       const st = p.get("status"); if (st === "active" || st === "new" || st === "suspended") setStatus(st);
+      const o = p.get("open"); if (o) setOpen(USERS.find((u) => u.id === o) ?? null);
     });
     return () => cancelAnimationFrame(id);
   }, []);

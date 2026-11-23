@@ -7,6 +7,8 @@ import { findSection } from "./nav";
 import { UsersSection } from "./users";
 import { ReportsSection } from "./reports";
 import { useEffect } from "react";
+import { CollectionSection, CONFIGS } from "./sections";
+import { CustomSection, CUSTOM_KEYS } from "./custom";
 
 export default function AdminSectionPage() {
   const params = useParams<{ section: string }>();
@@ -18,9 +20,14 @@ function Section({ sectionKey }: { sectionKey: string }) {
   const { rtl, tx } = useAdmin();
   const sec = findSection(sectionKey);
   // Analytics now lives on the admin home (one place for the overview).
-  useEffect(() => { if (sectionKey === "analytics") window.location.replace(`${window.location.origin}/admin`); }, [sectionKey]);
+  useEffect(() => {
+    if (sectionKey === "analytics") window.location.replace(`${window.location.origin}/admin`);
+    if (sectionKey === "analyses" || sectionKey === "posts") window.location.replace(`${window.location.origin}/admin/library`);
+  }, [sectionKey]);
   if (sectionKey === "users") return <UsersSection />;
   if (sectionKey === "reports") return <ReportsSection />;
+  if (CONFIGS[sectionKey]) return <CollectionSection k={sectionKey} />;
+  if (CUSTOM_KEYS.has(sectionKey)) return <CustomSection k={sectionKey} />;
   if (!sec) {
     return <ACard title={rtl ? "القسم غير موجود" : "Section not found"}><p className="a-muted">{rtl ? "اختر قسمًا من القائمة." : "Pick a section from the menu."}</p></ACard>;
   }

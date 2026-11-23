@@ -1,11 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Bell, ChevronDown, ChevronRight, ExternalLink, Languages, LogOut, Menu, Search, X, type LucideIcon } from "lucide-react";
+import { Bell, RotateCcw, Undo2, ChevronDown, ChevronRight, ExternalLink, Languages, LogOut, Menu, Search, X, type LucideIcon } from "lucide-react";
 import { Logo } from "../identity";
 import { useLang } from "../site-chrome";
 import type { Lang, T } from "../content";
 import { ADMIN_GROUPS, ADMIN_ITEMS, adminHref, type AdminGroup } from "./nav";
+import { dismissToast, resetDemo, useToasts } from "./store";
 
 type Ctx = { lang: Lang; rtl: boolean; tx: (t: T) => string };
 const AdminCtx = createContext<Ctx>({ lang: "ar", rtl: true, tx: (t) => t.ar });
@@ -92,6 +93,7 @@ export function AdminShell({ active, children }: { active: string; children: Rea
             </nav>
             <button className="a-search" onClick={() => setPalette(true)}><Search aria-hidden="true" /><span>{rtl ? "ابحث أو انتقل…" : "Search or jump…"}</span><kbd>Ctrl K</kbd></button>
             <span className="a-sync"><i />{rtl ? "بيانات تجريبية" : "Demo data"}</span>
+            <button className="a-icon" onClick={() => { if (window.confirm(rtl ? "إعادة كل الأقسام إلى بياناتها التجريبية الأولى؟ ستُمحى تجاربك في هذا المتصفح." : "Reset every section to its original demo data? Your changes in this browser will be cleared.")) { resetDemo(); window.location.reload(); } }} aria-label={rtl ? "إعادة البيانات التجريبية" : "Reset demo data"} title={rtl ? "إعادة البيانات التجريبية" : "Reset demo data"}><RotateCcw /></button>
             <div className="a-bell" ref={bellRef}>
               <button className="a-icon" onClick={() => setBell((b) => !b)} aria-expanded={bell} aria-label={rtl ? `ما ينتظرك: ${waitingTotal}` : `Waiting: ${waitingTotal}`}>
                 <Bell />{waitingTotal > 0 && <b>{waitingTotal}</b>}
@@ -112,8 +114,22 @@ export function AdminShell({ active, children }: { active: string; children: Rea
         </div>
 
         {palette && <Palette onClose={() => setPalette(false)} />}
+        <Toasts rtl={rtl} />
       </div>
     </AdminCtx.Provider>
+  );
+}
+
+function Toasts({ rtl }: { rtl: boolean }) {
+  const list = useToasts();
+  return (
+    <div className="a-toasts" role="status" aria-live="polite">
+      {list.map((t) => (
+        <div key={t.id} className="a-toast"><span>{t.text}</span>
+          {t.undo && <button type="button" onClick={() => { t.undo?.(); dismissToast(t.id); }}><Undo2 aria-hidden="true" />{rtl ? "تراجع" : "Undo"}</button>}
+        </div>
+      ))}
+    </div>
   );
 }
 
