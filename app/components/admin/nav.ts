@@ -1,5 +1,5 @@
 import {
-  BarChart3, BookOpen, ClipboardCheck, ClipboardList, EyeOff, FileText, Flag, FolderInput, HelpCircle, History, Inbox,
+  BookOpen, ClipboardCheck, ClipboardList, EyeOff, FileText, Flag, FolderInput, HelpCircle, History, Inbox,
   KeyRound, LayoutDashboard, Lightbulb, MessageCircle, MessagesSquare, Newspaper, Palette, ScrollText, SearchX, Send,
   Settings, Sparkles, Ticket, Users, UsersRound, Workflow, type LucideIcon,
 } from "lucide-react";
@@ -15,7 +15,6 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   {
     id: "today", label: L("اليوم", "Today"), color: "var(--b500)", items: [
       { key: "", icon: LayoutDashboard, label: L("الرئيسية", "Home"), lead: L("ما ينتظرك اليوم ومؤشرات المنصة.", "What's waiting today and the platform's indicators.") },
-      { key: "analytics", icon: BarChart3, label: L("الإحصاءات", "Analytics"), lead: L("الزيارات والخريطة والأكثر قراءة وتفاعلًا.", "Visits, the map, and what's read and discussed most.") },
     ],
   },
   {

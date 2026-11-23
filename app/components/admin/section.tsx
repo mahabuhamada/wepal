@@ -4,6 +4,9 @@ import { useParams } from "next/navigation";
 import { Construction, FileCode2 } from "lucide-react";
 import { ACard, AdminShell, Hero, useAdmin } from "./shell";
 import { findSection } from "./nav";
+import { UsersSection } from "./users";
+import { ReportsSection } from "./reports";
+import { useEffect } from "react";
 
 export default function AdminSectionPage() {
   const params = useParams<{ section: string }>();
@@ -14,6 +17,10 @@ export default function AdminSectionPage() {
 function Section({ sectionKey }: { sectionKey: string }) {
   const { rtl, tx } = useAdmin();
   const sec = findSection(sectionKey);
+  // Analytics now lives on the admin home (one place for the overview).
+  useEffect(() => { if (sectionKey === "analytics") window.location.replace(`${window.location.origin}/admin`); }, [sectionKey]);
+  if (sectionKey === "users") return <UsersSection />;
+  if (sectionKey === "reports") return <ReportsSection />;
   if (!sec) {
     return <ACard title={rtl ? "القسم غير موجود" : "Section not found"}><p className="a-muted">{rtl ? "اختر قسمًا من القائمة." : "Pick a section from the menu."}</p></ACard>;
   }
