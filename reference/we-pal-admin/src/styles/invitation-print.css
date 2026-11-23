@@ -1,0 +1,94 @@
+/* ورقة أكواد الدعوة للطباعة (/admin/invitations/:id/print): قصاصات تُقصّ وتُوزَّع. كل القيم من التوكنز. */
+.inv-print {
+  min-height: 100vh;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-family-ar);
+  padding: var(--space-8) var(--space-4);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.inv-print-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.inv-print-head {
+  margin-bottom: var(--space-6);
+}
+.inv-print-head h1 {
+  font-size: var(--text-title);
+  font-weight: 700;
+}
+.inv-print-head p {
+  font-size: var(--text-body-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+.inv-print-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-3);
+  list-style: none;
+  padding: 0;
+}
+
+.inv-slip {
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--ds-radius-md);
+  padding: var(--space-4);
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+.inv-slip-brand {
+  font-size: var(--text-label);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.inv-slip-code {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: var(--text-title);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: var(--space-2) 0 var(--space-1);
+  text-align: center;
+}
+.inv-slip-link {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: var(--text-caption);
+  word-break: break-all;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+.inv-slip-hint {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}
+
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  .inv-print {
+    padding: 0;
+    max-width: none;
+    min-height: 0;
+  }
+  .inv-print-toolbar {
+    display: none;
+  }
+  .inv-print-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .inv-slip-link,
+  .inv-slip-hint {
+    color: var(--color-text);
+  }
+}

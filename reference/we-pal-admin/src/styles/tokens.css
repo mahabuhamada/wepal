@@ -1,0 +1,279 @@
+/* ============================================================
+   نظام التصميم — التوكنز (المرحلة 1 من docs/PLAN-DESIGN-SYSTEM.md)
+
+   طبقة وظيفية فوق متغيرات الهوية (--wepal-*). الشاشات تستخدم هذه الأسماء،
+   فتبديل الهوية لاحقًا = تغيير القيم هنا وفي index.css فقط.
+   لا تضف أرقامًا مباشرة (px، hex) في الشاشات: إن لم تجد توكنًا مناسبًا فأضفه هنا.
+   ============================================================ */
+/* :root و [data-theme]: الأسماء الوظيفية تُحسب حيث تُعرَّف، فنعيد تعريفها على أي عنصر يحمل سمة
+   حتى تتبع القيم الأساسية للسمة داخله (صفحة /styleguide تعرض السمتين جنبًا إلى جنب). */
+:root,
+[data-theme] {
+  /* ── الخطوط ─────────────────────────────────────────────
+     Rubik مؤقتًا للعربية والإنجليزية (هو ما يُرسم فعليًا اليوم؛ يُحمَّل في index.css بأوزان 400–900)
+     حتى يعتمد أمجد الهوية والخط. متغيّر لكل لغة، فالتبديل سطر واحد: غيّر المتغيّر وحمّل الخط في index.css. */
+  --font-family-ar: Rubik, Arial, sans-serif;
+  --font-family-en: Rubik, Arial, sans-serif;
+  /* خط العناوين (h1–h4). في السمة الحالية هو خط النص نفسه، فلا يتغيّر شيء. */
+  --font-family-head: Rubik, Arial, sans-serif;
+
+  /* ── سلّم الخطوط: 7 أحجام ثابتة + حجمان مرنان للعناوين الكبيرة ──
+     الحد الأدنى 12px (تسميات وبيانات ثانوية)، والنص المقروء 14–16px. */
+  --fs-caption: 12px;   /* تسمية صغيرة، وقت، عدّاد */
+  --fs-label: 13px;     /* تسمية حقل، شارة، زر صغير */
+  --fs-body-sm: 14px;   /* نص ثانوي، خلايا جدول */
+  --fs-body: 16px;      /* النص الأساسي */
+  --fs-title-sm: 18px;  /* عنوان بطاقة */
+  --fs-title: 22px;     /* عنوان قسم */
+  --fs-heading: 28px;   /* عنوان صفحة */
+  --fs-display: clamp(28px, 3.4vw, 44px); /* عنوان بارز في البوابة العامة */
+  --fs-hero: clamp(36px, 5vw, 64px);      /* العنوان الرئيسي */
+  --fs-slide: clamp(26px, 3.2vw, 44px);   /* عنوان شريحة في السلايدر */
+  --fs-slide-intro: clamp(28px, 3.8vw, 52px); /* عنوان شريحة التعريف */
+  --fs-numeral: clamp(64px, 7.5vw, 100px);    /* رقم اليوم في غلاف الخبر */
+  --fs-mark: clamp(160px, 18vw, 250px);       /* حرف الشعار وعلامة الاقتباس الزخرفية */
+  --fs-watermark: clamp(280px, 36vw, 520px);  /* حرف الشعار الباهت خلف «الأبرز» */
+
+  --lh-tight: 1.25;   /* عناوين كبيرة */
+  --lh-snug: 1.45;    /* عناوين بطاقات، تسميات */
+  --lh-normal: 1.7;   /* فقرات (العربية تحتاج تباعدًا أوسع) */
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+  --fw-black: 900;
+
+  /* ── المسافات (أساس 4px) ───────────────────────────────── */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── الزوايا ─────────────────────────────────────────────
+     بادئة ds: Tailwind يعرّف --radius-* و --shadow-* بنفس الأسماء وتعتمد عليها أصناف rounded و shadow،
+     فإعادة تعريفها هنا تغيّر كل الزوايا والظلال الموجودة. */
+  --ds-radius-sm: 8px;    /* شارات مربعة، حقول صغيرة */
+  --ds-radius-md: 12px;   /* أزرار، حقول */
+  --ds-radius-lg: 16px;   /* بطاقات */
+  --ds-radius-xl: 20px;   /* بطاقات بارزة، نوافذ */
+  --ds-radius-2xl: 24px;  /* أقسام كبيرة */
+  --ds-radius-pill: 999px;
+
+  /* ── الظلال ────────────────────────────────────────────── */
+  --ds-shadow-sm: 0 1px 2px rgba(11, 35, 56, 0.06);
+  --ds-shadow-md: 0 8px 30px rgba(11, 35, 56, 0.06);          /* = --shadow-soft */
+  --ds-shadow-lg: 0 16px 36px -18px rgba(11, 35, 56, 0.22);   /* = --wp-shadow-card */
+
+  /* ── الألوان بأسماء وظيفية ───────────────────────────────
+     الهوية (ألوان وخط) لم تُعتمد بعد، فالأسماء محايدة والقيم تشير إلى الألوان الحالية. للتبديل غيّر القيم
+     التي تشير إليها هذه الأسماء. مرجع محتمل فقط (ألوان هوية SDF؛ ليست الهوية المعتمدة للمشروع):
+       primary  ← الأزرق الأساسي #187FCC        secondary ← التيل #1CB7B3
+       accent-orange ← #D26F0D و accent-yellow ← #F7BC3E (بجرعات محدودة)
+       bg ← الرمادي الفاتح #F8F9FA              text-secondary ← الرمادي الداكن #495057 */
+  --color-primary: var(--wepal-primary-600);
+  --color-primary-hover: var(--wepal-primary-700);
+  --color-primary-strong: var(--wepal-primary-800);
+  --color-primary-soft: var(--wepal-primary-50);
+  --color-on-primary: #ffffff;
+
+  /* اللون الثانوي. اليوم يشير إلى لون التمييز النعناعي الحالي. */
+  --color-secondary: var(--wepal-mint);
+  --color-secondary-text: #147c69;
+
+  --color-bg: var(--wepal-background);
+  --color-surface: var(--wepal-surface);
+  --color-surface-muted: #f6f9fc;
+  --color-inverse: var(--wepal-navy);       /* خلفية داكنة (تذييل، أزرار حبرية) */
+  --color-on-inverse: #ffffff;
+  /* على الخلفية الداكنة: أعمق درجة (تذييل)، ونصوص وخطوط وسطح مرفوع شفافة فوقها.
+     يستعملها تذييل «أزرق هادئ» (styles/theme-azraq-shell.css)؛ القيم هنا قريبة من تذييل التصميم الحالي. */
+  --color-inverse-deep: #071f32;
+  --color-on-inverse-soft: rgba(255, 255, 255, 0.72);     /* نص على الداكن */
+  --color-on-inverse-subtle: rgba(255, 255, 255, 0.58);   /* نص ثانوي على الداكن (≥ 4.5:1) */
+  --color-inverse-line: rgba(255, 255, 255, 0.12);        /* حدود وفواصل على الداكن */
+  --color-inverse-line-strong: rgba(255, 255, 255, 0.24); /* إطار متقطّع على الداكن */
+  --color-inverse-raised: rgba(255, 255, 255, 0.08);      /* زر أو سطح مرفوع على الداكن */
+  --color-on-accent-veil: rgba(255, 255, 255, 0.5);       /* شريحة فاتحة فوق كتلة ملوّنة (النشرة الصفراء) */
+
+  --color-text: var(--wepal-navy);
+  --color-text-secondary: #34485a;
+  --color-text-muted: var(--wepal-muted);   /* 4.5:1 على الأبيض والخلفية */
+
+  --color-border: var(--wepal-border);
+  --color-border-strong: var(--wepal-border-strong);
+  --color-focus: var(--wepal-primary-600);
+
+  --color-success: var(--wepal-success);
+  --color-success-soft: #e6f6f0;
+  --color-warning: var(--wepal-warning);    /* للأيقونات والزخرفة */
+  --color-warning-text: #8a590e;            /* للنص على الأبيض أو warning-soft */
+  --color-warning-soft: #fbf1de;
+  --color-danger: var(--wepal-danger);
+  --color-danger-soft: #fdeeee;
+  --color-danger-text: #a33a37;             /* للنص على danger-soft (تباين AA)؛ danger نفسه للحدود والأيقونات */
+  --color-info: var(--wepal-primary-500);
+  --color-info-soft: var(--wepal-primary-50);
+
+  /* ألوان التمييز: الدرجة الفاتحة للزخرفة، و-text للنص (تباين AA). */
+  --color-accent-mint: var(--wepal-mint);
+  --color-accent-mint-text: #147c69;
+  --color-accent-coral: var(--wepal-coral);
+  --color-accent-coral-text: #a55244;
+  --color-accent-violet: var(--wepal-violet);
+  --color-accent-violet-text: #6a61b4;
+  --color-accent-violet-soft: #f0ecfd;
+  --color-accent-yellow: var(--wepal-yellow);
+  --color-accent-orange: var(--wepal-warning);
+
+  /* للكتل الداكنة والأغلفة المرسومة (الرئيسية الجديدة ومكوّناتها) */
+  --color-inverse-2: var(--wepal-primary-900);  /* درجة ثانية للتدرّج الداكن */
+  --color-on-inverse-muted: #c3cfdb;             /* نص ثانوي على الداكن (≥ 4.5:1) */
+  --color-accent-mint-soft: #e3f6f5;
+  --color-accent-mint-light: #8be0dc;            /* زخرفة ونص على الداكن */
+  --color-accent-blue-light: var(--wepal-primary-300);
+  --color-accent-violet-light: #c9bef7;
+}
+
+/* ============================================================
+   السمة «أزرق هادئ» (design-system/wepal/MASTER.md) — تُفعَّل من لوحة التحكم.
+   المحدِّد مكرَّر عمدًا ([data-theme][data-theme='azraq']، أي 0,2,0) ليغلب :root و [data-theme] في index.css
+   مهما كان ترتيب الاستيراد. السمة الحالية («classic») هي القيم أعلاه وفي index.css بلا أي تغيير.
+   ============================================================ */
+[data-theme][data-theme='azraq'] {
+  /* Rubik للسمة كلها (قرار أمجد، 2026-11-10: الخط لا يتبدّل بين الصفحات)، والعربي الاحتياطي باقٍ. */
+  --font-family-ar: Rubik, 'IBM Plex Sans Arabic', Arial, sans-serif;
+  --font-family-en: Rubik, 'IBM Plex Sans Arabic', Arial, sans-serif;
+  --font-family-head: Rubik, 'IBM Plex Sans Arabic', Arial, sans-serif;
+
+  /* الأزرق: #155EAF أساسًا (نص أبيض عليه 6.5:1) */
+  --wepal-primary-50: #e8f1fb;
+  --wepal-primary-100: #d3e4f7;
+  --wepal-primary-200: #a9caee;
+  --wepal-primary-300: #7fb2ea;
+  --wepal-primary-400: #4e93dd;
+  --wepal-primary-500: #2e7bd2;
+  --wepal-primary-600: #155eaf;
+  --wepal-primary-700: #0f4c8f;
+  --wepal-primary-800: #0d3f77;
+  --wepal-primary-900: #0b2f57;
+
+  /* الأسطح والنصوص: كحلي #0B2545 (14.5:1 على الخلفية) */
+  --wepal-navy: #0b2545;
+  --wepal-background: #f6f8fb;
+  --wepal-surface: #ffffff;
+  --wepal-border: #dce3ec;
+  --wepal-border-strong: #c9d4e1;
+  --wepal-muted: #5e6e82;          /* 5.2:1 على الأبيض */
+
+  /* ألوان التمييز من الشعار */
+  --wepal-mint: #1cb7b3;           /* زخرفة فقط؛ للنص mint-text */
+  --wepal-yellow: #f7bc3e;
+  --wepal-violet: #8c7be8;
+  --wepal-sky: #7fb2ea;
+
+  /* رسوم صفحات الأخطاء (components/ErrorPages/ErrorArt.jsx) وخلفيات ملصقاتها */
+  --ill-sun-soft: #fbdd97;
+  --ill-line-soft: #e6ebf2;
+  --ill-paper: #eef2f7;
+  --ill-violet: #6656c4;           /* لون «مقال»؛ الأبيض عليه 5.6:1 */
+
+  --color-secondary-text: #0e7c78; /* 4.7:1 */
+  --color-surface-muted: #f2f5f9;
+  --color-text-secondary: #4a5b70; /* 6.5:1 */
+  --color-warning-text: #8a5a00;
+  --color-warning-soft: #fef4dc;
+  --color-accent-mint-text: #0e7c78;
+  --color-accent-violet-text: #4b3f8f; /* 7.3:1 على violet-soft */
+  --color-accent-violet-soft: #eceaf6;
+  --color-inverse-2: #123a66;
+  --color-on-inverse-muted: #c8d5e4;
+
+  /* الأسماء القديمة في index.css التي تحمل قيمًا مباشرة، ومناطق المجتمعات */
+  --wp-text-2: #4a5b70;
+  --wp-warning: #8a5a00;
+  --wp-warning-tint: #fef4dc;
+  --wp-gaza: var(--wepal-mint);
+  --wp-westbank: var(--wepal-yellow);
+  --wp-cairo: var(--wepal-sky);
+
+  /* ظلال بلون الكحلي */
+  --ds-shadow-sm: 0 1px 2px rgba(11, 37, 69, 0.06);
+  --ds-shadow-md: 0 8px 24px -10px rgba(11, 37, 69, 0.16);
+  --ds-shadow-lg: 0 28px 56px -20px rgba(11, 37, 69, 0.3);
+
+  /* التذييل: كحلي أعمق #071A33، ونصوصه من التصميم المعتمد redesign-5-slider (#C9D6E5 أساسي، #93A6BC ثانوي 7:1) */
+  --color-inverse-deep: #071a33;
+  --color-on-inverse-soft: #c9d6e5;
+  --color-on-inverse-subtle: #93a6bc;
+  --color-inverse-line: rgba(255, 255, 255, 0.14);
+  --color-inverse-line-strong: rgba(255, 255, 255, 0.22);
+
+  /* الاتجاه ب (منطقة الأعضاء، المرحلة 1): لون لكل مسار — الزخرفة (path-*) والنص عليها (path-*-text) — من ألوان السمة.
+     الرئيسية والتنبيه مرجاني، العمل أزرق، المجتمع والحوار نعناعي، التصويت أصفر، المكتبة بنفسجي. */
+  --path-home: var(--color-accent-coral);
+  --path-home-text: var(--color-accent-coral-text);
+  --path-work: var(--color-primary);
+  --path-work-text: var(--color-primary);
+  --path-com: var(--color-accent-mint);
+  --path-com-text: var(--color-accent-mint-text);
+  --path-vote: var(--color-accent-yellow);
+  --path-vote-text: var(--color-warning-text);
+  --path-lib: var(--color-accent-violet);
+  --path-lib-text: var(--color-accent-violet-text);
+  --path-none: var(--color-text-muted);
+  --path-none-text: var(--color-text-secondary);
+  /* ظل البطاقة الطويل الناعم، وخلفية الصفحة المتدرّجة بلوني العمل والحوار */
+  --ds-shadow-long: 0 1px 2px rgba(11, 37, 69, 0.04), 0 10px 28px -16px rgba(11, 37, 69, 0.22);
+  --page-tint:
+    radial-gradient(700px 300px at 85% -60px, rgba(21, 94, 175, 0.1), transparent 70%),
+    radial-gradient(600px 260px at 10% -40px, rgba(28, 183, 179, 0.1), transparent 70%);
+  --glass: rgba(255, 255, 255, 0.78);
+  --badge-alert: #c2413d; /* شارة العدد على الجرس: الأبيض عليه 5.3:1 */
+}
+
+/* أسماء Tailwind للتوكنز: text-caption، text-ink، bg-surface، rounded-card…
+   أسماء جديدة فقط — لا تغيّر text-xs/sm/base ولا أي صنف موجود. */
+@theme inline {
+  --text-caption: var(--fs-caption);
+  --text-label: var(--fs-label);
+  --text-body-sm: var(--fs-body-sm);
+  --text-body: var(--fs-body);
+  --text-title-sm: var(--fs-title-sm);
+  --text-title: var(--fs-title);
+  --text-heading: var(--fs-heading);
+  --text-display: var(--fs-display);
+  --text-hero: var(--fs-hero);
+
+  --color-ink: var(--color-text);
+  --color-ink-secondary: var(--color-text-secondary);
+  --color-ink-muted: var(--color-text-muted);
+  --color-brand: var(--color-primary);
+  --color-brand-hover: var(--color-primary-hover);
+  --color-brand-soft: var(--color-primary-soft);
+  --color-page: var(--color-bg);
+  --color-card: var(--color-surface);
+  --color-card-muted: var(--color-surface-muted);
+  --color-line: var(--color-border);
+  --color-line-strong: var(--color-border-strong);
+  --color-ok: var(--color-success);
+  --color-ok-soft: var(--color-success-soft);
+  --color-warn: var(--color-warning-text);
+  --color-warn-soft: var(--color-warning-soft);
+  --color-bad: var(--color-danger);
+  --color-bad-soft: var(--color-danger-soft);
+
+  --radius-field: var(--ds-radius-md);
+  --radius-card: var(--ds-radius-lg);
+  --radius-panel: var(--ds-radius-xl);
+}

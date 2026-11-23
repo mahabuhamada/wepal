@@ -1,0 +1,2716 @@
+/* ============================================================
+   لوحة الإدارة في السمة «أزرق هادئ» (design-system/wepal/MASTER.md)
+
+   1) القشرة: components/Layout/AdminShellAzraq + AdminSidebarAzraq + AdminTopBarAzraq (أصناف azq-*).
+   2) صفحات الإدارة نفسها لا تتغير (التصميم الحالي محميّ بلقطات pages/admin/azraqAdminClassic.guard.test.jsx)،
+      فشكلها الجديد هنا فقط، داخل .azq-admin-main التي لا تُرسم إلا في القشرة الجديدة.
+      الصفحات مكتوبة بأصناف Tailwind، فبعض المحدِّدات تقرأ أصنافها (مثل [class*="wp-success-tint"]):
+      كل قاعدة من هذه معلَّق عليها بما تستهدفه.
+
+   كل قاعدة تحت [data-theme='azraq']، فالتصميم الحالي (classic) لا يتأثر بشيء منها.
+   القيم من tokens.css فقط: لا hex ولا rgb ولا أحجام خط بالبكسل.
+   ============================================================ */
+
+/* ===== الإطار ===== */
+[data-theme='azraq'] .azq-admin {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* عمود كحلي بعرض الشريط بطول الصفحة كلها: الشريط نفسه ثابت بارتفاع الشاشة، فلا ينقطع الكحلي تحته. */
+[data-theme='azraq'] .azq-admin::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 17rem;
+  background: var(--color-inverse);
+}
+
+[data-theme='azraq'] .azq-admin-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* الشريط العلوي ثابت: التمرير إلى عنصر مركَّز يتركه تحته لا خلفه (WCAG 2.4.11) */
+html[data-theme='azraq']:has(.azq-admin) {
+  scroll-padding-block-start: calc(var(--space-16) + var(--space-4));
+}
+
+/* مناطق التمرير القابلة للتركيز (سجل التدقيق، لوحة الوارد) */
+[data-theme='azraq'] .azq-admin-main [role='region'][tabindex='0']:focus-visible,
+[data-theme='azraq'] .azq-admin-main [role='tabpanel']:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-md);
+}
+
+[data-theme='azraq'] .azq-admin-main:focus {
+  outline: none;
+}
+
+[data-theme='azraq'] .azq-skip {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-2);
+  z-index: 80;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(var(--space-10) + var(--space-1));
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-semibold);
+  transform: translateY(-200%);
+}
+
+[data-theme='azraq'] .azq-skip:focus {
+  transform: none;
+}
+
+/* ===== الشريط الجانبي: كحلي بأقسام ===== */
+[data-theme='azraq'] .azq-side {
+  position: sticky;
+  inset-block-start: 0;
+  display: flex;
+  flex: 0 0 17rem;
+  flex-direction: column;
+  width: 17rem;
+  height: 100vh;
+  height: 100dvh;
+  background: var(--color-inverse);
+  color: var(--color-on-inverse-soft);
+}
+
+/* حلقة التركيز بيضاء على الكحلي (الأزرق الأساسي لا يبلغ 3:1 هنا) */
+[data-theme='azraq'] .azq-side :is(a, button):focus-visible {
+  outline-color: var(--color-on-inverse);
+}
+
+[data-theme='azraq'] .azq-side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-block-end: 1px solid var(--color-inverse-line);
+}
+
+[data-theme='azraq'] .azq-side-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  color: var(--color-on-inverse);
+  text-decoration: none;
+}
+
+[data-theme='azraq'] .azq-side-brand .brand-mark {
+  width: var(--space-10);
+  height: var(--space-10);
+  border-radius: var(--ds-radius-md);
+  box-shadow: none;
+}
+
+[data-theme='azraq'] .azq-side-brand b {
+  display: block;
+  font-family: var(--font-head);
+  font-size: var(--fs-title-sm);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-side-brand small {
+  display: block;
+  color: var(--color-on-inverse-subtle);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-snug);
+}
+
+/* زر الإغلاق للدرج فقط (الجوال) */
+[data-theme='azraq'] .azq-side-close {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--space-10) + var(--space-1));
+  height: calc(var(--space-10) + var(--space-1));
+  border: 1px solid var(--color-inverse-line-strong);
+  border-radius: var(--ds-radius-pill);
+  background: transparent;
+  color: var(--color-on-inverse);
+  cursor: pointer;
+}
+
+[data-theme='azraq'] .azq-side-close svg {
+  width: var(--space-5);
+  height: var(--space-5);
+}
+
+[data-theme='azraq'] .azq-side-nav {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--space-3) var(--space-3) var(--space-5);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-inverse-line-strong) transparent;
+}
+
+[data-theme='azraq'] .azq-side-back,
+[data-theme='azraq'] .azq-side-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: calc(var(--space-8) + var(--space-1)); /* 36px؛ 44px في درج الجوال */
+  padding-inline: var(--space-3);
+  border-radius: var(--ds-radius-md);
+  color: var(--color-on-inverse-soft);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  text-decoration: none;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+[data-theme='azraq'] .azq-side-back svg,
+[data-theme='azraq'] .azq-side-link svg {
+  flex: 0 0 auto;
+  width: calc(var(--space-4) + var(--space-0-5)); /* 18px */
+  height: calc(var(--space-4) + var(--space-0-5));
+}
+
+/* رجوع للمنصة: السهم نحو بداية السطر (يمين بالعربية، يسار بالإنجليزية) كما في ui-page-header-back */
+[data-theme='azraq'] .azq-admin[dir='ltr'] .azq-side-back svg {
+  transform: scaleX(-1);
+}
+
+[data-theme='azraq'] .azq-side-back {
+  margin-block-end: var(--space-2);
+  color: var(--color-on-inverse-subtle);
+}
+
+[data-theme='azraq'] .azq-side-back:hover,
+[data-theme='azraq'] .azq-side-link:hover {
+  background: var(--color-inverse-raised);
+  color: var(--color-on-inverse);
+}
+
+[data-theme='azraq'] .azq-side-group + .azq-side-group {
+  margin-block-start: var(--space-3);
+}
+
+[data-theme='azraq'] .azq-side-group-label {
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  color: var(--color-on-inverse-subtle);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-side-group ul {
+  display: grid;
+  gap: var(--space-0-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* الصفحة الحالية: خلفية مرفوعة + نص أبيض أثقل + خط نعناعي في بداية السطر (لا يعتمد على اللون وحده) */
+[data-theme='azraq'] .azq-side-link[aria-current='page'] {
+  background: color-mix(in srgb, var(--color-on-inverse) 12%, transparent);
+  color: var(--color-on-inverse);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-side-link[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  inset-block: var(--space-2);
+  inset-inline-start: 0;
+  width: var(--space-1);
+  border-radius: var(--ds-radius-pill);
+  background: var(--color-accent-mint);
+}
+
+[data-theme='azraq'] .azq-side-link[aria-current='page'] svg {
+  color: var(--color-accent-mint-light);
+}
+
+[data-theme='azraq'] .azq-side-foot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-block-start: 1px solid var(--color-inverse-line);
+}
+
+[data-theme='azraq'] .azq-side-who {
+  display: grid;
+  min-width: 0;
+}
+
+[data-theme='azraq'] .azq-side-who b {
+  overflow: hidden;
+  color: var(--color-on-inverse);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-side-who small {
+  color: var(--color-on-inverse-subtle);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: color-mix(in srgb, var(--color-inverse-deep) 55%, transparent);
+}
+
+[data-theme='azraq'] .azq-scrim[hidden] {
+  display: none;
+}
+
+/* ===== الشريط العلوي: هادئ، اسم القسم فوق عنوان الصفحة ===== */
+[data-theme='azraq'] .azq-topbar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--space-16);
+  padding: var(--space-2) clamp(var(--space-4), 3vw, var(--space-8));
+  border-block-end: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+[data-theme='azraq'] .azq-topbar-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+[data-theme='azraq'] .azq-topbar-kicker {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-topbar h1 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  font-family: var(--font-head);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-topbar-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+[data-theme='azraq'] .azq-topbar-menu,
+[data-theme='azraq'] .azq-topbar-bell,
+[data-theme='azraq'] .azq-topbar-lang {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: calc(var(--space-10) + var(--space-1)); /* 44px */
+  height: calc(var(--space-10) + var(--space-1));
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+
+[data-theme='azraq'] .azq-topbar-lang {
+  padding-inline: var(--space-3);
+}
+
+[data-theme='azraq'] .azq-topbar-menu:hover,
+[data-theme='azraq'] .azq-topbar-bell:hover,
+[data-theme='azraq'] .azq-topbar-lang:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+[data-theme='azraq'] .azq-topbar-menu svg,
+[data-theme='azraq'] .azq-topbar-bell svg {
+  width: var(--space-5);
+  height: var(--space-5);
+}
+
+[data-theme='azraq'] .azq-topbar-lang svg {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+/* زر القائمة للجوال فقط */
+[data-theme='azraq'] .azq-topbar-menu {
+  display: none;
+}
+
+[data-theme='azraq'] .azq-topbar-count {
+  position: absolute;
+  inset-block-start: calc(var(--space-1) * -1);
+  inset-inline-end: calc(var(--space-1) * -1);
+  min-width: var(--space-5);
+  height: var(--space-5);
+  padding-inline: var(--space-1);
+  border: 2px solid var(--color-surface);
+  border-radius: var(--ds-radius-pill);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  line-height: calc(var(--space-4) - var(--space-0-5));
+  text-align: center;
+}
+
+[data-theme='azraq'] .azq-topbar-dot {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-end: var(--space-2);
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--ds-radius-pill);
+  background: var(--color-primary);
+}
+
+/* ============================================================
+   المرحلة 1 من لوحة الإدارة الجديدة (خطة لوحة الإدارة 4.1 و4.2، النموذج المعتمد في 12 نوفمبر 2026):
+   الشريط الجانبي بأقسام حسب المهمة ولون مسار لكل قسم، والشريط العلوي الزجاجي بمسار التنقّل وCtrl K،
+   ولوحة الأوامر، والجرس المنسدل، والرئيسية. القواعد هنا تأتي بعد قواعد القشرة السابقة فتعلوها.
+   ============================================================ */
+
+[data-theme='azraq'] .azq-admin {
+  --chart-1: var(--color-primary);
+  --chart-2: var(--color-accent-yellow);
+  --chart-3: var(--color-accent-mint);
+  --chart-4: var(--color-accent-coral);
+  --chart-5: var(--color-accent-violet);
+  --seq-1: color-mix(in srgb, var(--color-primary) 25%, var(--color-surface));
+  --seq-2: color-mix(in srgb, var(--color-primary) 45%, var(--color-surface));
+  --seq-3: color-mix(in srgb, var(--color-primary) 70%, var(--color-surface));
+  --seq-4: var(--color-primary);
+  --seq-5: var(--color-inverse);
+  --grid: var(--color-border);
+  background: var(--page-base, var(--color-bg));
+}
+
+[data-theme='azraq'] .azq-admin [data-path='home'] { --c: var(--path-home); --t: var(--path-home-text); }
+[data-theme='azraq'] .azq-admin [data-path='work'] { --c: var(--path-work); --t: var(--path-work-text); }
+[data-theme='azraq'] .azq-admin [data-path='com'] { --c: var(--path-com); --t: var(--path-com-text); }
+[data-theme='azraq'] .azq-admin [data-path='vote'] { --c: var(--path-vote); --t: var(--path-vote-text); }
+[data-theme='azraq'] .azq-admin [data-path='lib'] { --c: var(--path-lib); --t: var(--path-lib-text); }
+[data-theme='azraq'] .azq-admin [data-path='ok'] { --c: var(--color-success); --t: var(--color-success); }
+[data-theme='azraq'] .azq-admin [data-path='none'] { --c: var(--path-none); --t: var(--path-none-text); }
+
+/* ----- الشريط الجانبي: كحلي متدرّج بعرض 256px ----- */
+[data-theme='azraq'] .azq-admin::before {
+  width: 16rem;
+  background: linear-gradient(180deg, var(--color-inverse), var(--color-inverse-deep));
+}
+
+[data-theme='azraq'] .azq-side {
+  flex-basis: 16rem;
+  width: 16rem;
+  background: linear-gradient(180deg, var(--color-inverse), var(--color-inverse-deep));
+}
+
+[data-theme='azraq'] .azq-side-head {
+  padding: var(--space-3) var(--space-4);
+}
+
+[data-theme='azraq'] .azq-side-nav {
+  padding: var(--space-1) var(--space-2-5) var(--space-3);
+}
+
+[data-theme='azraq'] .azq-side-group + .azq-side-group {
+  margin-block-start: var(--space-1);
+}
+
+[data-theme='azraq'] .azq-side-group-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2-5) var(--space-2) var(--space-1);
+}
+
+[data-theme='azraq'] .azq-side-group-label i {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--ds-radius-pill);
+  background: var(--c);
+}
+
+[data-theme='azraq'] .azq-side-link {
+  min-height: calc(var(--space-8) + var(--space-1));
+  padding: 3px var(--space-2);
+  border-radius: var(--ds-radius-sm);
+  gap: var(--space-2-5);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-side-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--color-on-inverse) 5%, transparent);
+  color: var(--c);
+}
+
+[data-theme='azraq'] .azq-side-icon svg {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-side-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-side-link[aria-current='page'] {
+  background: color-mix(in srgb, var(--color-on-inverse) 9%, transparent);
+}
+
+[data-theme='azraq'] .azq-side-link[aria-current='page'] .azq-side-icon {
+  background: var(--c);
+  color: var(--color-inverse);
+}
+
+[data-theme='azraq'] .azq-side-link[aria-current='page'] svg {
+  color: inherit;
+}
+
+[data-theme='azraq'] .azq-side-link[aria-current='page']::before {
+  inset-inline-start: calc(var(--space-2-5) * -1);
+  inset-block: 7px;
+  width: 3px;
+  background: var(--c);
+}
+
+[data-theme='azraq'] .azq-side-foot {
+  display: grid;
+  gap: var(--space-0-5);
+  padding: var(--space-2-5);
+}
+
+[data-theme='azraq'] .azq-side-me {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  margin-block-end: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--ds-radius-md);
+  background: color-mix(in srgb, var(--color-on-inverse) 5%, transparent);
+}
+
+[data-theme='azraq'] .azq-side-foot-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  min-height: calc(var(--space-8) + var(--space-0-5));
+  padding: var(--space-1) var(--space-2-5);
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  background: none;
+  color: var(--color-on-inverse-soft);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--fs-label);
+  text-align: start;
+  text-decoration: none;
+}
+
+[data-theme='azraq'] .azq-side-foot-link:hover {
+  background: color-mix(in srgb, var(--color-on-inverse) 6%, transparent);
+  color: var(--color-on-inverse);
+}
+
+[data-theme='azraq'] .azq-side-foot-link svg {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-side-foot-link.azq-side-back {
+  margin: 0;
+  color: var(--color-on-inverse-soft);
+}
+
+/* ----- الشريط العلوي: زجاجي بارتفاع 60px، مسار التنقّل ثم البحث والجرس ----- */
+[data-theme='azraq'] .azq-topbar {
+  min-height: 60px;
+  padding-block: 0;
+  gap: var(--space-2-5);
+  background: var(--glass, var(--color-surface));
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+}
+
+[data-theme='azraq'] .azq-crumbs {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-crumbs ol {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-theme='azraq'] .azq-crumbs li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  min-width: 0;
+}
+
+[data-theme='azraq'] .azq-crumbs li + li::before {
+  content: '›';
+  color: var(--color-text-subtle, var(--color-text-muted));
+}
+
+[data-theme='azraq'] .azq-crumbs li[aria-current='page'] span {
+  overflow: hidden;
+  color: var(--color-text);
+  font-weight: var(--fw-semibold);
+  text-overflow: ellipsis;
+}
+
+[data-theme='azraq'] .azq-crumbs a {
+  color: var(--color-text-muted);
+}
+
+[data-theme='azraq'] .azq-searchbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: min(300px, 32vw);
+  height: calc(var(--space-8) + var(--space-1));
+  padding: 0 var(--space-2-5);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-searchbtn:hover {
+  border-color: var(--color-primary);
+}
+
+[data-theme='azraq'] .azq-searchbtn svg {
+  flex: 0 0 auto;
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-searchbtn span {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-align: start;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-admin kbd {
+  padding: 0 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  direction: ltr;
+  font-family: inherit;
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-topbar-count {
+  background: var(--badge-alert);
+  color: var(--color-on-inverse);
+}
+
+[data-theme='azraq'] .azq-bellwrap {
+  position: relative;
+}
+
+[data-theme='azraq'] .azq-pop {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  inset-inline-end: 0;
+  z-index: 50;
+  width: 340px;
+  max-width: calc(100vw - var(--space-8));
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--ds-shadow-lg);
+}
+
+[data-theme='azraq'] .azq-pop header {
+  padding: var(--space-3) var(--space-3-5, var(--space-3));
+  font-weight: var(--fw-bold);
+}
+
+[data-theme='azraq'] .azq-pop-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-2-5) var(--space-3);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: var(--fs-body-sm);
+  text-decoration: none;
+}
+
+[data-theme='azraq'] .azq-pop-item:hover {
+  background: var(--color-surface-muted);
+}
+
+[data-theme='azraq'] .azq-pop-count {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 var(--space-1-5);
+  border-radius: var(--ds-radius-pill);
+  background: color-mix(in srgb, var(--c) 18%, var(--color-surface));
+  color: var(--t);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-pop-empty,
+[data-theme='azraq'] .azq-pop footer {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+/* ----- لوحة الأوامر ----- */
+[data-theme='azraq'] .azq-pal {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12vh var(--space-4) var(--space-4);
+  background: color-mix(in srgb, var(--color-inverse-deep) 42%, transparent);
+}
+
+[data-theme='azraq'] .azq-pal-box {
+  width: min(600px, 100%);
+  overflow: hidden;
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--ds-shadow-lg);
+}
+
+[data-theme='azraq'] .azq-pal-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-3) var(--space-4);
+  border-block-end: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+[data-theme='azraq'] .azq-pal-input svg {
+  width: var(--space-5);
+  height: var(--space-5);
+}
+
+[data-theme='azraq'] .azq-pal-input input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body);
+}
+
+[data-theme='azraq'] .azq-pal ul {
+  max-height: 52vh;
+  margin: 0;
+  overflow: auto;
+  padding: var(--space-1-5);
+  list-style: none;
+}
+
+[data-theme='azraq'] .azq-pal-group {
+  padding: var(--space-2) var(--space-2-5) var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-pal-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-2) var(--space-2-5);
+  border-radius: var(--ds-radius-sm);
+  cursor: pointer;
+  font-size: var(--fs-body-sm);
+}
+
+[data-theme='azraq'] .azq-pal-option[aria-selected='true'] {
+  background: var(--color-primary-soft);
+}
+
+[data-theme='azraq'] .azq-pal-option small {
+  margin-inline-start: auto;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-pal-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-pal-tile,
+[data-theme='azraq'] .azq-tile {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--ds-radius-sm);
+  background: color-mix(in srgb, var(--c) 14%, var(--color-surface));
+  color: var(--t);
+}
+
+[data-theme='azraq'] .azq-pal-tile svg,
+[data-theme='azraq'] .azq-tile svg {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-pal-foot {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+/* ----- الرئيسية ----- */
+[data-theme='azraq'] .azq-home {
+  display: grid;
+  gap: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-eyebrow {
+  display: block;
+  margin-block-end: var(--space-1-5);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-medium);
+}
+
+[data-theme='azraq'] .azq-home-title {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-head);
+  font-size: var(--fs-heading);
+  font-weight: var(--fw-black, var(--fw-bold));
+  line-height: var(--lh-tight);
+}
+
+[data-theme='azraq'] .azq-home-hero p,
+[data-theme='azraq'] .azq-hsec p {
+  margin: var(--space-1-5) 0 0;
+  color: var(--color-text-secondary);
+}
+
+[data-theme='azraq'] .azq-home-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+[data-theme='azraq'] .azq-card {
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+[data-theme='azraq'] .azq-card-h {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2-5);
+  padding: var(--space-3) var(--space-4);
+}
+
+[data-theme='azraq'] .azq-card-h :is(h3, h4) {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+}
+
+[data-theme='azraq'] .azq-card-h h3 svg {
+  width: var(--space-5);
+  height: var(--space-5);
+}
+
+[data-theme='azraq'] .azq-card-sub,
+[data-theme='azraq'] .azq-muted {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-attn {
+  border-color: color-mix(in srgb, var(--path-home) 28%, var(--color-border));
+  background: color-mix(in srgb, var(--path-home) 7%, var(--color-surface));
+  box-shadow: var(--ds-shadow-long, var(--ds-shadow-md));
+}
+
+[data-theme='azraq'] .azq-attn-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-4);
+  color: var(--color-success);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-skel {
+  height: 8rem;
+  margin: 0 var(--space-4) var(--space-4);
+  border-radius: var(--ds-radius-sm);
+  background: var(--color-surface-muted);
+}
+
+[data-theme='azraq'] .azq-rows {
+  margin: 0;
+  padding: 0 var(--space-2) var(--space-2);
+  list-style: none;
+}
+
+[data-theme='azraq'] .azq-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2-5) var(--space-2);
+  border-block-start: 1px solid color-mix(in srgb, var(--path-home) 18%, var(--color-border));
+  border-radius: var(--ds-radius-sm);
+}
+
+[data-theme='azraq'] .azq-row:first-child {
+  border-block-start: 0;
+}
+
+[data-theme='azraq'] .azq-row:hover {
+  background: color-mix(in srgb, var(--path-home) 6%, var(--color-surface));
+}
+
+[data-theme='azraq'] .azq-row .azq-tile {
+  width: 36px;
+  height: 36px;
+}
+
+[data-theme='azraq'] .azq-row-n {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-row-txt {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+[data-theme='azraq'] .azq-row-txt b {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-row-txt b a {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  text-overflow: ellipsis;
+}
+
+[data-theme='azraq'] .azq-row-txt small {
+  display: block;
+  margin-block-start: var(--space-0-5);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-cb {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 var(--space-1-5);
+  border-radius: var(--ds-radius-pill);
+  background: var(--badge-alert);
+  color: var(--color-on-inverse);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1-5);
+  margin-block-start: var(--space-1-5);
+}
+
+[data-theme='azraq'] .azq-chip {
+  padding: var(--space-0-5) var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--path-lib) 30%, var(--color-border));
+  border-radius: var(--ds-radius-pill);
+  background: color-mix(in srgb, var(--path-lib) 8%, var(--color-surface));
+  color: var(--path-lib-text);
+  font-size: var(--fs-caption);
+  text-decoration: none;
+}
+
+[data-theme='azraq'] .azq-btn-sm,
+[data-theme='azraq'] .azq-btn-ghost {
+  flex: 0 0 auto;
+  padding: var(--space-1-5) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-btn-ghost {
+  border-color: transparent;
+  color: var(--color-primary);
+}
+
+[data-theme='azraq'] .azq-tl {
+  margin: 0;
+  padding: var(--space-1) var(--space-4) var(--space-3);
+  list-style: none;
+}
+
+[data-theme='azraq'] .azq-tl li {
+  position: relative;
+  display: flex;
+  gap: var(--space-2-5);
+  padding: var(--space-2) 0;
+}
+
+[data-theme='azraq'] .azq-tl li::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 13px;
+  width: 2px;
+  background: var(--color-border);
+}
+
+[data-theme='azraq'] .azq-tl li:first-child::before { inset-block-start: var(--space-4); }
+[data-theme='azraq'] .azq-tl li:last-child::before { inset-block-end: calc(100% - var(--space-4)); }
+
+[data-theme='azraq'] .azq-tl .azq-tile {
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 3px var(--color-surface);
+}
+
+[data-theme='azraq'] .azq-tl-tx {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--fs-body-sm);
+}
+
+[data-theme='azraq'] .azq-tl-tx small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-hsec h3 {
+  margin: 0;
+  font-size: var(--fs-title-sm);
+  font-weight: var(--fw-bold);
+}
+
+[data-theme='azraq'] .azq-kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+[data-theme='azraq'] .azq-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1-5);
+  min-width: 0;
+  padding: var(--space-3) var(--space-3) var(--space-2-5);
+  border: 1px solid color-mix(in srgb, var(--c) 24%, var(--color-border));
+  border-radius: var(--ds-radius-md);
+  background: color-mix(in srgb, var(--c) 9%, var(--color-surface));
+  color: var(--color-text);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+/* إطار المرور للبطاقة الرابط وحدها: بطاقة لا تفتح شيئًا لا تتظاهر بأنها تُنقر (docs/ADMIN-UX.md §2) */
+[data-theme='azraq'] a.azq-kpi:hover {
+  border-color: var(--c);
+}
+
+[data-theme='azraq'] .azq-kpi-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+[data-theme='azraq'] .azq-kpi-top .azq-tile {
+  background: color-mix(in srgb, var(--c) 20%, var(--color-surface));
+}
+
+[data-theme='azraq'] .azq-kpi-label {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
+}
+
+[data-theme='azraq'] .azq-kpi-scope {
+  align-self: flex-start;
+  padding: 0 var(--space-1-5);
+  border-radius: var(--ds-radius-pill);
+  background: var(--color-surface);
+  color: var(--t);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-kpi-value {
+  font-size: var(--fs-title);
+  font-weight: var(--fw-bold);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-kpi-value small,
+[data-theme='azraq'] .azq-kpi-delta {
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+}
+
+[data-theme='azraq'] .azq-kpi-delta.is-up { color: var(--color-success); }
+[data-theme='azraq'] .azq-kpi-delta.is-down { color: var(--color-danger-text); }
+
+[data-theme='azraq'] .azq-segbar {
+  display: flex;
+  gap: 2px;
+  height: var(--space-2);
+  margin-block-start: auto;
+}
+
+[data-theme='azraq'] .azq-segbar span {
+  height: 100%;
+  border-radius: var(--space-1);
+}
+
+[data-theme='azraq'] .azq-seglegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px var(--space-2-5);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-seglegend i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-inline-end: var(--space-1);
+  border-radius: var(--ds-radius-pill);
+  vertical-align: middle;
+}
+
+[data-theme='azraq'] .azq-meter {
+  height: var(--space-2);
+  margin-block-start: auto;
+  overflow: hidden;
+  border-radius: var(--space-1);
+  background: color-mix(in srgb, var(--c) 22%, var(--color-surface));
+}
+
+[data-theme='azraq'] .azq-meter span {
+  display: block;
+  height: 100%;
+  border-radius: var(--space-1);
+  background: var(--c);
+}
+
+[data-theme='azraq'] .azq-stats {
+  display: grid;
+  gap: var(--space-3);
+}
+
+[data-theme='azraq'] .azq-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-chart-body {
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+@media (max-width: 1279px) {
+  [data-theme='azraq'] .azq-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-theme='azraq'] .azq-searchbtn { width: auto; }
+  [data-theme='azraq'] .azq-searchbtn span,
+  [data-theme='azraq'] .azq-searchbtn kbd { display: none; }
+}
+
+@media (max-width: 1099px) {
+  [data-theme='azraq'] .azq-home-top,
+  [data-theme='azraq'] .azq-charts { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 767px) {
+  [data-theme='azraq'] .azq-topbar { min-height: 52px; gap: var(--space-1-5); }
+  [data-theme='azraq'] .azq-crumbs li:not(:last-child) { display: none; }
+  [data-theme='azraq'] .azq-searchbtn {
+    justify-content: center;
+    min-width: calc(var(--space-10) + var(--space-1));
+    height: calc(var(--space-10) + var(--space-1));
+    padding: 0;
+    border-color: transparent;
+    background: none;
+  }
+  [data-theme='azraq'] .azq-topbar-lang span,
+  [data-theme='azraq'] .azq-topbar-lang { padding-inline: var(--space-2); }
+  [data-theme='azraq'] .azq-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-theme='azraq'] .azq-home-title { font-size: var(--fs-title); }
+  [data-theme='azraq'] .azq-row { align-items: flex-start; gap: var(--space-2-5); }
+  [data-theme='azraq'] .azq-row-txt b { align-items: flex-start; }
+  [data-theme='azraq'] .azq-row .azq-btn-sm { display: none; }
+  [data-theme='azraq'] .azq-pal { padding-block-start: var(--space-4); }
+}
+
+/* ============================================================
+   صفحات الإدارة (داخل .azq-admin-main)
+   ============================================================ */
+
+/* الأسماء القديمة بمعناها في الإدارة: «coral-deep/wash» تُستعمل هنا للحذف والأخطاء والبلاغات ومنطقة الخطر،
+   فتصير ألوان الخطر بدل الأزرق الفاتح الذي تشير إليه في التصميم الحالي. */
+[data-theme='azraq'] .azq-admin-main,
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] {
+  --wp-coral-deep: var(--color-danger-text);
+  --wp-coral-wash: var(--color-danger-soft);
+}
+
+/* جسم الصفحة: الحاوية التي تلي الشريط العلوي (p-7 px-8 space-y-6 في الصفحات) */
+[data-theme='azraq'] .azq-admin-main .azq-topbar + div {
+  max-width: 88rem;
+  margin-inline: auto;
+  padding: var(--space-8) clamp(var(--space-4), 3vw, var(--space-8)) var(--space-16);
+}
+
+/* ===== ترويسة الصفحة: عنوان + سطر وصف + زر الإجراء، بشكل ui-page-header ===== */
+[data-theme='azraq'] .azq-admin-main :is(.wp-page-title, .ui-page-title) {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-head);
+  font-size: var(--fs-heading);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0;
+  line-height: var(--lh-tight);
+}
+
+[data-theme='azraq'] .azq-admin-main .wp-page-title + p {
+  margin-block-start: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+}
+
+[data-theme='azraq'] .azq-admin-main .flex:has(> .wp-page-title) {
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* ===== البطاقات ===== */
+[data-theme='azraq'] .azq-admin-main .ui-card {
+  border-color: var(--color-border);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+/* عنوان قسم داخل البطاقة (h3 text-base) وعنوان عنصر في قائمة (h3/h4 text-sm) */
+[data-theme='azraq'] .azq-admin-main .ui-card :is(h2, h3).text-base {
+  color: var(--color-text);
+  font-family: var(--font-head);
+  font-size: var(--fs-title-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card :is(h3, h4).text-sm {
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+/* منطقة الخطر في لوحة الإدارة (مفتاح الطوارئ): حدّها وصندوق الحذف النهائي بألوان الخطر */
+[data-theme='azraq'] .azq-admin-main .ui-card[class*='F0DAD6'] {
+  border-color: color-mix(in srgb, var(--color-danger) 35%, var(--color-border));
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card [class*='F0DAD6'] {
+  border-color: color-mix(in srgb, var(--color-danger) 25%, transparent);
+}
+
+/* بطاقات الأرقام في اللوحة والتحليلات (grid-cols-4): الرقم بخط العناوين وأرقام جدولية */
+[data-theme='azraq'] .azq-admin-main .grid-cols-4 > .ui-card [class*='font-extrabold'] {
+  font-family: var(--font-head);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* أيقونات بطاقات اللوحة: كحلي، أزرق، نعناعي، شمسي. اللون مكتوب في style على العنصر (style={{ backgroundColor }}). */
+[data-theme='azraq'] .azq-admin-main .grid-cols-4 {
+  --wp-info: var(--color-primary);
+  --wp-info-tint: var(--color-primary-soft);
+  --wp-success: var(--color-accent-mint-text);
+  --wp-success-tint: var(--color-accent-mint-soft);
+  --wp-warning: var(--color-warning-text);
+  --wp-warning-tint: var(--color-warning-soft);
+}
+
+[data-theme='azraq'] .azq-admin-main .grid-cols-4 > .ui-card:first-child > div[style]:first-child {
+  background-color: color-mix(in srgb, var(--color-inverse) 8%, var(--color-surface)) !important;
+}
+
+[data-theme='azraq'] .azq-admin-main .grid-cols-4 > .ui-card > div[style]:first-child {
+  width: var(--space-12);
+  height: var(--space-12);
+  border-radius: var(--ds-radius-md);
+}
+
+/* الروابط السريعة في اللوحة (wp-lift) */
+[data-theme='azraq'] .azq-admin-main a.wp-lift {
+  min-height: calc(var(--space-12) + var(--space-1));
+  border-color: var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  font-weight: var(--fw-medium);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+[data-theme='azraq'] .azq-admin-main a.wp-lift:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: var(--ds-shadow-sm);
+  transform: none;
+}
+
+[data-theme='azraq'] .azq-admin-main a.wp-lift svg:first-child {
+  color: var(--color-primary);
+}
+
+/* السهم يشير لاتجاه القراءة */
+[data-theme='azraq'] .azq-admin[dir='ltr'] .azq-admin-main a.wp-lift svg:last-child {
+  transform: scaleX(-1);
+}
+
+/* ===== الأزرار: بشكل ui-btn (أساسي وثانوي) ===== */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) :is(.wp-btn-ink, .wp-btn-ghost) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--space-10);
+  border-radius: var(--ds-radius-md);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) .wp-btn-ink {
+  border: 1px solid transparent;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) .wp-btn-ink:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  color: var(--color-on-primary);
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) .wp-btn-ghost {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-primary-strong);
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) .wp-btn-ghost:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) :is(.wp-btn-ink, .wp-btn-ghost):disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) :is(.wp-btn-ink, .wp-btn-ghost) svg {
+  flex: 0 0 auto;
+}
+
+/* أزرار الإجراءات الملوّنة في الصفوف والبطاقات (تحذير، تجاهل، صيانة، حذف): حدّ وارتفاع ui-btn-sm */
+[data-theme='azraq'] .azq-admin-main button:where([class*='bg-red-50'], [class*=' bg-[var(--wp-coral-wash)]'], [class*=' bg-[var(--wp-warning-tint)]'], [class*=' bg-[var(--wp-success-tint)]'][class*='rounded-xl'], [class*=' bg-[#'][class*='rounded-xl']) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--space-10);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-bold);
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+
+/* حذف المحتوى / حذف المسودة / إزالة التقرير: ui-btn-danger-outline */
+[data-theme='azraq'] .azq-admin-main button:is([class*='bg-red-50'], [class*=' bg-[var(--wp-coral-wash)]']) {
+  color: var(--color-danger-text);
+}
+
+[data-theme='azraq'] .azq-admin-main button:is([class*='bg-red-50'], [class*=' bg-[var(--wp-coral-wash)]']):hover:not(:disabled) {
+  border-color: var(--color-danger);
+  background: var(--color-danger-soft);
+  opacity: 1;
+}
+
+/* تحذير صاحب المحتوى / تفعيل الصيانة: نص شمسي داكن */
+[data-theme='azraq'] .azq-admin-main button[class*=' bg-[var(--wp-warning-tint)]'] {
+  color: var(--color-warning-text);
+}
+
+[data-theme='azraq'] .azq-admin-main button[class*=' bg-[var(--wp-warning-tint)]']:hover:not(:disabled) {
+  border-color: var(--color-accent-yellow);
+  background: var(--color-warning-soft);
+  opacity: 1;
+  box-shadow: none;
+}
+
+/* إيقاف الصيانة */
+[data-theme='azraq'] .azq-admin-main button[class*=' bg-[var(--wp-success-tint)]'][class*='rounded-xl'] {
+  color: var(--color-success);
+}
+
+/* تجاهل البلاغ (رمادي) */
+[data-theme='azraq'] .azq-admin-main button[class*=' bg-[#'][class*='rounded-xl']:hover:not(:disabled) {
+  border-color: var(--color-text-secondary);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+[data-theme='azraq'] .azq-admin-main button:disabled {
+  cursor: not-allowed;
+}
+
+/* زر الحذف النهائي: خطر ممتلئ */
+[data-theme='azraq'] .azq-admin-main button[class*='bg-[var(--wp-coral-deep)]'] {
+  min-height: var(--space-10);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-danger);
+  font-size: var(--fs-label);
+}
+
+/* أزرار الأيقونة في صفوف الجداول (تعديل/حذف بعنوان title): مربّع 36px للمس */
+[data-theme='azraq'] .azq-admin-main td button[title]:not([class*='rounded-full']) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--space-8) + var(--space-1));
+  height: calc(var(--space-8) + var(--space-1));
+  border-radius: var(--ds-radius-sm);
+}
+
+[data-theme='azraq'] .azq-admin-main td button[title]:not([class*='rounded-full']):hover {
+  background: var(--color-surface-muted);
+}
+
+/* إغلاق النموذج (X) وأزرار الحذف بالأيقونة في الأسئلة */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) button[aria-label]:is(.p-1, .p-1\.5) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: calc(var(--space-8) + var(--space-1));
+  min-height: calc(var(--space-8) + var(--space-1));
+  border-radius: var(--ds-radius-sm);
+}
+
+/* أزرار نصية صغيرة («إضافة سؤال»، «نسخ الكل»، «إلغاء الكود») */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) button.text-xs:not([class*='rounded']):not([class*='bg-']) {
+  min-height: calc(var(--space-8) + var(--space-1));
+  color: var(--color-primary);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+}
+
+/* «إعادة المحاولة» في ErrorState: النص يبقى أبيض عند المرور (كان كحليًا على الأزرق) */
+[data-theme='azraq'] .azq-admin-main [role='alert'] > button:hover {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+/* «عرض المزيد» (LoadMore) */
+[data-theme='azraq'] .azq-admin-main button[aria-busy] {
+  min-height: var(--space-10);
+  border-color: var(--color-border-strong);
+  border-radius: var(--ds-radius-md);
+  color: var(--color-primary-strong);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main button[aria-busy]:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ===== الحقول: بشكل ui-input ===== */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) .wp-input {
+  min-height: var(--space-10);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) .wp-input:focus {
+  border-color: var(--color-focus);
+  background: var(--color-surface);
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) textarea.wp-input {
+  min-height: 0;
+  line-height: var(--lh-normal);
+}
+
+[data-theme='azraq'] .azq-admin-main select.wp-input {
+  cursor: pointer;
+}
+
+/* اختيار الدور داخل صف المستخدم: أصغر قليلًا */
+[data-theme='azraq'] .azq-admin-main td .wp-input {
+  min-height: calc(var(--space-8) + var(--space-1));
+  font-size: var(--fs-label);
+}
+
+/* أيقونة البحث في بداية الحقل باتجاه اللغة (كانت على اليمين دائمًا) */
+[data-theme='azraq'] .azq-admin-main .relative > svg.absolute {
+  right: auto;
+  left: auto;
+  inset-inline-start: var(--space-3);
+  color: var(--color-text-muted);
+}
+
+/* حقل البحث في المقالات والقصص (label فيه أيقونة وحقل شفاف) */
+[data-theme='azraq'] .azq-admin-main label:has(> input[class*='bg-transparent']) {
+  min-height: var(--space-10);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface-muted);
+}
+
+[data-theme='azraq'] .azq-admin-main label:has(> input[class*='bg-transparent']):focus-within {
+  border-color: var(--color-focus);
+  background: var(--color-surface);
+}
+
+/* تسميات الحقول (text-xs) بشكل ui-label؛ تسميات مربعات الاختيار تبقى بحجم النص */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) label.text-xs:not(:has(input)),
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) label > span.text-xs {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-admin-main label.text-xs:has(input[type='checkbox']) {
+  font-size: var(--fs-body-sm);
+}
+
+[data-theme='azraq'] .azq-admin-main input[type='checkbox'] {
+  width: var(--space-4);
+  height: var(--space-4);
+  accent-color: var(--color-primary);
+}
+
+[data-theme='azraq'] .azq-admin-main input[type='file'] {
+  font-size: var(--fs-label);
+}
+
+/* ===== المرشّحات ===== */
+/* حالات البلاغات (أزرار py-[9px]): بشكل ui-tab */
+[data-theme='azraq'] .azq-admin-main button[class*='py-[9px]'] {
+  min-height: var(--space-10);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body-sm);
+}
+
+[data-theme='azraq'] .azq-admin-main button[class*='py-[9px]']:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+[data-theme='azraq'] .azq-admin-main button[class*='py-[9px]'][class*='text-white'] {
+  border-color: var(--color-inverse);
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
+}
+
+/* تبويبات الوارد (tablist مباشرةً في جسم الصفحة): بشكل ui-tabs */
+[data-theme='azraq'] .azq-admin-main .azq-topbar + div > [role='tablist'] {
+  flex-wrap: wrap;
+  padding-block-end: var(--space-4);
+  border-block-end: 1px solid var(--color-border);
+}
+
+[data-theme='azraq'] .azq-admin-main .azq-topbar + div > [role='tablist'] > [role='tab'] {
+  min-height: var(--space-10);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--ds-radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-admin-main .azq-topbar + div > [role='tablist'] > [role='tab']:hover {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+
+[data-theme='azraq'] .azq-admin-main .azq-topbar + div > [role='tablist'] > [role='tab'][aria-selected='true'] {
+  border-color: var(--color-inverse);
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
+}
+
+/* الكل / مسودة / منشور (ContentStatusFilter) وتبويب العربية/الإنجليزية (BilingualField): مفتاح مقسّم */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) [role='group']:has(> button[aria-pressed]),
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) [role='tablist'].gap-1 {
+  gap: var(--space-0-5);
+  padding: var(--space-0-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface-muted);
+}
+
+[data-theme='azraq'] .azq-admin-main [role='group'] > button[aria-pressed] {
+  min-height: calc(var(--space-8) + var(--space-1));
+  padding-inline: var(--space-3);
+  border-radius: var(--ds-radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main [role='group'] > button[aria-pressed='true'] {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--ds-shadow-sm);
+  font-weight: var(--fw-bold);
+}
+
+/* تبويبا العربية/الإنجليزية: هدف لمس 44px على كل الشاشات (backlog 39؛ كانا 32px على الحاسوب) */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) [role='tablist'].gap-1 > [role='tab'] {
+  min-width: calc(var(--space-10) + var(--space-1));
+  min-height: calc(var(--space-10) + var(--space-1));
+  padding-inline: var(--space-3);
+  border-radius: var(--ds-radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) [role='tablist'].gap-1 > [role='tab'][aria-selected='true'] {
+  background: var(--color-surface);
+  color: var(--color-primary-strong);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+/* ===== الجداول: كثافة مقروءة، رأس على خلفية خافتة، تمرير أفقي داخل البطاقة على الشاشات الضيقة ===== */
+[data-theme='azraq'] .azq-admin-main .ui-card:has(> table),
+[data-theme='azraq'] .azq-admin-main .overflow-x-auto,
+[data-theme='azraq'] .azq-admin-main .ui-card > [role='region']:has(> table) {
+  position: relative; /* نص قارئ الشاشة (sr-only مطلق) في رؤوس الأعمدة يبقى داخل القصّ */
+  overflow-x: auto;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card thead tr {
+  border: 0;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card thead th {
+  padding: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  text-align: start;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card thead th:first-child {
+  border-start-start-radius: var(--ds-radius-sm);
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card thead th:last-child {
+  border-start-end-radius: var(--ds-radius-sm);
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card tbody tr {
+  border: 0;
+  transition: background-color 0.15s ease;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card tbody td {
+  padding: var(--space-2) var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-snug);
+  vertical-align: middle;
+  white-space: nowrap;
+  /* ارتفاع واحد للصفوف، بأزرار الإجراءات أو بدونها */
+  height: calc(var(--space-12) + var(--space-1));
+}
+
+/* العمود الأول (الاسم/العنوان) يلتفّ ويأخذ عرضًا مريحًا، وبلون النص الأساسي */
+[data-theme='azraq'] .azq-admin-main .ui-card tbody td:first-child {
+  min-width: 12rem;
+  color: var(--color-text);
+  font-weight: var(--fw-medium);
+  white-space: normal;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card tbody tr:hover {
+  background: color-mix(in srgb, var(--color-primary-soft) 60%, transparent);
+}
+
+/* صف «جارٍ التحميل» / «لا نتائج» */
+[data-theme='azraq'] .azq-admin-main .ui-card tbody td[colspan] {
+  padding-block: var(--space-10);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card tbody tr:has(> td[colspan]):hover {
+  background: transparent;
+}
+
+/* ترقيم الصفحات تحت جدول المستخدمين */
+[data-theme='azraq'] .azq-admin-main .ui-card > :is(table, .overflow-x-auto, [role='region']) + div {
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card > :is(table, .overflow-x-auto, [role='region']) + div button {
+  min-height: calc(var(--space-8) + var(--space-1));
+  padding-inline: var(--space-4);
+  border-color: var(--color-border-strong);
+  border-radius: var(--ds-radius-md);
+  color: var(--color-primary-strong);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-admin-main .ui-card > :is(table, .overflow-x-auto, [role='region']) + div button:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+/* ===== الشارات: شكل ui-badge، والحالات بعلامة شكلها يختلف (● نشط/منشور، ○ متوقف/بلا، ◆ مسودة/مغلق) ===== */
+[data-theme='azraq'] .azq-admin-main span[class*='rounded-full']:not([class*='border-dashed']):not(.wp-pill),
+[data-theme='azraq'] .azq-admin-main td > button[class*='rounded-full'],
+[data-theme='azraq'] .azq-admin-main .wp-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--ds-radius-pill);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  white-space: nowrap;
+}
+
+/* الوسوم المحايدة (الدور، النوع، المسار): رمادي النظام بدل الرمادي المحايد */
+[data-theme='azraq'] .azq-admin-main span[class*='F0F0F0'][class*='rounded-full'],
+[data-theme='azraq'] .azq-admin-main .wp-pill[class*='F3F4F6'] {
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+
+/* «مترجَم / بلا ترجمة» في المقالات والقصص */
+[data-theme='azraq'] .azq-admin-main .wp-pill[class*='wp-success-tint'] {
+  background: var(--color-accent-mint-soft);
+  color: color-mix(in srgb, var(--color-accent-mint-text) 88%, var(--color-text)); /* ≥ 4.5:1 على الفاتح */
+}
+
+[data-theme='azraq'] .azq-admin-main .wp-pill svg {
+  width: var(--space-3);
+  height: var(--space-3);
+}
+
+/* لغات المادة في القوائم (ItemLocale): كل شارة رابط يفتح تلك النسخة. هذه النسخة ممتلئة، والأخرى بحدّ */
+[data-theme='azraq'] .azq-admin-main .wp-item-langs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+[data-theme='azraq'] .azq-admin-main .wp-item-lang {
+  min-height: 28px;
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+[data-theme='azraq'] .azq-admin-main .wp-item-lang.is-current {
+  border-color: transparent;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+[data-theme='azraq'] .azq-admin-main .wp-item-lang:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+[data-theme='azraq'] .azq-admin-main .wp-item-lang:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* «مسودة» (DraftBadge: text-[11px]) — كان أصغر من الحد الأدنى 12px */
+[data-theme='azraq'] .azq-admin-main span[class*='text-[11px]'][class*='wp-warning-tint'] {
+  background: var(--color-warning-soft);
+  color: var(--color-warning-text);
+}
+
+/* علامات الحالة:
+   - حالة المستخدم (زر في الجدول)، حالة الاستبيان والعناصر المحاكاة (span[style] بلون في style)،
+     تقرير الاستشارة (li > .ui-card)، والمسودة. */
+[data-theme='azraq'] .azq-admin-main td > button[class*='rounded-full']::before,
+[data-theme='azraq'] .azq-admin-main span[style][class*='rounded-full']::before,
+[data-theme='azraq'] .azq-admin-main li > .ui-card span[class*='rounded-full']:not([class*='border-dashed'])::before,
+[data-theme='azraq'] .azq-admin-main span[class*='text-[11px]'][class*='wp-warning-tint']::before {
+  content: '';
+  flex: 0 0 auto;
+  width: var(--space-2);
+  height: var(--space-2);
+  border: 2px solid currentColor;
+  border-radius: var(--ds-radius-pill);
+  background: transparent;
+}
+
+/* ● نشط، منشور، فيه تقرير، استبيان قائم */
+[data-theme='azraq'] .azq-admin-main td > button[class*='wp-success-tint'][class*='rounded-full']::before,
+[data-theme='azraq'] .azq-admin-main span[style*='wp-success'][class*='rounded-full']::before,
+[data-theme='azraq'] .azq-admin-main li > .ui-card span[class*='wp-success-tint'][class*='rounded-full']:not([class*='border-dashed'])::before {
+  background: currentColor;
+}
+
+/* ◆ مسودة، مغلق، قيد المراجعة */
+[data-theme='azraq'] .azq-admin-main span[style*='wp-warning'][class*='rounded-full']::before,
+[data-theme='azraq'] .azq-admin-main span[class*='text-[11px]'][class*='wp-warning-tint']::before {
+  border-radius: 1px;
+  background: currentColor;
+  transform: rotate(45deg) scale(0.85);
+}
+
+/* ■ قادم / قيد المراجعة (محاكاة) */
+[data-theme='azraq'] .azq-admin-main span[style*='wp-info'][class*='rounded-full']::before {
+  border-radius: 1px;
+  background: currentColor;
+}
+
+/* حالة المستخدم زرٌ يبدّلها: يبدو شارة، ويظهر أنه قابل للنقر عند المرور */
+[data-theme='azraq'] .azq-admin-main td > button[class*='rounded-full'] {
+  min-height: calc(var(--space-8) - var(--space-1));
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+[data-theme='azraq'] .azq-admin-main td > button[class*='rounded-full']:hover:not(:disabled) {
+  border-color: currentColor;
+  opacity: 1;
+}
+
+[data-theme='azraq'] .azq-admin-main td > button[class*='wp-success-tint'],
+[data-theme='azraq'] .azq-admin-main li > .ui-card span[class*='wp-success-tint'],
+[data-theme='azraq'] .azq-admin-main span[class*='rounded-full'][class*='wp-success-tint']:not([style]) {
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+[data-theme='azraq'] .azq-admin-main td > button[class*='F0F0F0'],
+[data-theme='azraq'] .azq-admin-main li > .ui-card span[class*='F0F0F0'] {
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+
+/* سبب البلاغ (coral-wash): وسم بلون الخطر الخافت */
+[data-theme='azraq'] .azq-admin-main span[class*='wp-coral-wash'][class*='rounded-full'] {
+  padding-block: var(--space-0-5);
+}
+
+/* ===== القوائم والحالات ===== */
+/* سجل التدقيق وخلاصة النشاط (صفوف hover:bg رمادي) */
+[data-theme='azraq'] .azq-admin-main [class*='hover:bg-'][class*='F6F6F6']:not(tr):not([class*='text-center']):hover {
+  background: var(--color-surface-muted);
+}
+
+/* القائمتان المحدودتان بـ 420px (سجل التدقيق والخلاصة): حاوية موضَّعة، وإلا خرج نص قارئ الشاشة في شارة «مثال»
+   (sr-only مطلق الموضع) من القصّ وأطال الصفحة بفراغ تحتها. */
+[data-theme='azraq'] .azq-admin-main [class*='max-h-[420px]'] {
+  position: relative;
+  scrollbar-width: thin;
+}
+
+/* عناصر بحدّ (rounded-2xl border): صفوف التحقق والتحديات، الأكواد الجديدة، أسئلة الاستبيان */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) .ui-card [class*='rounded-2xl'][class*='border-']:not([class*='F0DAD6']) {
+  border-color: var(--color-border);
+  border-radius: var(--ds-radius-md);
+}
+
+[data-theme='azraq'] .azq-admin-main code {
+  border-radius: var(--ds-radius-sm);
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-admin-main code[class*='F6F6F6'] {
+  background: var(--color-surface-muted);
+}
+
+/* لا بلاغات / لا ما يُنشر (صندوق رمادي في الوسط) و EmptyState: صندوق متقطّع هادئ */
+[data-theme='azraq'] .azq-admin-main div[class*='F6F6F6'][class*='text-center'],
+[data-theme='azraq'] .azq-admin-main [role='status'][class*='border-dashed'] {
+  padding: var(--space-10) var(--space-6);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--ds-radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body-sm);
+}
+
+[data-theme='azraq'] .azq-admin-main [role='status'][class*='border-dashed'] svg {
+  width: var(--space-8);
+  height: var(--space-8);
+  color: var(--color-accent-mint-text);
+}
+
+[data-theme='azraq'] .azq-admin-main [role='status'][class*='border-dashed'] p:first-of-type {
+  color: var(--color-text);
+  font-family: var(--font-head);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+}
+
+/* هياكل التحميل */
+[data-theme='azraq'] .azq-admin-main .animate-pulse {
+  border-radius: var(--ds-radius-lg);
+  background: var(--color-surface-muted);
+}
+
+/* رسالة نجاح النشر (div role=status بلون النجاح): بشكل ui-alert-success */
+[data-theme='azraq'] .azq-admin-main div[role='status'][class*='wp-success-tint'] {
+  border-color: color-mix(in srgb, var(--color-success) 25%, transparent);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-success-soft);
+  color: var(--color-success);
+}
+
+/* ErrorState: بشكل ui-alert-danger */
+[data-theme='azraq'] .azq-admin-main div[role='alert'][class*='F0DAD6'] {
+  border-color: color-mix(in srgb, var(--color-danger) 25%, transparent);
+  border-radius: var(--ds-radius-md);
+}
+
+/* رسائل الوارد */
+[data-theme='azraq'] .azq-admin-main li > .ui-card b.text-sm {
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+}
+
+/* أصغر من 12px في الشاشات الحالية (text-[11px]): يُرفع للحد الأدنى */
+[data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) [class*='text-[11px]'] {
+  font-size: var(--fs-caption);
+}
+
+/* ===== هيكل التحميل =====
+   عنصر التحميل (role=status و data-loading في الصفحات) يبقى نصّه لقارئ الشاشة، ويغطّيه هنا هيكلٌ من أشرطة
+   خافتة بقدر المحتوى القادم، بدل سطر «جاري التحميل…» وحده. */
+[data-theme='azraq'] .azq-admin-main [data-loading] {
+  position: relative;
+  min-height: calc(var(--space-16) + var(--space-8));
+}
+
+[data-theme='azraq'] .azq-admin-main [data-loading]::before {
+  content: '';
+  position: absolute;
+  inset: var(--space-3) 0;
+  border-radius: var(--ds-radius-md);
+  background:
+    linear-gradient(var(--color-surface-muted), var(--color-surface-muted)) 0 0 / 100% var(--space-4) no-repeat,
+    linear-gradient(var(--color-surface-muted), var(--color-surface-muted)) 0 var(--space-8) / 82% var(--space-4) no-repeat,
+    linear-gradient(var(--color-surface-muted), var(--color-surface-muted)) 0 var(--space-16) / 64% var(--space-4) no-repeat,
+    var(--color-surface);
+  animation: azqPulse 1.4s ease-in-out infinite;
+}
+
+[data-theme='azraq'] .azq-admin[dir='rtl'] .azq-admin-main [data-loading]::before {
+  background-position: 100% 0, 100% var(--space-8), 100% var(--space-16), 0 0;
+}
+
+/* الهيكل يبقى معتمًا (النص تحته لقارئ الشاشة فقط)؛ النبض بالسطوع لا بالشفافية */
+@keyframes azqPulse {
+  50% { filter: brightness(0.96); }
+}
+
+/* ===== نتيجة الإجراء: تنبيه أسفل الشاشة (AdminNoticeRegion)، يُعلن ولا يأخذ التركيز ===== */
+[data-theme='azraq'] .azq-toast-region {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: var(--space-6);
+  z-index: 70;
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--space-4);
+  pointer-events: none;
+}
+
+[data-theme='azraq'] .azq-toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 34rem;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4) var(--space-2);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-inverse);
+  color: var(--color-on-inverse);
+  box-shadow: var(--ds-shadow-lg);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-snug);
+  pointer-events: auto;
+  animation: azqToastIn 0.22s ease-out;
+}
+
+[data-theme='azraq'] .azq-toast > svg {
+  flex: 0 0 auto;
+  width: var(--space-5);
+  height: var(--space-5);
+  color: var(--color-accent-mint-light);
+}
+
+[data-theme='azraq'] .azq-toast > button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--space-10) + var(--space-1));
+  height: calc(var(--space-10) + var(--space-1));
+  border: 0;
+  border-radius: var(--ds-radius-sm);
+  background: transparent;
+  color: var(--color-on-inverse-soft);
+  cursor: pointer;
+}
+
+[data-theme='azraq'] .azq-toast > button:hover {
+  background: var(--color-inverse-raised);
+  color: var(--color-on-inverse);
+}
+
+[data-theme='azraq'] .azq-toast > button:focus-visible {
+  outline-color: var(--color-on-inverse);
+}
+
+[data-theme='azraq'] .azq-toast > button svg {
+  width: var(--space-4);
+  height: var(--space-4);
+}
+
+@keyframes azqToastIn {
+  from { opacity: 0; transform: translateY(var(--space-2)); }
+}
+
+/* ===== «منشور / مسودة» في النماذج ===== */
+[data-theme='azraq'] .azq-admin-main .azq-publish-state {
+  margin: 0;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+}
+
+[data-theme='azraq'] .azq-admin-main .azq-publish-state legend {
+  padding-inline: var(--space-1);
+}
+
+[data-theme='azraq'] .azq-admin-main .azq-publish-state input[type='radio'] {
+  width: var(--space-4);
+  height: var(--space-4);
+  accent-color: var(--color-primary);
+}
+
+/* ===== الرسوم: لوحة «أزرق هادئ» ===== */
+/* السلاسل تأتي بألوان من الأسماء القديمة (fill="var(--wp-ink)"…)، فنعيد تعريفها داخل الرسم:
+   الأولى أزرق، الثانية نعناعي، الثالثة كحلي، الرابعة شمسي. التلميح ومفتاح الرسم يتبعانها تلقائيًا.
+   direction: ltr يضع أسماء المحاور في مكانها (في RTL كانت تتراكب فوق الأعمدة). */
+[data-theme='azraq'] .azq-admin-main .recharts-wrapper {
+  --wp-ink: var(--color-primary);
+  --wp-coral: var(--color-accent-mint-text);
+  --wp-text-3: var(--color-inverse);
+  --wp-border-2: var(--color-accent-yellow);
+  direction: ltr;
+}
+
+[data-theme='azraq'] .azq-admin-main .recharts-line ~ .recharts-line .recharts-line-curve {
+  stroke-dasharray: 6 4;
+}
+
+[data-theme='azraq'] .azq-admin-main .recharts-cartesian-grid line {
+  stroke: var(--color-border);
+}
+
+[data-theme='azraq'] .azq-admin-main .recharts-cartesian-axis-line,
+[data-theme='azraq'] .azq-admin-main .recharts-cartesian-axis-tick-line {
+  stroke: var(--color-border-strong);
+}
+
+[data-theme='azraq'] .azq-admin-main .recharts-cartesian-axis-tick-value {
+  fill: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-admin-main .recharts-legend-item-text {
+  color: var(--color-text-secondary) !important; /* لون النص مكتوب في style من المكتبة */
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main .recharts-default-tooltip {
+  border-color: var(--color-border) !important; /* حدّ التلميح مكتوب في style من المكتبة */
+  border-radius: var(--ds-radius-md);
+  box-shadow: var(--ds-shadow-md);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main .recharts-tooltip-cursor {
+  fill: var(--color-surface-muted);
+}
+
+/* ===== النوافذ (Modal في body) حين تكون لوحة الإدارة مفتوحة ===== */
+/* نتائج الاستطلاع (SurveyResultsDialog): بطاقة لكل سؤال وأشرطة بالأزرق */
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] .asr-question {
+  border-color: var(--color-border);
+  border-radius: var(--ds-radius-md);
+}
+
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] .asr-question h3 {
+  color: var(--color-text);
+  font-family: var(--font-head);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] .asr-bar {
+  background: var(--color-surface-muted);
+}
+
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] .asr-bar-fill {
+  background: var(--color-primary);
+}
+
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] .asr-answers li {
+  border-radius: var(--ds-radius-sm);
+  background: var(--color-surface-muted);
+  line-height: var(--lh-normal);
+}
+
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] {
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-xl);
+  box-shadow: var(--ds-shadow-lg);
+}
+
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] h2 {
+  color: var(--color-text);
+  font-family: var(--font-head);
+  font-size: var(--fs-title-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] body:has(.azq-admin) [role='dialog'] legend {
+  color: var(--color-text);
+  font-size: var(--fs-label);
+}
+
+/* ===== الشاشات الأضيق ===== */
+@media (max-width: 1279px) {
+  [data-theme='azraq'] .azq-side,
+  [data-theme='azraq'] .azq-admin::before {
+    flex-basis: 15.5rem;
+    width: 15.5rem;
+  }
+}
+
+/* أقل من 1024px: الشريط الجانبي درج يُفتح من زر القائمة */
+@media (max-width: 1023px) {
+  [data-theme='azraq'] .azq-side {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 60;
+    width: min(20rem, 86vw);
+    height: auto;
+    box-shadow: var(--ds-shadow-lg);
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s linear 0.25s;
+  }
+
+  [data-theme='azraq'] .azq-admin[dir='rtl'] .azq-side {
+    transform: translateX(100%);
+  }
+
+  [data-theme='azraq'] .azq-admin::before {
+    display: none;
+  }
+
+  [data-theme='azraq'] .azq-admin .azq-side[data-open='true'] {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.25s ease;
+  }
+
+  [data-theme='azraq'] .azq-side-close,
+  [data-theme='azraq'] .azq-topbar-menu {
+    display: inline-flex;
+  }
+
+  /* الصفحة خلف الدرج لا تتمرّر */
+  [data-theme='azraq'] body:has(.azq-admin[data-menu-open='true']) {
+    overflow: hidden;
+  }
+
+  [data-theme='azraq'] .azq-admin-main .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+/* أهداف لمس 44px لكل عنصر تفاعلي: الشاشات الأضيق من 1024، وكل جهاز لمس (لوحي أفقي بعرض 1024 مثلًا) */
+@media (max-width: 1023px), (pointer: coarse) {
+  [data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) :is(button, select, textarea, input:not([type='checkbox']):not([type='radio']), a.wp-lift) {
+    min-height: calc(var(--space-10) + var(--space-1));
+  }
+
+  [data-theme='azraq'] .azq-admin-main td button[title]:not([class*='rounded-full']) {
+    width: calc(var(--space-10) + var(--space-1));
+    height: calc(var(--space-10) + var(--space-1));
+  }
+
+  [data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) :is(button:is(.p-1, .p-1\.5)[aria-label], [role='group'] > button[aria-pressed], [role='tab']) {
+    min-width: calc(var(--space-10) + var(--space-1));
+  }
+
+  [data-theme='azraq'] :is(.azq-side-back, .azq-side-link, .azq-side-brand) {
+    min-height: calc(var(--space-10) + var(--space-1));
+  }
+
+  /* خانات الاختيار: الهدف هو السطر كله (التسمية مع الخانة)، مثل نطاقات الحذف في لوحة الإدارة */
+  [data-theme='azraq'] :is(.azq-admin-main, body:has(.azq-admin) [role='dialog']) label:is(.flex, .inline-flex):has(> input:is([type='checkbox'], [type='radio'])) {
+    min-height: calc(var(--space-10) + var(--space-1));
+  }
+}
+
+@media (max-width: 767px) {
+  [data-theme='azraq'] .azq-admin-main .grid-cols-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  [data-theme='azraq'] .azq-admin-main .col-span-2 {
+    grid-column: 1 / -1;
+  }
+
+  /* صفوف البطاقات: الأزرار تنزل تحت النص بدل أن تضغطه */
+  [data-theme='azraq'] .azq-admin-main .ui-card.flex:has(button),
+  [data-theme='azraq'] .azq-admin-main .ui-card > .flex.justify-between:has(button) {
+    flex-wrap: wrap;
+  }
+
+  [data-theme='azraq'] .azq-admin-main .azq-topbar + div {
+    padding-block: var(--space-6) var(--space-12);
+  }
+
+  /* صفوف داخل النماذج والقوائم (سؤال الاستبيان، كود الدعوة): تلتفّ بدل أن تضيق */
+  [data-theme='azraq'] .azq-admin-main form .flex.items-center,
+  [data-theme='azraq'] .azq-admin-main ul > li.flex {
+    flex-wrap: wrap;
+  }
+
+  [data-theme='azraq'] .azq-admin-main :is(.wp-page-title, .ui-page-title) {
+    font-size: var(--fs-title);
+  }
+}
+
+@media (max-width: 639px) {
+  [data-theme='azraq'] .azq-admin-main .ui-card {
+    padding: var(--space-4);
+  }
+
+  [data-theme='azraq'] .azq-admin-main .grid-cols-4 > .ui-card {
+    gap: var(--space-3);
+  }
+
+  [data-theme='azraq'] .azq-admin-main .grid-cols-4 > .ui-card > div[style]:first-child {
+    width: var(--space-10);
+    height: var(--space-10);
+  }
+
+  [data-theme='azraq'] .azq-topbar-lang svg {
+    display: none;
+  }
+
+  [data-theme='azraq'] .azq-topbar-lang {
+    padding-inline: var(--space-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='azraq'] .azq-admin-main [data-loading]::before,
+  [data-theme='azraq'] .azq-toast {
+    animation: none;
+  }
+
+  [data-theme='azraq'] .azq-side,
+  [data-theme='azraq'] .azq-admin .azq-side[data-open='true'],
+  [data-theme='azraq'] .azq-side-link,
+  [data-theme='azraq'] .azq-side-back,
+  [data-theme='azraq'] .azq-admin-main .ui-card tbody tr {
+    transition: none;
+  }
+}
+
+/* ===== الوارد: حالة القراءة (PR 212) ===== */
+/* عدّاد ما ينتظر في الشريط الجانبي (الوارد وغيره): أحمر التنبيه في نهاية السطر، والهادئ (المخفي، الدعوات) شفاف */
+[data-theme='azraq'] .azq-side-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--space-5);
+  height: var(--space-5);
+  margin-inline-start: auto;
+  padding-inline: var(--space-1);
+  border-radius: var(--ds-radius-pill);
+  background: var(--badge-alert);
+  color: var(--color-on-inverse);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+[data-theme='azraq'] .azq-side-count.is-soft {
+  background: color-mix(in srgb, var(--color-on-inverse) 12%, transparent);
+}
+
+/* عدد غير المقروءة على تبويب الرسائل */
+[data-theme='azraq'] .azq-admin-main .aib-count {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+[data-theme='azraq'] .azq-admin-main [role='tab'][aria-selected='true'] .aib-count {
+  background: var(--color-accent-mint);
+  color: var(--color-inverse);
+}
+
+/* الرسالة غير المقروءة: خط في بداية البطاقة (والحالة مكتوبة نصًا تحتها، لا باللون وحده) */
+[data-theme='azraq'] .azq-admin-main li[data-unread='true'] > .ui-card {
+  border-inline-start: var(--space-1) solid var(--color-primary);
+}
+
+[data-theme='azraq'] .azq-admin-main .aib-state {
+  border-color: var(--color-border);
+}
+
+[data-theme='azraq'] .azq-admin-main .aib-status[data-read='false'] {
+  color: var(--color-primary-strong);
+}
+
+[data-theme='azraq'] .azq-admin-main .aib-status[data-read='true'] {
+  color: var(--color-text-muted);
+}
+
+[data-theme='azraq'] .azq-admin-main .aib-toggle {
+  min-height: var(--space-10);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main .aib-toggle:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-strong);
+}
+
+[data-theme='azraq'] .azq-admin-main .aib-toggle[aria-disabled='true'] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+[data-theme='azraq'] .azq-admin-main .aib-error {
+  color: var(--color-danger-text);
+}
+
+/* الشاشات الصغيرة واللمس: زر التعليم وأزرار الترشيح بهدف 44px كباقي أزرار اللوحة */
+@media (max-width: 1023px), (pointer: coarse) {
+  [data-theme='azraq'] .azq-admin-main .aib-toggle {
+    min-height: calc(var(--space-10) + var(--space-1));
+  }
+}
+
+/* ===== صور المحتوى في النماذج (جولة التصميم 6): الغلاف، صورة صاحب القصة، صور رؤوس الصفحات ===== */
+[data-theme='azraq'] .azq-admin-main .aim-field {
+  border-color: var(--color-border);
+  border-radius: var(--ds-radius-lg);
+  background: var(--color-surface-muted);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-legend {
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-preview {
+  width: min(100%, calc(var(--space-12) * 4));
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-empty {
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-status {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-btn {
+  min-height: var(--space-10);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-strong);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-btn-danger {
+  color: var(--color-danger-text);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-btn-danger:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger-text);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-hint {
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-error {
+  color: var(--color-danger-text);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-consent input[type='checkbox'] {
+  width: var(--space-5);
+  height: var(--space-5);
+  accent-color: var(--color-primary);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-header-form {
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-lg);
+}
+
+[data-theme='azraq'] .azq-admin-main .aim-header-form .aim-field {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+@media (max-width: 1023px), (pointer: coarse) {
+  [data-theme='azraq'] .azq-admin-main .aim-btn,
+  [data-theme='azraq'] .azq-admin-main .aim-consent label {
+    min-height: calc(var(--space-10) + var(--space-1));
+  }
+
+  [data-theme='azraq'] .azq-admin-main .aim-preview {
+    width: 100%;
+  }
+}
+
+/* ================= المرحلة 2: صفحة القائمة («نظرة عامة»، التبويبات، الصفوف، الإجراء الجماعي، الدرج) ================= */
+
+[data-theme='azraq'] .azq-list { display: grid; gap: var(--space-4); padding: var(--space-6) var(--space-8); min-width: 0; }
+[data-theme='azraq'] .azq-list-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; }
+[data-theme='azraq'] .azq-list-head h2 { font-size: var(--fs-heading); font-weight: var(--fw-bold); line-height: 1.15; }
+[data-theme='azraq'] .azq-list-head p { color: var(--color-text-secondary); font-size: var(--fs-body-sm); margin-top: var(--space-1); }
+
+/* «نظرة عامة» */
+[data-theme='azraq'] .azq-band { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); box-shadow: var(--ds-shadow-sm); min-width: 0; }
+[data-theme='azraq'] .azq-band-t { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 10px; inline-size: 100%; min-block-size: 48px; padding: 8px 14px; cursor: pointer; border-radius: var(--ds-radius-md); }
+[data-theme='azraq'] .azq-band-t:focus-visible { outline: 3px solid var(--color-focus); outline-offset: -3px; }
+[data-theme='azraq'] .azq-band-tt { display: flex; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; flex: 1; min-width: 0; }
+[data-theme='azraq'] .azq-band-tt h2 { font-size: var(--fs-body); font-weight: var(--fw-bold); }
+[data-theme='azraq'] .azq-band-sc, [data-theme='azraq'] .azq-band-empty { font-size: var(--fs-caption); color: var(--color-text-muted); }
+[data-theme='azraq'] .azq-band-sum { font-size: var(--fs-caption); color: var(--color-text-secondary); white-space: nowrap; }
+[data-theme='azraq'] .azq-band-chev { inline-size: 16px; block-size: 16px; color: var(--color-text-muted); transition: transform 0.2s; }
+[data-theme='azraq'] .azq-band-t[aria-expanded='true'] .azq-band-chev { transform: rotate(180deg); }
+[data-theme='azraq'] .azq-band-b { display: grid; gap: 12px; padding: 0 14px 14px; }
+[data-theme='azraq'] .azq-band-b[hidden] { display: none; }
+[data-theme='azraq'] .azq-band-k { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+[data-theme='azraq'] .azq-kpi.is-sm { padding: 10px 12px 8px; gap: 4px; }
+[data-theme='azraq'] .azq-kpi.is-sm .azq-kpi-value { font-size: var(--fs-title-sm); }
+[data-theme='azraq'] .azq-band-c { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+[data-theme='azraq'] .azq-band-ch { border: 1px solid var(--color-border); border-radius: var(--ds-radius-sm); padding: 10px 12px; min-width: 0; margin: 0; }
+[data-theme='azraq'] .azq-band-ch h3 { font-size: var(--fs-label); font-weight: var(--fw-bold); }
+[data-theme='azraq'] .azq-hbars { display: grid; gap: 6px; margin-top: 8px; }
+[data-theme='azraq'] .azq-hbars li > * { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) auto; align-items: center; gap: 8px; color: inherit; text-decoration: none; font-size: var(--fs-caption); border-radius: 6px; }
+[data-theme='azraq'] .azq-hbars a:hover .azq-hbar-l { text-decoration: underline; }
+[data-theme='azraq'] .azq-hbars a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+[data-theme='azraq'] .azq-hbar-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-secondary); }
+[data-theme='azraq'] .azq-hbar-track { block-size: 8px; border-radius: 99px; background: var(--color-surface-muted); overflow: hidden; }
+[data-theme='azraq'] .azq-hbar-track > span { display: block; block-size: 100%; border-radius: 99px; }
+[data-theme='azraq'] .azq-hbar-v { font-weight: 600; font-variant-numeric: tabular-nums; }
+[data-theme='azraq'] .azq-hbar-v small { color: var(--color-text-muted); font-weight: 400; }
+
+/* التبويبات بعدّاداتها والمرشّحات */
+[data-theme='azraq'] .azq-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--color-border); overflow-x: auto; }
+[data-theme='azraq'] .azq-tabs button { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; padding: 10px 12px; min-block-size: 44px; font-size: var(--fs-body-sm); font-weight: 600; color: var(--color-text-secondary); border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; }
+[data-theme='azraq'] .azq-tabs button[aria-selected='true'] { color: var(--color-primary-strong); border-color: var(--color-primary); }
+[data-theme='azraq'] .azq-tabs button:focus-visible { outline: 3px solid var(--color-focus); outline-offset: -3px; }
+[data-theme='azraq'] .azq-tabs .azq-count { font-size: var(--fs-caption); padding: 0 7px; border-radius: 99px; background: color-mix(in srgb, currentColor 16%, transparent); color: inherit; font-variant-numeric: tabular-nums; }
+[data-theme='azraq'] .azq-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+[data-theme='azraq'] .azq-toolbar select, [data-theme='azraq'] .azq-toolbar input[type='search'] { min-block-size: 40px; padding: 0 10px; border: 1px solid var(--color-border-strong); border-radius: var(--ds-radius-sm); background: var(--color-surface); font-size: var(--fs-body-sm); }
+[data-theme='azraq'] .azq-toolbar input[type='search'] { min-inline-size: 14rem; flex: 1; max-inline-size: 22rem; }
+[data-theme='azraq'] .azq-chk { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-body-sm); }
+
+/* الصفوف: مربّع اختيار، والأفعال تظهر عند المرور والتركيز، وتبقى ظاهرة على الهاتف */
+[data-theme='azraq'] .azq-lrows { display: grid; border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); background: var(--color-surface); overflow: hidden; }
+[data-theme='azraq'] .azq-lrow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: start; padding: 12px 14px; border-top: 1px solid var(--color-border); }
+[data-theme='azraq'] .azq-lrow:first-child { border-top: 0; }
+[data-theme='azraq'] .azq-lrow[aria-selected='true'] { background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface)); }
+[data-theme='azraq'] .azq-lrow input[type='checkbox'] { inline-size: 18px; block-size: 18px; margin-top: 3px; }
+[data-theme='azraq'] .azq-lrow-main { min-width: 0; display: grid; gap: 4px; }
+[data-theme='azraq'] .azq-lrow-title { all: unset; cursor: pointer; font-weight: 600; font-size: var(--fs-body-sm); line-height: 1.45; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+[data-theme='azraq'] .azq-lrow-title:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; border-radius: 4px; }
+[data-theme='azraq'] .azq-lrow-meta { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: var(--fs-caption); color: var(--color-text-muted); }
+[data-theme='azraq'] .azq-lrow-meta a { color: var(--color-text-secondary); text-decoration: underline; text-underline-offset: 2px; }
+[data-theme='azraq'] .azq-lrow-acts { display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+[data-theme='azraq'] .azq-lrow:hover .azq-lrow-acts, [data-theme='azraq'] .azq-lrow:focus-within .azq-lrow-acts { opacity: 1; }
+[data-theme='azraq'] .azq-pill { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 99px; font-size: var(--fs-caption); font-weight: 600; background: var(--color-surface-muted); color: var(--color-text-secondary); }
+[data-theme='azraq'] .azq-pill.is-danger { background: var(--color-danger-soft); color: var(--color-danger-text); }
+[data-theme='azraq'] .azq-pill.is-warn { background: var(--color-warning-soft); color: var(--color-warning-text); }
+[data-theme='azraq'] .azq-pill.is-ok { background: var(--color-success-soft); color: var(--color-text); }
+[data-theme='azraq'] .azq-empty { padding: 28px; text-align: center; color: var(--color-text-muted); font-size: var(--fs-body-sm); }
+
+/* شريط الإجراء الجماعي: كحلي ثابت أعلى القائمة */
+[data-theme='azraq'] .azq-bulk { position: sticky; top: 64px; z-index: 20; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 12px; border-radius: var(--ds-radius-md); background: var(--color-inverse); color: var(--color-on-inverse); }
+[data-theme='azraq'] .azq-bulk b { margin-inline-end: auto; font-size: var(--fs-body-sm); }
+[data-theme='azraq'] .azq-bulk button { min-block-size: 36px; padding: 0 12px; border-radius: var(--ds-radius-sm); border: 1px solid var(--color-inverse-line-strong); background: transparent; color: inherit; font-size: var(--fs-label); font-weight: 600; cursor: pointer; }
+[data-theme='azraq'] .azq-bulk button:hover { background: var(--color-inverse-raised); }
+[data-theme='azraq'] .azq-bulk button:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+/* الدرج الجانبي (العين) */
+[data-theme='azraq'] .azq-drawer-scrim { position: fixed; inset: 0; z-index: 60; background: rgb(10 20 40 / 35%); }
+[data-theme='azraq'] .azq-drawer { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 61; inline-size: min(36rem, 100vw); display: flex; flex-direction: column; background: var(--color-surface); box-shadow: var(--ds-shadow-lg, 0 10px 40px rgb(0 0 0 / 18%)); }
+[data-theme='azraq'] .azq-drawer-h { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--color-border); }
+[data-theme='azraq'] .azq-drawer-h h2 { flex: 1; font-size: var(--fs-title-sm); font-weight: var(--fw-bold); }
+[data-theme='azraq'] .azq-drawer-b { flex: 1; overflow-y: auto; padding: 16px; display: grid; gap: 16px; align-content: start; }
+[data-theme='azraq'] .azq-drawer-f { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--color-border); }
+[data-theme='azraq'] .azq-drawer-sec h3 { font-size: var(--fs-label); font-weight: var(--fw-bold); color: var(--color-text-secondary); margin-bottom: 6px; }
+[data-theme='azraq'] .azq-quote { border-inline-start: 3px solid var(--color-primary); padding: 8px 12px; background: var(--color-surface-muted); border-radius: 6px; font-size: var(--fs-body-sm); line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+[data-theme='azraq'] .azq-dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 12px; font-size: var(--fs-body-sm); }
+[data-theme='azraq'] .azq-dl dt { color: var(--color-text-muted); }
+[data-theme='azraq'] .azq-mini { display: grid; gap: 8px; font-size: var(--fs-body-sm); }
+[data-theme='azraq'] .azq-mini li { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px dashed var(--color-border); }
+[data-theme='azraq'] .azq-mini li small { color: var(--color-text-muted); font-size: var(--fs-caption); }
+[data-theme='azraq'] .azq-toast > .azq-toast-undo { inline-size: auto; padding: 0 10px; font-weight: 700; text-decoration: underline; }
+
+@media (max-width: 860px) {
+  [data-theme='azraq'] .azq-list { padding: var(--space-4); }
+  [data-theme='azraq'] .azq-band-k { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-theme='azraq'] .azq-band-c { grid-template-columns: 1fr; }
+  [data-theme='azraq'] .azq-band-sum { display: none; }
+  [data-theme='azraq'] .azq-lrow { grid-template-columns: auto minmax(0, 1fr); }
+  [data-theme='azraq'] .azq-lrow-acts { opacity: 1; grid-column: 2; flex-wrap: wrap; }
+  [data-theme='azraq'] .azq-toolbar input[type='search'] { min-inline-size: 0; max-inline-size: none; }
+  [data-theme='azraq'] .azq-bulk { top: 56px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='azraq'] .azq-band-chev, [data-theme='azraq'] .azq-lrow-acts { transition: none; }
+}
+[data-theme='azraq'] .azq-period { border-bottom: 0; margin-top: var(--space-2); }
+[data-theme='azraq'] .azq-period button[aria-checked='true'] { color: var(--color-primary-strong); border-color: var(--color-primary); }
+
+/* ================= المرحلة 4: مصفوفة الأدوار وصفوف الإعدادات ================= */
+[data-theme='azraq'] .azq-matrix { inline-size: 100%; border-collapse: collapse; font-size: var(--fs-body-sm); }
+[data-theme='azraq'] .azq-matrix th, [data-theme='azraq'] .azq-matrix td { padding: 10px 12px; border-top: 1px solid var(--color-border); text-align: center; }
+[data-theme='azraq'] .azq-matrix thead th { background: var(--color-surface-muted); font-size: var(--fs-label); border-top: 0; white-space: nowrap; }
+[data-theme='azraq'] .azq-matrix tbody th { text-align: start; font-weight: 600; display: grid; gap: 2px; min-inline-size: 16rem; }
+[data-theme='azraq'] .azq-matrix tbody th code { font-size: var(--fs-caption); color: var(--color-text-muted); font-weight: 400; }
+[data-theme='azraq'] .azq-matrix td svg { inline-size: 16px; block-size: 16px; display: inline; }
+[data-theme='azraq'] .azq-matrix td[data-yes='true'] { color: var(--color-primary-strong); background: color-mix(in srgb, var(--color-primary) 6%, transparent); }
+[data-theme='azraq'] .azq-matrix td[data-yes='false'] { color: var(--color-border-strong); }
+[data-theme='azraq'] .azq-set { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 14px 16px; border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); background: var(--color-surface); }
+[data-theme='azraq'] .azq-set.is-col { grid-template-columns: 1fr; align-items: stretch; }
+[data-theme='azraq'] .azq-set-h { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+[data-theme='azraq'] .azq-set h3 { font-size: var(--fs-body); font-weight: var(--fw-bold); }
+[data-theme='azraq'] .azq-set p { font-size: var(--fs-body-sm); color: var(--color-text-secondary); }
+[data-theme='azraq'] .azq-set-row { border: 0; border-top: 1px dashed var(--color-border); padding: 10px 0 0; margin: 0; display: grid; gap: 6px; }
+[data-theme='azraq'] .azq-set-row legend { font-size: var(--fs-label); font-weight: 700; padding: 0; }
+
+/* درج مراجعة المقترح (المرحلة 3، القسم 4.5): لوحة جانبية غير حاجبة */
+.adm-proposal-drawer { position: fixed; z-index: 40; inset-block: var(--space-4); inset-inline-end: var(--space-4); width: min(28rem, calc(100vw - 2 * var(--space-4))); overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--ds-radius-xl); box-shadow: var(--ds-shadow-lg); }

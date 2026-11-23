@@ -1,0 +1,357 @@
+/* ============================================================
+   المحرّر الجديد (المرحلة 3 من لوحة الإدارة) بـ«أزرق هادئ»، على شكل محرّر المنتدى:
+   شريط إجراءات لاصق، وتبويبات خطّية، وورقة كتابة بيضاء بعمود حتى 768px، ولوحة جانبية 21rem بثلاثة أوضاع
+   (مثبّتة من 1600، وجانبية 861–1599 تأخذ مكانها ولا تغطّي الورقة، وورقة سفلية 860 فأقل). القيم من tokens.css فقط.
+   ============================================================ */
+
+.azq-ed { --ed-aside: 21rem; --ed-column: 768px; color: var(--color-text); background: var(--color-bg); min-height: 100vh; font-family: var(--font-family-ar); }
+.azq-ed button { font: inherit; }
+.azq-ed-page-message { padding: var(--space-8); color: var(--color-text-muted); }
+
+/* ===== شريط الإجراءات ===== */
+.azq-ed-bar { position: sticky; top: 0; z-index: 30; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3) var(--space-6); padding: var(--space-3) var(--space-6); background: var(--color-surface); border-bottom: 1px solid var(--color-border); }
+.azq-ed-bar-start { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.azq-ed-back { font-size: var(--fs-caption); color: var(--color-text-muted); text-decoration: none; width: fit-content; }
+.azq-ed-back:hover { color: var(--color-text); }
+.azq-ed-bar-title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-width: 0; }
+.azq-ed-bar-title h1 { margin: 0; font-size: var(--fs-title-sm); font-weight: var(--fw-semibold); max-width: 28rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.azq-ed-badge { display: inline-flex; align-items: center; padding: var(--space-0-5) var(--space-2); border-radius: var(--ds-radius-pill); font-size: var(--fs-caption); background: var(--color-surface-muted); color: var(--color-text-secondary); border: 1px solid var(--color-border); }
+.azq-ed-status-published { background: var(--color-success-soft); color: var(--color-accent-mint-text); border-color: transparent; }
+.azq-ed-badge-warn { background: var(--color-warning-soft); color: var(--color-warning-text); border-color: transparent; }
+.azq-ed-langs { display: inline-flex; gap: var(--space-1); }
+.azq-ed-lang { min-width: 2rem; padding: var(--space-0-5) var(--space-2); border-radius: var(--ds-radius-sm); border: 1px solid var(--color-border); background: var(--color-primary-soft); color: var(--color-primary); font-size: var(--fs-caption); cursor: pointer; }
+.azq-ed-lang.is-current { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); cursor: default; }
+.azq-ed-lang.is-missing { background: transparent; border-style: dashed; color: var(--color-text-muted); }
+.azq-ed-save { display: inline-flex; align-items: center; gap: var(--space-1-5); font-size: var(--fs-caption); color: var(--color-text-muted); }
+.azq-ed-save-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-success); }
+.azq-ed-save-dirty .azq-ed-save-dot { background: var(--color-warning); }
+.azq-ed-save-failed { color: var(--color-danger-text); }
+.azq-ed-save-failed .azq-ed-save-dot, .azq-ed-save-offline .azq-ed-save-dot { background: var(--color-danger); }
+.azq-ed-save-saving .azq-ed-save-dot { background: transparent; border: 2px solid var(--color-primary); border-inline-end-color: transparent; animation: azq-ed-spin 0.8s linear infinite; }
+@keyframes azq-ed-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .azq-ed-save-saving .azq-ed-save-dot { animation: none; } }
+.azq-ed-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.azq-ed-dot-red { display: inline-block; width: 8px; height: 8px; margin-inline-start: var(--space-1); border-radius: 50%; background: var(--color-danger); }
+
+/* الأزرار */
+.azq-ed-btn-primary, .azq-ed-btn-secondary, .azq-ed-btn-ghost, .azq-ed-btn-danger { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-1-5); min-height: 40px; padding: 0 var(--space-4); border-radius: var(--ds-radius-md); font-size: var(--fs-body-sm); font-weight: var(--fw-medium); cursor: pointer; text-decoration: none; border: 1px solid transparent; }
+.azq-ed-btn-primary { background: var(--color-primary); color: var(--color-on-primary); }
+.azq-ed-btn-primary:hover:not(:disabled) { background: var(--color-primary-hover); }
+.azq-ed-btn-secondary { background: var(--color-surface); color: var(--color-primary); border-color: var(--color-border-strong); }
+.azq-ed-btn-ghost { background: transparent; color: var(--color-text-secondary); }
+.azq-ed-btn-ghost:hover { background: var(--color-surface-muted); }
+.azq-ed-btn-danger { background: var(--color-danger); color: var(--color-on-primary); }
+.azq-ed [disabled] { opacity: 0.5; cursor: not-allowed; }
+.azq-ed-link, .azq-ed-link-danger { background: none; border: 0; padding: 0 var(--space-1); color: var(--color-primary); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; font-size: inherit; }
+.azq-ed-link-danger { color: var(--color-danger-text); }
+.azq-ed-icon-btn { width: 32px; height: 32px; border-radius: var(--ds-radius-sm); border: 0; background: transparent; color: var(--color-text-muted); cursor: pointer; font-size: var(--fs-title-sm); }
+.azq-ed-icon-btn:hover { background: var(--color-surface-muted); color: var(--color-text); }
+.azq-ed :focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+.azq-ed-more { position: relative; }
+.azq-ed-more summary { list-style: none; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--ds-radius-md); cursor: pointer; color: var(--color-text-secondary); }
+.azq-ed-more summary::-webkit-details-marker { display: none; }
+.azq-ed-menu { position: absolute; inset-inline-end: 0; top: calc(100% + var(--space-1)); z-index: 40; min-width: 14rem; display: flex; flex-direction: column; padding: var(--space-1); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); box-shadow: var(--ds-shadow-lg); }
+.azq-ed-menu a, .azq-ed-menu button { display: block; text-align: start; padding: var(--space-2) var(--space-3); border: 0; background: none; border-radius: var(--ds-radius-sm); color: var(--color-text); text-decoration: none; cursor: pointer; font-size: var(--fs-body-sm); }
+.azq-ed-menu a:hover, .azq-ed-menu button:hover { background: var(--color-surface-muted); }
+
+/* ===== التبويبات والتنبيهات ===== */
+.azq-ed-tabs { display: flex; gap: var(--space-6); padding: 0 var(--space-6); border-bottom: 1px solid var(--color-border); background: var(--color-surface); overflow-x: auto; }
+.azq-ed-tabs button { padding: var(--space-3) 0; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--color-text-muted); cursor: pointer; font-size: var(--fs-body-sm); white-space: nowrap; }
+.azq-ed-tabs button[aria-selected='true'] { color: var(--color-primary); border-bottom-color: var(--color-primary); font-weight: var(--fw-semibold); }
+.azq-ed-tab-langs { font-size: var(--fs-caption); color: var(--color-text-muted); }
+.azq-ed-notices { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3) var(--space-6) 0; }
+.azq-ed-notices:empty { display: none; }
+.azq-ed-notice { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); padding: var(--space-2-5) var(--space-4); border-radius: var(--ds-radius-md); background: var(--color-info-soft); color: var(--color-text); font-size: var(--fs-body-sm); }
+.azq-ed-notice-warn { background: var(--color-warning-soft); color: var(--color-warning-text); }
+.azq-ed-notice-danger { background: var(--color-danger-soft); color: var(--color-danger-text); }
+.azq-ed-notice-success { background: var(--color-success-soft); color: var(--color-accent-mint-text); }
+.azq-ed-notice .azq-ed-icon-btn { margin-inline-start: auto; }
+
+/* ===== المساحة: الورقة واللوحة ===== */
+.azq-ed-workspace { display: flex; flex-wrap: wrap; gap: var(--space-6); align-items: flex-start; padding: var(--space-6); }
+.azq-ed-workspace[hidden] { display: none; }
+.azq-ed-sheet { flex: 1 1 0; min-width: 0; background: var(--color-surface); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-md); }
+.azq-ed-column { width: 100%; max-width: var(--ed-column); margin: 0 auto; padding: var(--space-8) var(--space-6) var(--space-16); }
+.azq-ed-title { display: block; width: 100%; border: 0; resize: none; overflow: hidden; background: transparent; font: inherit; font-size: var(--fs-heading); font-weight: var(--fw-bold); line-height: var(--lh-tight); color: var(--color-text); }
+.azq-ed-title::placeholder, .azq-ed-excerpt::placeholder { color: var(--color-text-muted); }
+.azq-ed-title-quote { font-size: var(--fs-title); }
+.azq-ed-title:focus, .azq-ed-excerpt:focus { outline: none; }
+.azq-ed-slug { margin: var(--space-2) 0 var(--space-5); font-size: var(--fs-caption); color: var(--color-text-muted); text-align: end; }
+.azq-ed-slug span { padding: var(--space-0-5) var(--space-2); border-radius: var(--ds-radius-sm); background: var(--color-surface-muted); }
+.azq-ed-cover { margin: var(--space-4) 0; }
+.azq-ed-cover figure { margin: 0; position: relative; }
+/* في المحرّر تُرى الصورة كاملة بلا قصّ (البوابة تقصّها لإطاراتها)، على خلفية هادئة إن كانت أضيق من العمود */
+.azq-ed-cover img { display: block; width: 100%; height: auto; max-height: 28rem; object-fit: contain; border-radius: var(--ds-radius-md); background: var(--color-surface-muted); }
+.azq-ed-cover-note { margin: var(--space-1-5) 0 var(--space-3); }
+/* معاينة القصّ كما في الموقع، بالحجم الصغير نفسه تقريبًا */
+.azq-ed-cover-crops { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); margin-top: var(--space-3); }
+.azq-ed-crop { margin: 0; display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--fs-caption); color: var(--color-text-muted); }
+.azq-ed-crop-img { display: block; height: 72px; border-radius: var(--ds-radius-sm); background: var(--color-surface-muted) 50% 35% / cover no-repeat; /* موضع azm-img في الموقع */ box-shadow: inset 0 0 0 1px var(--color-border); }
+.azq-ed-crop-card { aspect-ratio: 3 / 2; }
+.azq-ed-crop-page { aspect-ratio: 16 / 9; }
+.azq-ed-crop-thumb { aspect-ratio: 1; }
+.azq-ed-cover-actions { position: absolute; top: var(--space-3); inset-inline-end: var(--space-3); display: flex; gap: var(--space-2); }
+.azq-ed-cover-actions .azq-ed-icon-btn { background: var(--color-surface); }
+.azq-ed-cover-add { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-1); width: 100%; min-height: 9rem; padding: var(--space-4); border: 2px dashed var(--color-border-strong); border-radius: var(--ds-radius-md); background: var(--color-surface-muted); color: var(--color-text-secondary); cursor: pointer; font-size: var(--fs-body-sm); text-align: center; }
+.azq-ed-cover-add strong { color: var(--color-primary); font-weight: var(--fw-semibold); }
+.azq-ed-cover-add small { color: var(--color-text-muted); font-size: var(--fs-caption); }
+.azq-ed-cover-add:hover { border-color: var(--color-primary); }
+.azq-ed-excerpt-wrap { display: block; position: relative; margin-bottom: var(--space-6); }
+.azq-ed-excerpt { display: block; width: 100%; border: 0; resize: vertical; background: transparent; font: inherit; font-size: var(--fs-title-sm); line-height: var(--lh-normal); color: var(--color-text-secondary); }
+.azq-ed-counter { position: absolute; inset-inline-end: 0; bottom: calc(-1 * var(--space-5)); font-size: var(--fs-caption); color: var(--color-text-muted); }
+
+/* شريط الأدوات: لاصق، مصمت */
+.azq-ed-toolbar { position: sticky; top: 76px; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); padding: var(--space-2); margin: 0 calc(-1 * var(--space-6)) var(--space-4); background: var(--color-surface); border-block: 1px solid var(--color-border); }
+.azq-ed-insert { min-height: 36px; padding: 0 var(--space-3); border-radius: var(--ds-radius-sm); border: 0; background: var(--color-primary); color: var(--color-on-primary); cursor: pointer; font-weight: var(--fw-medium); }
+.azq-ed-blocktype { min-height: 36px; border: 1px solid var(--color-border); border-radius: var(--ds-radius-sm); background: var(--color-surface); padding: 0 var(--space-2); }
+.azq-ed-tool { min-width: 36px; height: 36px; padding: 0 var(--space-1-5); border: 0; border-radius: var(--ds-radius-sm); background: transparent; color: var(--color-text-secondary); cursor: pointer; }
+.azq-ed-tool:hover:not(:disabled), .azq-ed-tool.is-active { background: var(--color-primary-soft); color: var(--color-primary); }
+.azq-ed-sep { width: 1px; height: 20px; margin: 0 var(--space-1); background: var(--color-border); }
+.azq-ed-grow { flex: 1; }
+
+/* المتن */
+.azq-ed-prose { min-height: 16rem; font-size: var(--fs-body); line-height: 1.9; outline: none; }
+.azq-ed-prose > * + * { margin-top: var(--space-4); }
+.azq-ed-prose h2 { font-size: var(--fs-title); font-weight: var(--fw-bold); }
+.azq-ed-prose h3 { font-size: var(--fs-title-sm); font-weight: var(--fw-semibold); }
+/* النقاط والترقيم: تصفير Tailwind يمحو العلامة، فتبدو القائمة سطورًا عادية. قوائم المتن وحدها (بلا صنف)، لا قوائم الكتل */
+.azq-ed-prose :is(ul, ol):not([class]) { padding-inline-start: var(--space-6); }
+.azq-ed-prose ul:not([class]) { list-style: disc; }
+.azq-ed-prose ol:not([class]) { list-style: decimal; }
+.azq-ed-prose :is(ul, ol):not([class]) > li + li { margin-top: var(--space-1); }
+.azq-ed-prose blockquote { margin-inline: 0; padding-inline-start: var(--space-4); border-inline-start: 3px solid var(--color-primary); color: var(--color-text-secondary); }
+.azq-ed-prose a { color: var(--color-primary); overflow-wrap: anywhere; word-break: break-word; } /* رابط طويل مرمَّز (%D8…) يلتف ولا يخرج من الورقة */
+.azq-ed-prose hr { border: 0; border-top: 1px solid var(--color-border-strong); margin: var(--space-6) 0; }
+.azq-ed-prose hr.wp-dots { border: 0; text-align: center; }
+.azq-ed-prose hr.wp-dots::after { content: '•  •  •'; color: var(--color-text-muted); }
+.azq-ed-prose table { width: 100%; border-collapse: collapse; }
+.azq-ed-prose th, .azq-ed-prose td { border: 1px solid var(--color-border); padding: var(--space-2); vertical-align: top; }
+.azq-ed-prose th { background: var(--color-surface-muted); text-align: start; }
+.azq-ed-prose p.is-empty::before { content: attr(data-placeholder); float: inline-start; height: 0; pointer-events: none; color: var(--color-text-muted); }
+.azq-ed-prose .ProseMirror-selectednode, .azq-ed-block.is-selected { outline: 2px solid var(--color-focus); outline-offset: 4px; border-radius: var(--ds-radius-sm); }
+
+/* الكتل كما ستظهر */
+.azq-ed-block { position: relative; border-radius: var(--ds-radius-sm); }
+.azq-ed-block:hover { box-shadow: 0 0 0 1px var(--color-border-strong); }
+.azq-ed-hint { color: var(--color-text-muted); font-size: var(--fs-caption); }
+.azq-ed-warn { margin: var(--space-1) 0; color: var(--color-danger-text); font-size: var(--fs-caption); }
+.azq-ed-caption { margin-top: var(--space-1-5); font-size: var(--fs-body-sm); color: var(--color-text-muted); text-align: center; }
+.azq-ed-caption:empty::before { content: attr(data-placeholder); color: var(--color-text-muted); opacity: 0.7; }
+.azq-ed-figure-img { display: block; width: 100%; border-radius: var(--ds-radius-md); }
+.azq-ed-img-empty { display: grid; place-items: center; min-height: 8rem; border: 2px dashed var(--color-border-strong); border-radius: var(--ds-radius-md); background: var(--color-surface-muted); }
+.azq-ed-wide { margin-inline: calc(-1 * var(--space-6)); }
+.azq-ed-video { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; border-radius: var(--ds-radius-md); background: var(--color-inverse); color: var(--color-on-inverse); overflow: hidden; }
+.azq-ed-video img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.55; }
+.azq-ed-play { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--color-on-inverse); color: var(--color-inverse); font-size: var(--fs-title); }
+.azq-ed-provider { position: absolute; bottom: var(--space-3); inset-inline-start: var(--space-3); font-size: var(--fs-caption); color: var(--color-on-inverse-soft); }
+.azq-ed-audio { position: relative; display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--ds-radius-md); background: var(--color-inverse); color: var(--color-on-inverse); }
+.azq-ed-audio .azq-ed-play { width: 40px; height: 40px; font-size: var(--fs-body); }
+.azq-ed-audio .azq-ed-provider { position: static; margin-inline-start: auto; }
+.azq-ed-card { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--ds-radius-md); background: var(--color-primary-soft); border: 1px solid var(--color-border); }
+.azq-ed-icon { display: grid; place-items: center; width: 40px; height: 40px; flex: none; border-radius: var(--ds-radius-sm); background: var(--color-surface); color: var(--color-primary); }
+.azq-ed-card-img { width: 64px; height: 48px; object-fit: cover; border-radius: var(--ds-radius-sm); }
+.azq-ed-gallery { display: grid; gap: var(--space-2); }
+.azq-ed-cols-2 { grid-template-columns: repeat(2, 1fr); } .azq-ed-cols-3 { grid-template-columns: repeat(3, 1fr); } .azq-ed-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.azq-ed-gallery-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--ds-radius-sm); }
+.azq-ed-media-text { display: grid; grid-template-columns: 2fr 3fr; gap: var(--space-4); align-items: center; }
+.azq-ed-media-end { direction: ltr; } .azq-ed-media-end > * { direction: rtl; }
+.azq-ed-callout { padding: var(--space-4); border-radius: var(--ds-radius-md); background: var(--color-info-soft); border-inline-start: 4px solid var(--color-info); }
+.azq-ed-tone-warn { background: var(--color-warning-soft); border-color: var(--color-warning); }
+.azq-ed-tone-highlight { background: var(--color-accent-violet-soft); border-color: var(--color-accent-violet); }
+.azq-ed-callout-title { margin: 0 0 var(--space-1); font-weight: var(--fw-semibold); }
+.azq-ed-buttons { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.azq-ed-align-center { justify-content: center; }
+.azq-ed-btn { display: inline-flex; padding: var(--space-2) var(--space-5); border-radius: var(--ds-radius-pill); font-weight: var(--fw-medium); }
+.azq-ed-btn.azq-ed-btn-primary { background: linear-gradient(135deg, var(--color-primary), var(--color-primary-strong)); color: var(--color-on-primary); }
+.azq-ed-btn-secondary.azq-ed-btn { border: 1px solid var(--color-primary); color: var(--color-primary); background: var(--color-surface); }
+.azq-ed-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: var(--space-3); }
+.azq-ed-stats div { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-4); border-radius: var(--ds-radius-md); background: var(--color-surface-muted); }
+.azq-ed-stats strong { font-size: var(--fs-heading); color: var(--color-primary); }
+.azq-ed-quote { margin: 0; padding: var(--space-5); border-radius: var(--ds-radius-lg); background: var(--color-primary-soft); }
+.azq-ed-quote-dark { background: var(--color-inverse); color: var(--color-on-inverse); }
+.azq-ed-quote figcaption { margin-top: var(--space-2); font-size: var(--fs-body-sm); }
+.azq-ed-faq-item { padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); }
+.azq-ed-faq-item + .azq-ed-faq-item { margin-top: var(--space-2); }
+.azq-ed-faq-item summary { font-weight: var(--fw-semibold); cursor: default; }
+.azq-ed-map figcaption { margin-top: var(--space-1-5); }
+
+/* «إدراج» و«/»: مكتبة الكتل */
+.azq-ed-body { position: relative; }
+.azq-ed-picker { position: absolute; z-index: 25; inset-inline: 0; top: 52px; max-width: 30rem; padding: var(--space-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-lg); }
+.azq-ed-picker-search { width: 100%; min-height: 40px; padding: 0 var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--ds-radius-md); }
+.azq-ed-picker-list { max-height: 24rem; overflow-y: auto; margin-top: var(--space-2); }
+.azq-ed-picker-group { margin: var(--space-3) 0 var(--space-1); font-size: var(--fs-caption); color: var(--color-text-muted); font-weight: var(--fw-semibold); }
+.azq-ed-picker-item { display: flex; align-items: center; gap: var(--space-3); width: 100%; padding: var(--space-2); border: 0; border-radius: var(--ds-radius-md); background: none; text-align: start; cursor: pointer; }
+.azq-ed-picker-item:hover, .azq-ed-picker-item:focus-visible { background: var(--color-surface-muted); }
+.azq-ed-picker-item small { display: block; color: var(--color-text-muted); font-size: var(--fs-caption); }
+.azq-ed-picker-icon { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: var(--ds-radius-sm); font-weight: var(--fw-bold); background: var(--color-primary-soft); color: var(--color-primary); }
+.azq-ed-group-media .azq-ed-picker-icon { background: var(--color-success-soft); color: var(--color-accent-mint-text); }
+.azq-ed-group-design .azq-ed-picker-icon { background: var(--color-accent-violet-soft); color: var(--color-accent-violet-text); }
+
+/* ===== اللوحة الجانبية ===== */
+.azq-ed-aside { flex: none; width: var(--ed-aside); background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--ds-radius-lg); }
+/* مثبّتة وجانبية: في مكانها بجانب الورقة (لا fixed)، فالورقة تضيق ولا يُغطّى العنوان ولا الصورة */
+.azq-ed-aside-pinned .azq-ed-aside, .azq-ed-aside-floating .azq-ed-aside { position: sticky; top: 92px; max-height: calc(100vh - 110px); overflow-y: auto; }
+.azq-ed-aside-sheet .azq-ed-aside { position: fixed; z-index: 45; inset-inline: 0; bottom: 0; width: auto; max-height: 86vh; overflow-y: auto; border-radius: var(--ds-radius-xl) var(--ds-radius-xl) 0 0; background: var(--color-surface); box-shadow: var(--ds-shadow-lg); }
+.azq-ed-sheet-backdrop { position: fixed; z-index: 44; inset: 0; border: 0; padding: 0; background: color-mix(in srgb, var(--color-inverse-deep) 35%, transparent); cursor: pointer; }
+.azq-ed-aside-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) var(--space-3); background: inherit; border-bottom: 1px solid var(--color-border); }
+.azq-ed-aside-tabs { display: flex; gap: var(--space-1); }
+.azq-ed-aside-tabs button { padding: var(--space-1-5) var(--space-3); border: 0; border-radius: var(--ds-radius-sm); background: none; color: var(--color-text-muted); cursor: pointer; }
+.azq-ed-aside-tabs button[aria-selected='true'] { background: var(--color-surface); color: var(--color-text); font-weight: var(--fw-semibold); box-shadow: var(--ds-shadow-sm); }
+.azq-ed-aside-body, .azq-ed-settings { padding: var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
+.azq-ed-empty { padding: var(--space-4); color: var(--color-text-muted); font-size: var(--fs-body-sm); }
+.azq-ed-card-section { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); }
+.azq-ed-card-head { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: var(--space-3); border: 0; background: none; cursor: pointer; font-weight: var(--fw-semibold); }
+.azq-ed-card-head small { font-weight: var(--fw-regular); color: var(--color-text-muted); }
+.azq-ed-card-body { padding: 0 var(--space-3) var(--space-3); display: flex; flex-direction: column; gap: var(--space-3); }
+.azq-ed-settings-title { margin: 0; font-size: var(--fs-body); }
+.azq-ed-settings-actions { border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+.azq-ed-field { display: flex; flex-direction: column; gap: var(--space-1); border: 0; padding: 0; margin: 0; }
+.azq-ed-field-label { font-size: var(--fs-label); font-weight: var(--fw-medium); color: var(--color-text-secondary); }
+.azq-ed-input { width: 100%; min-height: 40px; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--ds-radius-md); background: var(--color-surface); font: inherit; font-size: var(--fs-body-sm); color: var(--color-text); }
+.azq-ed-check { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-body-sm); }
+.azq-ed-choice { display: inline-flex; flex-wrap: wrap; gap: var(--space-1); padding: var(--space-0-5); border-radius: var(--ds-radius-md); background: var(--color-surface-muted); }
+.azq-ed-choice button { padding: var(--space-1-5) var(--space-3); border: 0; border-radius: var(--ds-radius-sm); background: none; cursor: pointer; font-size: var(--fs-body-sm); }
+.azq-ed-choice button.is-active { background: var(--color-surface); color: var(--color-primary); font-weight: var(--fw-semibold); box-shadow: var(--ds-shadow-sm); }
+.azq-ed-items { display: flex; flex-direction: column; gap: var(--space-2); }
+.azq-ed-item { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); margin: 0; }
+.azq-ed-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.azq-ed-meta { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); font-size: var(--fs-body-sm); }
+.azq-ed-meta div { display: flex; flex-direction: column; } .azq-ed-meta dt { color: var(--color-text-muted); font-size: var(--fs-caption); } .azq-ed-meta dd { margin: 0; }
+.azq-ed-consent-ok { margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--ds-radius-md); background: var(--color-success-soft); font-size: var(--fs-body-sm); }
+.azq-ed-consent-missing { margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--ds-radius-md); background: var(--color-danger-soft); color: var(--color-danger-text); font-size: var(--fs-body-sm); }
+
+/* الجاهزية */
+.azq-ed-readiness { display: flex; flex-direction: column; gap: var(--space-3); }
+.azq-ed-ring { --p: 0; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: conic-gradient(var(--color-success) calc(var(--p) * 1%), var(--color-border) 0); }
+.azq-ed-ring span { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: var(--color-surface); font-size: var(--fs-caption); font-weight: var(--fw-semibold); }
+.azq-ed-readiness ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1-5); }
+.azq-ed-readiness li { display: flex; align-items: baseline; gap: var(--space-2); font-size: var(--fs-body-sm); }
+.azq-ed-ready-text { flex: 1; }
+.azq-ed-ready-dot { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--color-success); }
+.azq-ed-ready-missing .azq-ed-ready-dot { background: var(--color-danger); }
+.azq-ed-ready-missing .azq-ed-ready-text { color: var(--color-danger-text); }
+.azq-ed-ready-advice .azq-ed-ready-dot { background: var(--color-warning); }
+
+/* تبويب «الأصل» في اللوحة: النص الذي تُترجم منه المادة، بعناوينه ونقاطه كورقة المحرّر لكن أصغر، وللقراءة فقط */
+.azq-ed-source-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-2); }
+.azq-ed-source-head .azq-ed-hint { margin: 0; }
+.azq-ed-source-doc { padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); }
+.azq-ed-source-title { margin: 0 0 var(--space-2); font-size: var(--fs-title-sm); font-weight: var(--fw-bold); line-height: var(--lh-snug); }
+.azq-ed-source-lead { margin: 0 0 var(--space-3); color: var(--color-text-secondary); font-size: var(--fs-body-sm); }
+.azq-ed-source-body { font-size: var(--fs-body-sm); line-height: 1.8; }
+.azq-ed-source-body.azq-ed-prose { min-height: 0; }
+.azq-ed-source-body.azq-ed-prose > * + * { margin-top: var(--space-3); }
+.azq-ed-source-body.azq-ed-prose h2 { font-size: var(--fs-title-sm); }
+.azq-ed-source-body.azq-ed-prose h3 { font-size: var(--fs-body); }
+.azq-ed-source-body.azq-ed-prose img { max-width: 100%; height: auto; border-radius: var(--ds-radius-sm); }
+.azq-ed-source-body.is-plain { white-space: pre-line; }
+
+/* التبويبان الآخران */
+.azq-ed-tab-panel { display: flex; flex-direction: column; gap: var(--space-4); max-width: 56rem; padding: var(--space-6); }
+.azq-ed-panel-card { padding: var(--space-5); background: var(--color-surface); border-radius: var(--ds-radius-lg); box-shadow: var(--ds-shadow-sm); }
+.azq-ed-panel-card h2 { margin: 0 0 var(--space-2); font-size: var(--fs-title-sm); }
+.azq-ed-url { padding: var(--space-2) var(--space-3); border-radius: var(--ds-radius-sm); background: var(--color-surface-muted); font-size: var(--fs-body-sm); word-break: break-all; }
+.azq-ed-table, .azq-ed-compare { width: 100%; border-collapse: collapse; font-size: var(--fs-body-sm); }
+.azq-ed-table th, .azq-ed-table td, .azq-ed-compare th, .azq-ed-compare td { padding: var(--space-2); border-bottom: 1px solid var(--color-border); text-align: start; vertical-align: top; white-space: pre-line; }
+.azq-ed-removed { background: var(--color-danger-soft); } .azq-ed-added { background: var(--color-success-soft); }
+.azq-ed-revisions { list-style: none; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.azq-ed-revisions li { display: flex; gap: var(--space-2); align-items: baseline; }
+
+/* النوافذ */
+/* margin: auto تعيد التوسيط الذي يلغيه تصفير Tailwind للهوامش، فتظهر النافذة في وسط الشاشة لا في زاويتها */
+.azq-ed-dialog { width: min(32rem, calc(100vw - 2 * var(--space-4))); max-height: calc(100dvh - 2 * var(--space-6)); margin: auto; overflow-y: auto; padding: var(--space-6); border: 0; border-radius: var(--ds-radius-xl); box-shadow: var(--ds-shadow-lg); color: var(--color-text); }
+.azq-ed-dialog.is-wide { width: min(60rem, calc(100vw - 2 * var(--space-4))); }
+.azq-ed-dialog::backdrop { background: color-mix(in srgb, var(--color-inverse-deep) 45%, transparent); }
+.azq-ed-dialog form { display: flex; flex-direction: column; gap: var(--space-4); }
+.azq-ed-dialog-title { margin: 0 0 var(--space-3); font-size: var(--fs-title-sm); }
+.azq-ed-dialog-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3); }
+/* اختيار صورة بالعربية (بدل «Choose File») ومعاينتها كاملة */
+.azq-ed-drop { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-5) var(--space-4); border: 2px dashed var(--color-border-strong); border-radius: var(--ds-radius-md); background: var(--color-surface-muted); text-align: center; cursor: pointer; font-size: var(--fs-body-sm); color: var(--color-text-secondary); }
+.azq-ed-drop:hover, .azq-ed-drop.is-over { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.azq-ed-drop:has(input:focus-visible) { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+.azq-ed-drop.has-file { border-style: solid; }
+.azq-ed-drop img { display: block; max-width: 100%; max-height: 12rem; object-fit: contain; border-radius: var(--ds-radius-sm); }
+.azq-ed-drop-text strong { color: var(--color-text); font-weight: var(--fw-semibold); overflow-wrap: anywhere; }
+.azq-ed-drop-action { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
+.azq-ed-dialog-why { margin: 0; text-align: end; }
+.azq-ed-error { margin: 0; padding: var(--space-2) var(--space-3); border-radius: var(--ds-radius-md); background: var(--color-danger-soft); color: var(--color-danger-text); font-size: var(--fs-body-sm); }
+.azq-ed-preview { margin: var(--space-4) auto 0; padding: var(--space-6); border: 1px solid var(--color-border); border-radius: var(--ds-radius-lg); line-height: 1.9; }
+.azq-ed-preview-desktop { max-width: 48rem; } .azq-ed-preview-mobile { max-width: 390px; }
+.azq-ed-preview img { max-width: 100%; border-radius: var(--ds-radius-md); }
+.azq-ed-preview-excerpt { font-size: var(--fs-title-sm); color: var(--color-text-secondary); }
+
+/* وضع التركيز */
+.is-focus .azq-ed-tabs, .is-focus .azq-ed-notices { display: none; }
+.is-focus .azq-ed-toolbar { opacity: 0.35; transition: opacity 0.2s; }
+.is-focus .azq-ed-toolbar:hover, .is-focus .azq-ed-toolbar:focus-within { opacity: 1; }
+.azq-ed-focus-line { margin: 0; padding: var(--space-2) var(--space-6); font-size: var(--fs-caption); color: var(--color-text-muted); text-align: center; }
+
+/* ===== الشاشات الأضيق ===== */
+@media (max-width: 860px) {
+  .azq-ed-bar { padding: var(--space-3) var(--space-4); }
+  .azq-ed-bar-title h1 { max-width: 100%; }
+  .azq-ed-actions { position: fixed; z-index: 40; inset-inline: 0; bottom: 0; justify-content: space-between; padding: var(--space-2-5); background: var(--color-surface); border-top: 1px solid var(--color-border); box-shadow: var(--ds-shadow-lg); }
+  .azq-ed-actions .azq-ed-btn-primary { flex: 1 1 auto; }
+  .azq-ed-aside-toggle { display: none; }
+  .azq-ed { padding-bottom: 80px; }
+  .azq-ed-tabs { padding: 0 var(--space-4); gap: var(--space-4); }
+  .azq-ed-notices { padding: var(--space-3) var(--space-4) 0; }
+  .azq-ed-workspace { padding: var(--space-3) 0; }
+  .azq-ed-sheet { border-radius: 0; }
+  .azq-ed-column { padding: var(--space-5) var(--space-4) var(--space-12); }
+  .azq-ed-title { font-size: var(--fs-title); }
+  .azq-ed-toolbar { top: 0; margin-inline: calc(-1 * var(--space-4)); overflow-x: auto; flex-wrap: nowrap; }
+  .azq-ed-media-text { grid-template-columns: 1fr; }
+  .azq-ed-sheet-open { display: block; width: calc(100% - 2 * var(--space-4)); margin: var(--space-3) var(--space-4) 0; min-height: 40px; border: 1px solid var(--color-border-strong); border-radius: var(--ds-radius-md); background: var(--color-surface); color: var(--color-text); cursor: pointer; }
+}
+@media (min-width: 861px) { .azq-ed-sheet-open { display: none; } }
+.azq-ed-prose:focus-visible { outline: none; }
+.azq-ed-slug-input { display: inline-block; width: auto; min-width: 14rem; min-height: 28px; padding: var(--space-0-5) var(--space-2); }
+.azq-ed-serp { display: flex; flex-direction: column; gap: var(--space-1); margin-top: var(--space-4); padding: var(--space-4); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); }
+.azq-ed-serp small { color: var(--color-accent-mint-text); }
+.azq-ed-serp strong { color: var(--color-primary); font-size: var(--fs-title-sm); font-weight: var(--fw-regular); }
+.azq-ed-serp p { margin: 0; font-size: var(--fs-body-sm); color: var(--color-text-secondary); }
+
+/* مكتبة الوسائط في نافذة الصورة */
+.azq-ed-library { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-3); }
+.azq-ed-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr)); gap: var(--space-2); max-height: 22rem; overflow-y: auto; }
+.azq-ed-library-tile { position: relative; padding: 0; border: 2px solid transparent; border-radius: var(--ds-radius-md); background: var(--color-surface-muted); cursor: pointer; overflow: hidden; }
+.azq-ed-library-tile img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.azq-ed-library-tile.is-picked { border-color: var(--color-primary); }
+.azq-ed-library-langs { position: absolute; bottom: var(--space-1); inset-inline-start: var(--space-1); display: flex; gap: var(--space-0-5); }
+.azq-ed-library-langs span { padding: 0 var(--space-1); border-radius: var(--ds-radius-sm); font-size: var(--fs-caption); background: var(--color-surface); color: var(--color-text-muted); border: 1px dashed var(--color-border-strong); }
+.azq-ed-library-langs span.is-on { border-style: solid; color: var(--color-primary); }
+
+/* أدوات الكتلة في الهامش: «+» للسطر الفارغ، ومقبض للكتلة */
+.azq-ed-controls { position: absolute; z-index: 15; inset-inline-start: calc(-1 * var(--space-8)); display: flex; flex-direction: column; }
+.azq-ed-control { display: grid; place-items: center; width: 24px; height: 28px; border: 0; border-radius: var(--ds-radius-sm); background: transparent; color: var(--color-text-muted); cursor: pointer; font-size: var(--fs-caption); }
+.azq-ed-control:hover, .azq-ed-control:focus-visible { background: var(--color-surface-muted); color: var(--color-text); }
+.azq-ed-handle { cursor: grab; letter-spacing: -2px; }
+.azq-ed-controls-menu { inset-inline-start: 100%; inset-inline-end: auto; top: 0; min-width: 13rem; }
+.azq-ed-controls-menu kbd { float: inline-end; font-size: var(--fs-caption); color: var(--color-text-muted); font-family: inherit; }
+@media (max-width: 860px) { .azq-ed-controls { inset-inline-start: calc(-1 * var(--space-5)); } }
+
+/* ملف من المكتبة */
+.azq-ed-file-list { list-style: none; margin: var(--space-3) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); max-height: 22rem; overflow-y: auto; }
+.azq-ed-file-item { display: flex; align-items: center; gap: var(--space-2); width: 100%; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border); border-radius: var(--ds-radius-md); background: var(--color-surface); text-align: start; cursor: pointer; }
+.azq-ed-file-item:hover { background: var(--color-surface-muted); }
+.azq-ed-file-lang { flex: none; min-width: 2rem; padding: 0 var(--space-1); border-radius: var(--ds-radius-sm); background: var(--color-primary-soft); color: var(--color-primary); font-size: var(--fs-caption); text-align: center; }
+
+/* «بأي لغة؟» قبل إنشاء المادة: ثلاث بطاقات اختيار، ولا تُنشأ مسودّة قبل الضغط */
+.azq-ed-start { display: grid; place-items: start center; padding: var(--space-12) var(--space-4); }
+.azq-ed-start-card { width: min(44rem, 100%); display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-8); }
+.azq-ed-start-card h1 { margin: 0; font-size: var(--fs-title); font-weight: var(--fw-bold); }
+.azq-ed-start-card .azq-ed-hint { margin: 0; font-size: var(--fs-body-sm); }
+.azq-ed-start-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+.azq-ed-start-option { display: flex; flex-direction: column; gap: var(--space-1-5); padding: var(--space-5) var(--space-4); border: 1px solid var(--color-border-strong); border-radius: var(--ds-radius-lg); background: var(--color-surface); color: var(--color-text); text-decoration: none; }
+.azq-ed-start-option strong { font-size: var(--fs-title-sm); color: var(--color-primary); }
+.azq-ed-start-option small { color: var(--color-text-muted); font-size: var(--fs-caption); line-height: 1.6; }
+.azq-ed-start-option:hover { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.azq-ed-start-card > .azq-ed-link { align-self: flex-start; }
+@media (max-width: 640px) {
+  .azq-ed-start { padding: var(--space-6) var(--space-4); }
+  .azq-ed-start-card { padding: var(--space-5); }
+  .azq-ed-start-options { grid-template-columns: 1fr; }
+}
