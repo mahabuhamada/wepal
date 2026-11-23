@@ -1,0 +1,126 @@
+/* ============================================================
+   إدارة الأسئلة الشائعة (pages/admin/AdminFaq.jsx) — أصناف afq-* خاصة بالصفحة.
+   مكوّنات النظام (Button، Field، Badge) تأتي بشكلها من components.css، وهنا التخطيط فقط.
+   القيم من tokens.css فقط: لا hex ولا rgb ولا أحجام خط بالبكسل.
+   ============================================================ */
+
+.afq-form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.afq-form-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.afq-form-head .ui-section-title {
+  margin: 0;
+}
+
+/* العربية والإنجليزية متجاورتان على الشاشة العريضة، وتحت بعض على الضيقة */
+.afq-pair {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 64rem) {
+  .afq-pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.afq-category {
+  max-inline-size: 24rem;
+}
+
+.afq-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.afq-groups {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.afq-group-title {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+}
+
+.afq-count {
+  color: var(--color-text-muted);
+  font-weight: var(--fw-regular);
+}
+
+.afq-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.afq-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.afq-row-text {
+  display: grid;
+  flex: 1 1 18rem;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+.afq-question {
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-snug);
+  overflow-wrap: anywhere;
+}
+
+.afq-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.afq-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.afq-actions .afq-delete {
+  color: var(--color-danger-text);
+}
+
+.afq-actions .afq-delete:hover:not(:disabled) {
+  background: var(--color-danger-soft);
+  color: var(--color-danger-text);
+}
+
+/* سؤال جاء من «أسئلة لم تجد نتيجة» (مركز المساعد): السجل يحفظ النص مطبَّعًا، فالصياغة تحتاج مراجعة */
+.afq-from-log {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-primary-soft);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-normal);
+}

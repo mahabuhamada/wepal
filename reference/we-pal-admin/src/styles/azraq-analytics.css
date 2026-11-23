@@ -1,0 +1,379 @@
+/* صفحة «التحليلات» في لوحة الإدارة (أزرق هادئ) — فوق azraq-admin.css، بنفس الرموز فقط. */
+
+[data-theme='azraq'] .azq-an-period {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-md);
+  background: var(--color-surface);
+}
+
+[data-theme='azraq'] .azq-an-period label {
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-an-period input[type='date'] {
+  min-block-size: 36px;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--ds-radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body-sm);
+}
+
+[data-theme='azraq'] .azq-an-period-scope {
+  margin-inline-start: auto;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-an-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-0-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-sm);
+  background: var(--color-surface-muted);
+}
+
+[data-theme='azraq'] .azq-an-seg button {
+  min-block-size: 32px;
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: calc(var(--ds-radius-sm) - 2px);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
+  font-size: var(--fs-label);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+}
+
+[data-theme='azraq'] .azq-an-seg button[aria-pressed='true'] {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  box-shadow: var(--ds-shadow-sm);
+}
+
+[data-theme='azraq'] .azq-an-notice,
+[data-theme='azraq'] .azq-an-privacy {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-label);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-an-notice.is-warn {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--ds-radius-sm);
+  background: color-mix(in srgb, var(--path-vote) 10%, var(--color-surface));
+  color: var(--color-text);
+}
+
+[data-theme='azraq'] .azq-an-privacy {
+  display: flex;
+  gap: var(--space-1-5);
+  align-items: flex-start;
+}
+
+[data-theme='azraq'] .azq-an-privacy svg {
+  flex: 0 0 auto;
+  inline-size: 14px;
+  block-size: 14px;
+  margin-block-start: 2px;
+}
+
+[data-theme='azraq'] .azq-an-kpis {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+[data-theme='azraq'] .azq-an-kpi-src {
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-an-body {
+  display: grid;
+  gap: var(--space-3);
+  padding: 0 var(--space-4) var(--space-3);
+  min-width: 0;
+}
+
+[data-theme='azraq'] .azq-an-body h4 {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text);
+  font-size: var(--fs-body-sm);
+  font-weight: var(--fw-bold);
+}
+
+[data-theme='azraq'] .azq-an-csv {
+  display: inline-flex;
+  gap: var(--space-1-5);
+  align-items: center;
+}
+
+[data-theme='azraq'] .azq-an-csv svg {
+  inline-size: 14px;
+  block-size: 14px;
+}
+
+[data-theme='azraq'] .azq-an-source {
+  margin: 0;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-an-note,
+[data-theme='azraq'] .azq-an-credit {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-snug);
+}
+
+[data-theme='azraq'] .azq-an-empty {
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--ds-radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-body-sm);
+  text-align: center;
+}
+
+[data-theme='azraq'] .azq-an-warn {
+  margin: 0;
+  color: var(--color-danger, var(--color-text));
+  font-size: var(--fs-label);
+}
+
+[data-theme='azraq'] .azq-an-geo {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr);
+  gap: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-an-side {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+[data-theme='azraq'] .azq-an-map {
+  display: grid;
+  gap: var(--space-2);
+}
+
+[data-theme='azraq'] .azq-an-svg {
+  inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--ds-radius-sm);
+  background: color-mix(in srgb, var(--chart-1) 4%, var(--color-surface));
+}
+
+[data-theme='azraq'] .azq-an-map-skel {
+  aspect-ratio: 960 / 470;
+  block-size: auto;
+}
+
+[data-theme='azraq'] .azq-an-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-an-legend li {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+[data-theme='azraq'] .azq-an-legend i {
+  inline-size: 14px;
+  block-size: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 2px;
+}
+
+[data-theme='azraq'] .azq-an-table {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-sm);
+}
+
+[data-theme='azraq'] .azq-an-table table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-body-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-an-table :is(th, td) {
+  padding: var(--space-1-5) var(--space-2-5);
+  border-block-end: 1px solid var(--color-border);
+  text-align: start;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+[data-theme='azraq'] .azq-an-table tbody th {
+  font-weight: var(--fw-semibold);
+  white-space: normal;
+}
+
+[data-theme='azraq'] .azq-an-table thead th {
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+}
+
+[data-theme='azraq'] .azq-an-table tr:last-child :is(th, td) {
+  border-block-end: 0;
+}
+
+[data-theme='azraq'] .azq-an-table td:nth-child(2) {
+  white-space: normal;
+}
+
+/* العنوان لا يتكسّر حرفًا حرفًا على الجوال: عرض أدنى، والجدول يتمرّر أفقيًا داخل إطاره */
+[data-theme='azraq'] .azq-an-table :is(tbody th, td:nth-child(2)) {
+  min-inline-size: 9em;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+[data-theme='azraq'] .azq-an-table a,
+[data-theme='azraq'] .azq-an-stat a,
+[data-theme='azraq'] .azq-an-facts a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+[data-theme='azraq'] .azq-an-table a:hover,
+[data-theme='azraq'] .azq-an-stat a:hover,
+[data-theme='azraq'] .azq-an-facts a:hover {
+  text-decoration: underline;
+}
+
+[data-theme='azraq'] .azq-an-spark {
+  display: block;
+}
+
+[data-theme='azraq'] .azq-an-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+[data-theme='azraq'] .azq-an-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+[data-theme='azraq'] .azq-an-funnel {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-theme='azraq'] .azq-an-funnel li {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(0, 2fr);
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--fs-body-sm);
+}
+
+[data-theme='azraq'] .azq-an-funnel-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 4.5em;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+[data-theme='azraq'] .azq-an-funnel-track {
+  display: block;
+  min-width: 0;
+}
+
+[data-theme='azraq'] .azq-an-funnel-bar i {
+  display: block;
+  block-size: 14px;
+  border-radius: var(--ds-radius-pill);
+  background: var(--chart-1);
+}
+
+[data-theme='azraq'] .azq-an-funnel-bar b {
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-an-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+
+[data-theme='azraq'] .azq-an-facts div {
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--ds-radius-sm);
+}
+
+[data-theme='azraq'] .azq-an-facts dt {
+  color: var(--color-text-secondary);
+  font-size: var(--fs-caption);
+}
+
+[data-theme='azraq'] .azq-an-facts dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme='azraq'] .azq-an-stat {
+  margin: 0;
+  font-size: var(--fs-body-sm);
+}
+
+@media (max-width: 1279px) {
+  [data-theme='azraq'] .azq-an-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 1099px) {
+  [data-theme='azraq'] .azq-an-geo,
+  [data-theme='azraq'] .azq-an-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 640px) {
+  [data-theme='azraq'] .azq-an-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-theme='azraq'] .azq-an-two,
+  [data-theme='azraq'] .azq-an-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  [data-theme='azraq'] .azq-an-two { grid-template-columns: minmax(0, 1fr); }
+  [data-theme='azraq'] .azq-an-period-scope { margin-inline-start: 0; inline-size: 100%; }
+  [data-theme='azraq'] .azq-an-funnel li { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+}
