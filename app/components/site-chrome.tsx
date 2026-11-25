@@ -125,7 +125,7 @@ export function SiteHeader({ lang, onLang, current, member: memberProp = false }
             <IdentitySwitch lang={lang} variant="pill" />
             <button className="h-lang-mini" onClick={() => onLang(rtl ? "en" : "ar")} aria-label={rtl ? "Switch to English" : "التبديل إلى العربية"}><Languages size={16} aria-hidden="true" /><span>{rtl ? "EN" : "ع"}</span></button>
             {member
-              ? <a className="h-login is-member" href="/dashboard"><UserRound size={15} />{rtl ? "مساحتي" : "My area"}</a>
+              ? <a className="h-login is-member" href="/community"><UserRound size={15} />{rtl ? "مساحتي" : "My area"}</a>
               : <a className="h-login" href="/login">{rtl ? "دخول الأعضاء" : "Member login"}</a>}
             <button className="h-burger" onClick={() => setMenuOpen(true)} aria-label={rtl ? "القائمة" : "Menu"}><Menu /></button>
           </div>
@@ -143,7 +143,7 @@ export function SiteHeader({ lang, onLang, current, member: memberProp = false }
 
 
       <nav className="h-tabbar" aria-label={rtl ? "التنقل السريع" : "Quick navigation"}>
-        {TABS.map((raw) => { const t = raw.href === "/login" && member ? { ...raw, href: "/dashboard", label: { ar: "مساحتي", en: "My area" } } : raw; const Icon = t.icon; const active = t.href === current; return (
+        {TABS.map((raw) => { const t = raw.href === "/login" && member ? { ...raw, href: "/community", label: { ar: "مساحتي", en: "My area" } } : raw; const Icon = t.icon; const active = t.href === current; return (
           <a key={t.href} href={t.href} className={active ? "is-active" : ""} aria-current={active ? "page" : undefined} onClick={(e) => { if (active) { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }}><span className="h-tab-icon"><Icon /></span><span>{t.label[lang]}</span></a>
         ); })}
         <button onClick={() => setMenuOpen(true)} className={menuOpen ? "is-active" : ""} aria-label={rtl ? "القائمة الكاملة" : "Full menu"} aria-expanded={menuOpen}><span className="h-tab-icon"><LayoutGrid /></span><span>{rtl ? "المزيد" : "More"}</span></button>

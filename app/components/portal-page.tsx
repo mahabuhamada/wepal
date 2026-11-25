@@ -173,7 +173,7 @@ function ContactPage({ language }: { language: Language }) {
 
 /** First sign-in goes through the welcome steps; later sign-ins open the dashboard. */
 function firstStop() {
-  try { const st = JSON.parse(window.localStorage.getItem("wepal-demo-v1") ?? "{}"); return st.onboarded ? "/dashboard" : "/welcome"; } catch { return "/dashboard"; }
+  try { const st = JSON.parse(window.localStorage.getItem("wepal-demo-v1") ?? "{}"); return st.onboarded ? "/community" : "/welcome"; } catch { return "/community"; }
 }
 
 function LoginPage({ language }: { language: Language }) {
@@ -265,7 +265,7 @@ function LoginPage({ language }: { language: Language }) {
           {error && <p className="login-error" role="alert">{error}</p>}
           <button type="submit" className="login-submit" disabled={busy || (!!challenge && code.length < 6)}>{busy ? (rtl ? "جارٍ الدخول…" : "Signing in…") : challenge ? (rtl ? "تحقّق وادخل" : "Verify and sign in") : (rtl ? "تسجيل الدخول" : "Sign in")}</button>
           {!apiEnabled && <><div className="login-or"><span>{rtl ? "أو" : "or"}</span></div>
-          <a href="/dashboard" className="login-direct" onClick={(e) => { e.preventDefault(); window.location.assign(`${window.location.origin}${firstStop()}`); }}><Sparkles aria-hidden="true" />{rtl ? "دخول مباشر بحساب تجريبي" : "Enter directly with a demo account"}</a></>}
+          <a href="/community" className="login-direct" onClick={(e) => { e.preventDefault(); window.location.assign(`${window.location.origin}${firstStop()}`); }}><Sparkles aria-hidden="true" />{rtl ? "دخول مباشر بحساب تجريبي" : "Enter directly with a demo account"}</a></>}
 
           <p className="login-signup">{rtl ? "ليس لديك حساب؟" : "New to WePal?"} <a href="#">{rtl ? "أنشئ حسابًا مجانيًا" : "Create a free account"}</a></p>
           <p className="login-secure"><ShieldCheck aria-hidden="true" />{rtl ? "بياناتك محمية ولن نشاركها مع أي جهة." : "Your data is protected and never shared."}</p>
