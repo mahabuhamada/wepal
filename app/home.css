@@ -653,3 +653,12 @@ html.lang-in main > *:not(.h-header):not(.m-top), html.lang-in :is(.h-header, .m
 .identity-tiles p { margin: 0; color: var(--ink-2); font-size: 13.5px; line-height: 1.6; }
 @media (max-width: 860px) { .identity-story { grid-template-columns: minmax(0, 1fr); padding: 22px; margin: 36px 0; } .h-rosette { width: 280px; height: 280px; inset-inline-start: -120px; } }
 @media (prefers-reduced-motion: reduce) { .h-rosette { animation: none; } }
+/* Header heritage touches: a faint Bethlehem moon at both ends of the white bar, and a tiny stitch line under menu items */
+.h-header-motif { position: absolute; inset: 0; z-index: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+.h-header-motif::after { content: ""; position: absolute; top: 50%; inset-inline-end: -26px; width: 96px; height: 96px; margin-top: -48px; background: url(/heritage/moon-bethlehem.svg) center / contain no-repeat; opacity: .09; }
+.h-header-inner { position: relative; z-index: 1; }
+.h-nav a::after { content: ""; position: absolute; bottom: 2px; left: 50%; width: 30px; height: 5px; margin-left: -15px; background: url(/heritage/stitch-mini.svg) center / contain no-repeat; clip-path: inset(0 50% 0 50%); opacity: 0; transition: clip-path .35s cubic-bezier(.22,.8,.25,1), opacity .2s; pointer-events: none; }
+.h-nav a:hover::after, .h-nav a:focus-visible::after, .h-nav a.is-active::after { clip-path: inset(0 0 0 0); opacity: 1; }
+.h-nav a:hover .h-nav-icon { transform: translateY(-1px) rotate(-6deg); }
+.h-nav-icon { transition: opacity .25s, color .25s, transform .3s cubic-bezier(.22,.8,.25,1); }
+@media (prefers-reduced-motion: reduce) { .h-nav a::after { transition: none; } }

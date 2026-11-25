@@ -111,6 +111,7 @@ export function SiteHeader({ lang, onLang, current, member: memberProp = false }
   return (
     <>
       <header className={`h-header ${scrolled ? "is-scrolled" : ""}`}>
+        <span className="h-header-motif" aria-hidden="true" />
         <div className="h-header-inner">
           <a className="h-brand" href="/" aria-label="WePal"><Logo /></a>
           <nav className="h-nav" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"} onMouseLeave={resetIndicator}>
