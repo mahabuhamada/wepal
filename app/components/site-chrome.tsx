@@ -235,6 +235,7 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
   const links = [...NAV.slice(1), ...EXTRA_PAGES];
   return (
     <footer className="f-footer">
+      <span className="f-heritage" aria-hidden="true" />
       <div className="h-wrap">
         <div className="f-bento">
           <section className="f-card f-brand">

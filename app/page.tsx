@@ -258,6 +258,7 @@ export default function Home() {
 
       {/* ── Library ── */}
       <section id="library" className="h-section">
+        <div className="hr-divider" aria-hidden="true"><img src="/heritage/divider-dots.svg" alt="" /></div>
         <div className="h-wrap h-library">
           <div className="h-library-side" data-reveal>
             <span className="h-head-kicker"><b>04</b>{rtl ? "مكتبة معرفة مفتوحة" : "An open knowledge library"}</span>
@@ -318,6 +319,7 @@ export default function Home() {
 
       {/* ── Stories ── */}
       <section id="stories" className="h-section">
+        <div className="hr-divider" aria-hidden="true"><img src="/heritage/divider-stitch.svg" alt="" /></div>
         <div className="h-wrap">
           <SectionHead index="07" kicker={rtl ? "أصوات وقصص" : "Voices & stories"} title={rtl ? "وراء كل قضية حكاية تستحق أن تُسمع." : "Every issue carries a story worth hearing."}
             action={<div className="h-carousel-nav"><button onClick={() => slideStories(-1)} aria-label={rtl ? "السابق" : "Previous"}>{rtl ? <ChevronRight /> : <ChevronLeft />}</button><button onClick={() => slideStories(1)} aria-label={rtl ? "التالي" : "Next"}>{rtl ? <ChevronLeft /> : <ChevronRight />}</button></div>} />
