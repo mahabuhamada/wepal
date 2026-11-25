@@ -42,6 +42,7 @@ type State = {
   posts: NewPost[];
   pollVotes?: Record<string, number>;
   going?: Record<string, boolean>;
+  qotd?: Record<string, number>;
   answered: Record<string, boolean>;
   votes: Record<string, string>;
   myAvatar?: number;

@@ -352,7 +352,7 @@ export function PageHead({ icon: Icon, kicker, title, lead, actions }: { icon: L
   );
 }
 
-export function Card({ title, action, children, className = "" }: { title?: string; action?: ReactNode; children: ReactNode; className?: string }) {
+export function Card({ title, action, children, className = "" }: { title?: ReactNode; action?: ReactNode; children: ReactNode; className?: string }) {
   return (
     <section className={`m-card ${className}`}>
       {(title || action) && <div className="m-card-head">{title && <h2>{title}</h2>}{action}</div>}
