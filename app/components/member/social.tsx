@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { BarChart3, Bookmark, CalendarDays, CalendarPlus, Check, CornerDownLeft, EyeOff, Flag, HelpCircle, MapPin, MessageCircle, MoreHorizontal, Palette, Paperclip, PenLine, Pin, PinOff, Plus, Send, Share2, Smile, SmilePlus, ThumbsUp, Trash2, X } from "lucide-react";
+import { BarChart3, Bookmark, ChevronDown, Globe2, Lock, MessageCircleOff, Users, CalendarDays, CalendarPlus, Check, CornerDownLeft, EyeOff, Flag, HelpCircle, MapPin, MessageCircle, MoreHorizontal, Palette, Paperclip, PenLine, Pin, PinOff, Plus, Send, Share2, Smile, SmilePlus, ThumbsUp, Trash2, X } from "lucide-react";
 import { AttachmentView } from "./chat";
 import { Avatar, memberOrMe, useMember } from "./shell";
-import { GROUPS, GROUP_META, ME, type Post, type Group } from "./data";
+import { GROUPS, GROUP_META, ME, PUBLIC_GROUP, type Post, type Group } from "./data";
 import { ago, now, readFiles, toast, uid, update, useStore, type Att, type Comment, type PostExtra, type Reaction } from "./store";
 
 const REACTIONS: { key: Reaction; emoji: string; label: { ar: string; en: string } }[] = [
@@ -210,7 +210,7 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
         <a href={post.author === "me" ? "/profile" : `/members/${post.author}`}><Avatar who={author} size={42} /></a>
         <div>
           <a href={post.author === "me" ? "/profile" : `/members/${post.author}`}><strong>{tx(author.name)}</strong></a>
-          <small>{feeling && <span className="s-feeling">{feeling.emoji} {rtl ? `يشعر بأنه ${feeling.ar}` : `feeling ${feeling.en}`} · </span>}{showGroup && <><a href={`/community/${post.group.id}`}>{tx(post.group.name)}</a> · </>}{tx(post.time)}{s.postEdits[post.id] !== undefined && (rtl ? " · عُدّل" : " · edited")}</small>
+          <small>{feeling && <span className="s-feeling">{feeling.emoji} {rtl ? `يشعر بأنه ${feeling.ar}` : `feeling ${feeling.en}`} · </span>}{showGroup && <>{post.group.id === "all" ? <span>{tx(post.group.name)}</span> : <a href={`/community/${post.group.id}`}>{tx(post.group.name)}</a>} · </>}{tx(post.time)}{post.extra?.visibility === "group" ? <span className="s-vis" title={rtl ? "لأعضاء المجموعة فقط" : "Group members only"}> · <Lock aria-label={rtl ? "لأعضاء المجموعة فقط" : "Group members only"} /></span> : post.own && <span className="s-vis" title={rtl ? "يراه الجميع في ويبال" : "Everyone on WePal"}> · <Globe2 aria-label={rtl ? "عام" : "Public"} /></span>}{s.postEdits[post.id] !== undefined && (rtl ? " · عُدّل" : " · edited")}</small>
         </div>
         {post.kind === "question" && <span className="s-kind"><HelpCircle aria-hidden="true" />{rtl ? "سؤال" : "Question"}</span>}
         <PostMenu post={post} onEdit={() => { setEditText(text); setEditing(true); }} />
@@ -249,7 +249,9 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
             </div>
           )}
         </div>
-        <button onClick={() => setOpen((o) => !o)} aria-expanded={open}><MessageCircle />{rtl ? "علّق" : "Comment"}</button>
+        {post.extra?.comments === "off"
+          ? <button disabled title={rtl ? "أغلق صاحب المنشور التعليقات" : "Comments are turned off"}><MessageCircleOff />{rtl ? "التعليقات مغلقة" : "Comments off"}</button>
+          : <button onClick={() => setOpen((o) => !o)} aria-expanded={open}><MessageCircle />{rtl ? "علّق" : "Comment"}</button>}
         <button onClick={() => { update((x) => ({ ...x, saved: { ...x.saved, [post.id]: !saved } })); toast(saved ? (rtl ? "أُزيل من المحفوظات" : "Removed from saved") : (rtl ? "حُفظ في محفوظاتك" : "Saved")); }} className={saved ? "is-on" : ""} aria-pressed={saved}><Bookmark />{rtl ? "احفظ" : "Save"}</button>
         <button onClick={share}><Share2 />{rtl ? "شارك" : "Share"}</button>
       </div>
@@ -263,6 +265,7 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
             </div>
           ))}
           {all.length < count && <p className="s-more-c">{rtl ? `و${count - all.length} تعليقات أخرى` : `${count - all.length} more comments`}</p>}
+          {post.extra?.comments === "group" && <p className="s-cnote"><Users aria-hidden="true" />{rtl ? "التعليق هنا لأعضاء المجموعة فقط." : "Only group members can comment here."}</p>}
           <form onSubmit={send} className="s-reply">
             <Avatar who={{ ...ME, tone: 0 }} size={30} />
             <div className="s-reply-box">
@@ -283,7 +286,12 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
   const s = useStore();
   const myGroups = GROUPS.filter((g) => s.joined[g.id] ?? g.joined);
   const [text, setText] = useState("");
-  const [group, setGroup] = useState(fixedGroup ?? myGroups[0]?.id ?? GROUPS[0].id);
+  const [group, setGroup] = useState(fixedGroup ?? "all");
+  const [visibility, setVisibility] = useState<"all" | "group">("all");
+  const [comments, setComments] = useState<"all" | "group" | "off">("all");
+  const [audOpen, setAudOpen] = useState(false);
+  const audRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (!audOpen) return; const out = (e: MouseEvent) => { if (audRef.current && !audRef.current.contains(e.target as Node)) setAudOpen(false); }; const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setAudOpen(false); }; document.addEventListener("mousedown", out); document.addEventListener("keydown", esc); return () => { document.removeEventListener("mousedown", out); document.removeEventListener("keydown", esc); }; }, [audOpen]);
   const [kind, setKind] = useState<"post" | "question">("post");
   const [focus, setFocus] = useState(false);
   const [files, setFiles] = useState<Att[]>([]);
@@ -309,7 +317,7 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
     setText(text.slice(0, at) + e + text.slice(at));
     requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(at + e.length, at + e.length); });
   };
-  const reset = () => { setText(""); setFiles([]); setFocus(false); setTool(null); setPicker(null); setPoll(["", ""]); setCard(null); setEvent({ title: "", date: "", place: "" }); setFeeling(null); };
+  const reset = () => { setText(""); setFiles([]); setFocus(false); setTool(null); setPicker(null); setAudOpen(false); setPoll(["", ""]); setCard(null); setEvent({ title: "", date: "", place: "" }); setFeeling(null); };
   const submit = (e: React.FormEvent) => {
     e.preventDefault(); if (!canPost) return;
     const extra: PostExtra = {};
@@ -317,6 +325,8 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
     if (tool === "card" && card && text.trim()) extra.card = card;
     if (eventOk) extra.event = { title: event.title.trim(), date: event.date, place: event.place.trim() };
     if (feeling) extra.feeling = feeling;
+    if (group !== "all" && visibility === "group") extra.visibility = "group";
+    if (comments !== "all") extra.comments = group === "all" && comments === "group" ? "all" : comments;
     update((x) => ({ ...x, posts: [{ id: uid(), group, text: text.trim(), time: now(), kind, attachments: files.length ? files : undefined, extra: Object.keys(extra).length ? extra : undefined }, ...x.posts] }));
     reset();
     toast(rtl ? "نُشر منشورك" : "Your post is live");
@@ -329,6 +339,7 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
     { key: "emoji", icon: Smile, ar: "رموز", en: "Emoji" },
   ];
   const chosenFeeling = FEELINGS.find((f) => f.key === feeling);
+  const audGroup = group === "all" ? PUBLIC_GROUP : GROUPS.find((g) => g.id === group) ?? PUBLIC_GROUP;
   const placeholder = tool === "poll" ? (rtl ? "اطرح سؤال الاستطلاع…" : "Ask your poll question…")
     : tool === "event" ? (rtl ? "اكتب دعوة قصيرة للفعالية…" : "Write a short invitation…")
     : kind === "question" ? (rtl ? "ما سؤالك للمجتمع؟" : "What's your question for the community?")
@@ -394,11 +405,49 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
           <button type="button" aria-pressed={kind === "post"} onClick={() => setKind("post")}><PenLine />{rtl ? "منشور" : "Post"}</button>
           <button type="button" aria-pressed={kind === "question"} onClick={() => setKind("question")}><HelpCircle />{rtl ? "سؤال" : "Question"}</button>
         </div>
-        {!fixedGroup && (
-          <select value={group} onChange={(e) => setGroup(e.target.value)} aria-label={rtl ? "المجموعة" : "Group"}>
-            {(myGroups.length ? myGroups : GROUPS).map((g) => <option key={g.id} value={g.id}>{tx(g.name)}</option>)}
-          </select>
-        )}
+        <div className="s-aud" ref={audRef}>
+          <button type="button" className="s-aud-btn" aria-expanded={audOpen} onClick={() => setAudOpen((o) => !o)}>
+            {group === "all" ? <span className="s-aud-ic is-all"><Globe2 /></span> : <span className="s-aud-ic">{tx(audGroup.name).slice(0, 1)}</span>}
+            <span>{tx(audGroup.name)}</span>
+            {(visibility === "group" && group !== "all") && <Lock className="s-aud-lock" aria-label={rtl ? "لأعضاء المجموعة فقط" : "Members only"} />}
+            {comments === "off" && <MessageCircleOff className="s-aud-lock" aria-label={rtl ? "التعليقات مغلقة" : "Comments off"} />}
+            <ChevronDown className="s-aud-chev" />
+          </button>
+          {audOpen && (
+            <div className="s-aud-pop" role="dialog" aria-label={rtl ? "أين تنشر ومن يرى" : "Where to post and who sees it"}>
+              {!fixedGroup && (
+                <section>
+                  <h4>{rtl ? "أين تنشر؟" : "Where to post?"}</h4>
+                  <div className="s-aud-list">
+                    {[PUBLIC_GROUP, ...(myGroups.length ? myGroups : GROUPS)].map((g) => (
+                      <button key={g.id} type="button" className={group === g.id ? "is-on" : ""} onClick={() => { setGroup(g.id); if (g.id === "all") { setVisibility("all"); if (comments === "group") setComments("all"); } }}>
+                        {g.id === "all" ? <span className="s-aud-ic is-all"><Globe2 /></span> : <span className="s-aud-ic">{tx(g.name).slice(0, 1)}</span>}
+                        <span><b>{tx(g.name)}</b><small>{g.id === "all" ? (rtl ? "يظهر لكل أعضاء ويبال" : "Seen by every WePal member") : (rtl ? `مجموعة · ${g.members} عضوًا` : `Group · ${g.members} members`)}</small></span>
+                        {group === g.id && <Check className="s-aud-check" />}
+                      </button>
+                    ))}
+                  </div>
+                </section>
+              )}
+              <section>
+                <h4>{rtl ? "من يرى المنشور؟" : "Who can see it?"}</h4>
+                <div className="s-aud-seg">
+                  <button type="button" aria-pressed={visibility === "all"} onClick={() => setVisibility("all")}><Globe2 />{rtl ? "الجميع في ويبال" : "Everyone on WePal"}</button>
+                  <button type="button" aria-pressed={visibility === "group"} disabled={group === "all"} onClick={() => setVisibility("group")} title={group === "all" ? (rtl ? "اختر مجموعة أولًا" : "Pick a group first") : undefined}><Lock />{rtl ? "أعضاء المجموعة فقط" : "Group members only"}</button>
+                </div>
+              </section>
+              <section>
+                <h4>{rtl ? "من يمكنه التعليق؟" : "Who can comment?"}</h4>
+                <div className="s-aud-seg">
+                  <button type="button" aria-pressed={comments === "all"} onClick={() => setComments("all")}><MessageCircle />{rtl ? "الجميع" : "Everyone"}</button>
+                  {group !== "all" && <button type="button" aria-pressed={comments === "group"} onClick={() => setComments("group")}><Users />{rtl ? "أعضاء المجموعة" : "Group members"}</button>}
+                  <button type="button" aria-pressed={comments === "off"} onClick={() => setComments("off")}><MessageCircleOff />{rtl ? "لا أحد" : "No one"}</button>
+                </div>
+              </section>
+              <div className="s-aud-f"><button type="button" className="m-btn is-primary is-sm" onClick={() => setAudOpen(false)}>{rtl ? "تم" : "Done"}</button></div>
+            </div>
+          )}
+        </div>
         <button className="m-btn is-primary is-sm" disabled={!canPost}><Send />{rtl ? "انشر" : "Post"}</button>
       </div>
     </form>
@@ -410,7 +459,7 @@ export function useFeed(groupId?: string) {
   const s = useStore();
   const { lang } = useMember();
   const mine: FeedPost[] = s.posts.filter((p) => !groupId || p.group === groupId).map((p) => {
-    const g = GROUPS.find((x) => x.id === p.group)!;
+    const g = p.group === "all" ? PUBLIC_GROUP : GROUPS.find((x) => x.id === p.group) ?? PUBLIC_GROUP;
     const time = ago(p.time, lang === "ar");
     return { id: p.id, author: "me", text: { ar: p.text, en: p.text }, time: { ar: time, en: time }, replies: 0, reacts: 0, kind: p.kind, group: g, attachments: p.attachments, extra: p.extra, own: true };
   });

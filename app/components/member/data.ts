@@ -49,7 +49,9 @@ export const memberById = (id: string) => MEMBERS.find((m) => m.id === id);
 
 export type Group = { id: string; name: T; about: T; kind: T; members: number; joined: boolean; posts: Post[] };
 export type SeedComment = { author: string; text: T; time: T };
-export type Post = { id: string; author: string; text: T; time: T; replies: number; reacts?: number; img?: string; kind?: "post" | "question"; comments?: SeedComment[]; extra?: { poll?: string[]; pollEn?: string[]; card?: string; event?: { title: string; date: string; place: string }; feeling?: string } };
+export type Post = { id: string; author: string; text: T; time: T; replies: number; reacts?: number; img?: string; kind?: "post" | "question"; comments?: SeedComment[]; extra?: { poll?: string[]; pollEn?: string[]; card?: string; event?: { title: string; date: string; place: string }; feeling?: string; visibility?: "all" | "group"; comments?: "all" | "group" | "off" } };
+/** Posts shared with the whole community rather than one group. */
+export const PUBLIC_GROUP: Group = { id: "all", name: L("المجتمع كله", "Whole community"), about: L("", ""), kind: L("عام", "Public"), members: 1384, joined: true, posts: [] };
 export const GROUPS: Group[] = [
   {
     id: "g1", name: L("حوار الضفة الشمالية", "Northern West Bank dialogue"), kind: L("منطقة", "Region"), members: 86, joined: true,
