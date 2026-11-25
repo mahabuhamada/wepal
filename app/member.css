@@ -302,9 +302,9 @@
 .s-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding-top: 6px; border-top: 1px solid var(--line); }
 .s-actions button { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; height: 38px; border: 0; border-radius: 10px; background: none; color: var(--ink-2); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; transition: background .2s, color .2s; }
 .s-actions button:hover { background: var(--tint); color: var(--n800); }
-.s-actions button svg { width: 18px; height: 18px; }
+.s-actions button svg:not(.wp-react) { width: 18px; height: 18px; }
 .s-actions button.is-on { color: var(--b500); }
-.s-actions button.is-on svg { fill: currentColor; fill-opacity: .15; }
+.s-actions button.is-on svg:not(.wp-react) { fill: currentColor; fill-opacity: .15; }
 .s-emoji { font-size: 17px; line-height: 1; animation: sPop .35s var(--ease); }
 @keyframes sPop { 0% { transform: scale(.4); } 70% { transform: scale(1.3); } }
 .s-react { position: relative; }
@@ -1055,6 +1055,23 @@
 .s-cnote { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; color: var(--ink-3); font-size: 12.5px; }
 .s-cnote svg { width: 14px; height: 14px; }
 
+/* WePal reactions (custom bubble icons) */
+.wp-react { flex: none; display: block; overflow: visible; }
+.s-rsum { display: inline-flex; align-items: center; }
+.s-rsum .wp-react { margin-inline-end: -5px; border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
+.s-rsum .wp-react:nth-child(1) { z-index: 3; } .s-rsum .wp-react:nth-child(2) { z-index: 2; }
+.s-rsum b { margin-inline-start: 14px; font-weight: 700; }
+.s-picker { gap: 0; padding: 4px 6px; }
+.s-picker button { position: relative; display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; cursor: pointer; animation: rPop .35s cubic-bezier(.34, 1.56, .64, 1) backwards; transition: transform .25s cubic-bezier(.34, 1.56, .64, 1); }
+.s-picker button:hover, .s-picker button:focus-visible { transform: scale(1.22) translateY(-4px); background: none; }
+.s-picker button.is-on { background: var(--c100); }
+.s-picker button em { position: absolute; bottom: calc(100% + 6px); left: 50%; padding: 3px 9px; border-radius: 999px; background: var(--n800); color: #fff; font-size: 11.5px; font-style: normal; font-weight: 800; white-space: nowrap; opacity: 0; transform: translate(-50%, 4px) scale(.85); pointer-events: none; transition: opacity .18s, transform .18s; }
+.s-picker button:hover em, .s-picker button:focus-visible em { opacity: 1; transform: translate(-50%, 0) scale(.78); }
+@keyframes rPop { from { opacity: 0; transform: translateY(10px) scale(.4); } }
+.s-actions .is-on .wp-react { animation: rBeat .45s cubic-bezier(.34, 1.56, .64, 1); }
+@keyframes rBeat { 40% { transform: scale(1.35) rotate(-8deg); } }
+@media (prefers-reduced-motion: reduce) { .s-picker button, .s-actions .is-on .wp-react { animation: none; } }
+
 /* ── 11 · Responsive ── */
 @media (max-width: 1100px) {
   .m-layout { grid-template-columns: 220px minmax(0, 1fr); gap: 20px; }
@@ -1147,7 +1164,7 @@
   .s-post { padding: 14px; }
   .s-text { font-size: 15px; }
   .s-actions button { gap: 4px; font-size: 12px; }
-  .s-actions button svg { width: 17px; height: 17px; }
+  .s-actions button svg:not(.wp-react) { width: 17px; height: 17px; }
   .s-img { max-height: 240px; border-radius: 14px; }
   /* Workspaces */
   .w-cover { padding: 18px; border-radius: 20px; }

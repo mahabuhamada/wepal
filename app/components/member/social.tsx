@@ -3,16 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import { BarChart3, Bookmark, ChevronDown, Globe2, Lock, MessageCircleOff, Users, CalendarDays, CalendarPlus, Check, CornerDownLeft, EyeOff, Flag, HelpCircle, MapPin, MessageCircle, MoreHorizontal, Palette, Paperclip, PenLine, Pin, PinOff, Plus, Send, Share2, Smile, SmilePlus, ThumbsUp, Trash2, X } from "lucide-react";
 import { AttachmentView } from "./chat";
+import { ReactionIcon, REACTION_SET } from "./reactions";
 import { Avatar, memberOrMe, useMember } from "./shell";
 import { GROUPS, GROUP_META, ME, PUBLIC_GROUP, type Post, type Group } from "./data";
 import { ago, now, readFiles, toast, uid, update, useStore, type Att, type Comment, type PostExtra, type Reaction } from "./store";
 
-const REACTIONS: { key: Reaction; emoji: string; label: { ar: string; en: string } }[] = [
-  { key: "like", emoji: "👍", label: { ar: "أعجبني", en: "Like" } },
-  { key: "love", emoji: "❤️", label: { ar: "أحببته", en: "Love" } },
-  { key: "idea", emoji: "💡", label: { ar: "فكرة مفيدة", en: "Insightful" } },
-  { key: "agree", emoji: "🤝", label: { ar: "أتفق", en: "Agree" } },
-];
+const REACTIONS = REACTION_SET;
 
 const REPORT_REASONS = [
   { ar: "إساءة أو تحريض", en: "Abuse or incitement" },
@@ -228,7 +224,7 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
       {!!post.attachments?.length && <div className="s-atts">{post.attachments.map((a, i) => <AttachmentView key={i} a={a} />)}</div>}
 
       <div className="s-counts">
-        {reacts > 0 && <span className="s-emojis">{["👍", "❤️", "💡"].slice(0, Math.min(3, Math.ceil(reacts / 6))).map((e) => <i key={e}>{e}</i>)}<b>{reacts}</b></span>}
+        {reacts > 0 && <span className="s-rsum">{(mine ? [mine, ...(["like", "love", "idea"] as const).filter((k) => k !== mine)] : (["like", "love", "idea"] as const)).slice(0, Math.min(3, Math.max(1, Math.ceil(reacts / 6)))).map((k) => <ReactionIcon key={k} k={k} size={22} />)}<b>{reacts}</b></span>}
         {count > 0 && <button onClick={() => setOpen(true)}>{count} {rtl ? "تعليقات" : "comments"}</button>}
       </div>
 
@@ -241,11 +237,11 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
             onPointerDown={() => { clearTimeout(timer.current); timer.current = window.setTimeout(() => { pressed.current = true; setPicker(true); }, 420); }}
             onPointerUp={() => clearTimeout(timer.current)} onPointerLeave={() => clearTimeout(timer.current)}
             onContextMenu={(e) => e.preventDefault()}>
-            {current ? <span className="s-emoji">{current.emoji}</span> : <ThumbsUp />}{current ? current.label[lang] : (rtl ? "تفاعل" : "React")}
+            {current ? <ReactionIcon k={current.key} size={21} className="s-emoji" /> : <ThumbsUp />}<span style={current ? { color: current.color } : undefined}>{current ? current.label[lang] : (rtl ? "تفاعل" : "React")}</span>
           </button>
           {picker && (
             <div className="s-picker" role="group" aria-label={rtl ? "اختر تفاعلًا" : "Pick a reaction"}>
-              {REACTIONS.map((r) => <button key={r.key} onClick={() => react(r.key)} aria-label={r.label[lang]} title={r.label[lang]} className={mine === r.key ? "is-on" : ""}>{r.emoji}</button>)}
+              {REACTIONS.map((r, i) => <button key={r.key} onClick={() => react(r.key)} aria-label={r.label[lang]} className={mine === r.key ? "is-on" : ""} style={{ animationDelay: `${i * 35}ms` }}><ReactionIcon k={r.key} size={32} /><em>{r.label[lang]}</em></button>)}
             </div>
           )}
         </div>
