@@ -2,8 +2,8 @@
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  Bell, BookOpen, Compass, FolderKanban, Globe2, Languages, LayoutDashboard, LayoutGrid, LogOut, MessageCircle,
-  MessageCircleQuestion, MessagesSquare, Search, Settings, Sparkles, UserRound, Users, Vote, X, type LucideIcon,
+  ArrowLeft, ArrowRight, Bell, BookOpen, Compass, FolderKanban, Globe2, Languages, LayoutDashboard, LayoutGrid, LogOut, MessageCircle,
+  MessageCircleQuestion, MessagesSquare, Search, Settings, UserRound, Users, Vote, X, type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../identity";
 import { useLang } from "../site-chrome";
@@ -94,6 +94,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
       </a>
     );
   };
+  const Arrow = rtl ? ArrowLeft : ArrowRight;
   const search = (q: string) => { window.location.assign(`${window.location.origin}/assistant?q=${encodeURIComponent(q)}`); };
 
   return (
@@ -190,15 +191,30 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
           <div className={`m-fab ${ask ? "is-open" : ""}`}>
             {ask && (
               <div className="m-fab-panel" role="dialog" aria-label={rtl ? "ابحث واسأل" : "Search & ask"}>
-                <div className="m-fab-head"><strong><Sparkles aria-hidden="true" />{rtl ? "ابحث واسأل" : "Search & ask"}</strong><button onClick={() => setAsk(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></div>
-                <form onSubmit={(e) => { e.preventDefault(); const q = new FormData(e.currentTarget).get("q"); if (q) search(String(q)); }}>
-                  <input name="q" placeholder={rtl ? "اكتب سؤالك…" : "Type your question…"} aria-label={rtl ? "سؤالك" : "Your question"} autoFocus />
+                <div className="m-fab-head"><strong><AskIcon />{rtl ? "ابحث واسأل" : "Search & ask"}<small>{rtl ? "اسأل عن أي شيء في ويبال" : "Ask anything about WePal"}</small></strong><button onClick={() => setAsk(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></div>
+                <form className="m-ask-form" onSubmit={(e) => { e.preventDefault(); const q = new FormData(e.currentTarget).get("q"); if (q) search(String(q)); }}>
+                  <Search aria-hidden="true" />
+                  <input name="q" placeholder={rtl ? "اكتب سؤالك أو ما تبحث عنه…" : "Type a question or a topic…"} aria-label={rtl ? "سؤالك" : "Your question"} autoFocus />
+                  <button type="submit" aria-label={rtl ? "اسأل" : "Ask"}><Arrow /></button>
                 </form>
-                <p>{rtl ? "اقتراحات" : "Suggestions"}</p>
-                {ASK_SUGGESTIONS.map((q) => <button key={q.en} onClick={() => search(tx(q))}>{tx(q)}</button>)}
+                <section className="m-ask-sec">
+                  <h4>{rtl ? "أسئلة يطرحها الأعضاء" : "Questions members ask"}</h4>
+                  <ul className="m-ask-list">
+                    {ASK_SUGGESTIONS.map((q) => <li key={q.en}><button type="button" onClick={() => search(tx(q))}><span className="m-ask-q">؟</span><span>{tx(q)}</span><Arrow className="m-ask-go" aria-hidden="true" /></button></li>)}
+                  </ul>
+                </section>
+                <section className="m-ask-sec">
+                  <h4>{rtl ? "أو تصفّح" : "Or browse"}</h4>
+                  <div className="m-ask-tiles">
+                    <a href="/library"><BookOpen aria-hidden="true" />{rtl ? "المكتبة" : "Library"}</a>
+                    <a href="/assistant"><MessageCircleQuestion aria-hidden="true" />{rtl ? "المساعد" : "Assistant"}</a>
+                    <a href="/help"><Compass aria-hidden="true" />{rtl ? "المساعدة" : "Help"}</a>
+                  </div>
+                </section>
+                <p className="m-ask-note">{rtl ? "يجيبك المساعد من مكتبة ويبال وأدلّتها، ويذكر مصادره." : "The assistant answers from WePal's library and guides, and cites its sources."}</p>
               </div>
             )}
-            <button className="m-fab-btn" onClick={() => setAsk((o) => !o)} aria-expanded={ask}><MessageCircleQuestion /><span><strong>{rtl ? "ابحث واسأل" : "Search & ask"}</strong><small>{rtl ? "دليل المنصة" : "Platform guide"}</small></span></button>
+            <button className="m-fab-btn" onClick={() => setAsk((o) => !o)} aria-expanded={ask} aria-label={rtl ? "ابحث واسأل" : "Search & ask"}><AskIcon /><span className="m-fab-label"><strong>{rtl ? "ابحث واسأل" : "Search & ask"}</strong><small>{rtl ? "دليل المنصة" : "Platform guide"}</small></span></button>
           </div>
         )}
 
@@ -313,6 +329,20 @@ export function Panel({ open, onClose, title, children, footer }: { open: boolea
         {footer && <footer className="m-panel-foot">{footer}</footer>}
       </aside>
     </div>
+  );
+}
+
+/** The "search & ask" mark: the P from the WePal logo, a centred question mark, and a small AI sparkle. */
+function AskIcon() {
+  return (
+    <svg className="m-ask-ic" viewBox="1600 -60 700 800" aria-hidden="true">
+      <path d="M1634 90A90 90 0 0 1 1724 0H1996A240 240 0 0 1 1996 480H1912C1790 480 1712 596 1670 698C1663 718 1638 722 1635 702Z" fill="#0B79CD" />
+      <g transform="translate(16 -16)">
+        <path d="M1873 182a62 62 0 1 1 93 54c-20 12-31 24-31 46v10" fill="none" stroke="#fff" strokeWidth="50" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="1935" cy="372" r="29" fill="#fff" />
+      </g>
+      <path d="M2196 -40c8 46 24 62 70 70-46 8-62 24-70 70-8-46-24-62-70-70 46-8 62-24 70-70Z" fill="#F7C24C" />
+    </svg>
   );
 }
 
