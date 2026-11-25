@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Bell, BookOpen, Compass, FolderKanban, Globe2, Languages, LayoutDashboard, LayoutGrid, LogOut, MessageCircle,
-  MessageCircleQuestion, MessagesSquare, Search, Settings, Sparkles, UserRound, Users, Vote, X, type LucideIcon,
+  MessageCircleQuestion, MessagesSquare, Search, Settings, UserRound, Users, Vote, X, type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../identity";
 import { useLang } from "../site-chrome";
@@ -190,7 +190,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
           <div className={`m-fab ${ask ? "is-open" : ""}`}>
             {ask && (
               <div className="m-fab-panel" role="dialog" aria-label={rtl ? "ابحث واسأل" : "Search & ask"}>
-                <div className="m-fab-head"><strong><Sparkles aria-hidden="true" />{rtl ? "ابحث واسأل" : "Search & ask"}</strong><button onClick={() => setAsk(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></div>
+                <div className="m-fab-head"><strong><AskIcon />{rtl ? "ابحث واسأل" : "Search & ask"}<small>{rtl ? "اسأل عن أي شيء في ويبال" : "Ask anything about WePal"}</small></strong><button onClick={() => setAsk(false)} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></div>
                 <form onSubmit={(e) => { e.preventDefault(); const q = new FormData(e.currentTarget).get("q"); if (q) search(String(q)); }}>
                   <input name="q" placeholder={rtl ? "اكتب سؤالك…" : "Type your question…"} aria-label={rtl ? "سؤالك" : "Your question"} autoFocus />
                 </form>
@@ -198,7 +198,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
                 {ASK_SUGGESTIONS.map((q) => <button key={q.en} onClick={() => search(tx(q))}>{tx(q)}</button>)}
               </div>
             )}
-            <button className="m-fab-btn" onClick={() => setAsk((o) => !o)} aria-expanded={ask}><MessageCircleQuestion /><span><strong>{rtl ? "ابحث واسأل" : "Search & ask"}</strong><small>{rtl ? "دليل المنصة" : "Platform guide"}</small></span></button>
+            <button className="m-fab-btn" onClick={() => setAsk((o) => !o)} aria-expanded={ask} aria-label={rtl ? "ابحث واسأل" : "Search & ask"}><AskIcon /><span className="m-fab-label"><strong>{rtl ? "ابحث واسأل" : "Search & ask"}</strong><small>{rtl ? "دليل المنصة" : "Platform guide"}</small></span></button>
           </div>
         )}
 
@@ -313,6 +313,17 @@ export function Panel({ open, onClose, title, children, footer }: { open: boolea
         {footer && <footer className="m-panel-foot">{footer}</footer>}
       </aside>
     </div>
+  );
+}
+
+/** The "search & ask" mark: the WePal speech bubble with a question mark. */
+function AskIcon() {
+  return (
+    <svg className="m-ask-ic" viewBox="0 0 40 40" aria-hidden="true">
+      <path d="M8 4h17c6.6 0 12 5.4 12 12v1c0 6.6-5.4 12-12 12H16.5l-6.6 6.3c-1.3 1.2-3.4.3-3.4-1.5V28.6A12 12 0 0 1 3 20V9a5 5 0 0 1 5-5Z" fill="#0B79CD" />
+      <path d="M15.6 13.4c.6-2.4 2.6-3.9 5.1-3.9 2.9 0 5.1 1.9 5.1 4.5 0 2-1.1 3.2-2.8 4.2-1.2.7-1.6 1.2-1.6 2.3v.6" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="21.4" cy="25.6" r="2" fill="#F7C24C" />
+    </svg>
   );
 }
 
