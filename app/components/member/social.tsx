@@ -241,7 +241,7 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
           </button>
           {picker && (
             <div className="s-picker" role="group" aria-label={rtl ? "اختر تفاعلًا" : "Pick a reaction"}>
-              {REACTIONS.map((r, i) => <button key={r.key} onClick={() => react(r.key)} aria-label={r.label[lang]} className={mine === r.key ? "is-on" : ""} style={{ animationDelay: `${i * 35}ms` }}><ReactionIcon k={r.key} size={38} /><em>{r.label[lang]}</em></button>)}
+              {REACTIONS.map((r, i) => <button key={r.key} onClick={() => react(r.key)} aria-label={r.label[lang]} className={mine === r.key ? "is-on" : ""} style={{ animationDelay: `${i * 35}ms` }}><ReactionIcon k={r.key} size={32} /><em>{r.label[lang]}</em></button>)}
             </div>
           )}
         </div>

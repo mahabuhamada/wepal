@@ -1,4 +1,4 @@
-// WePal reactions: each one is the speech bubble from the logo, in a brand colour, with a white sign inside.
+// WePal reactions: a round badge in a brand colour with a clear white sign drawn for the platform.
 
 export type ReactionKey = "like" | "love" | "idea" | "agree" | "support" | "inspire";
 
@@ -11,26 +11,26 @@ export const REACTION_SET: { key: ReactionKey; color: string; label: { ar: strin
   { key: "inspire", color: "#101942", label: { ar: "صوتك وصل", en: "Heard you" } },
 ];
 
-// The bubble: round body, soft tail at the lower corner (like the P in the logo).
-const BUBBLE = "M20 2.5c9.7 0 17.5 7.5 17.5 16.8S29.7 36 20 36c-2.4 0-4.7-.4-6.8-1.3l-7.4 3.1c-1.1.5-2.2-.6-1.8-1.7l2-5.7C3.9 27.5 2.5 23.5 2.5 19.3 2.5 10 10.3 2.5 20 2.5Z";
-
 function Sign({ k }: { k: ReactionKey }) {
-  const w = { fill: "none", stroke: "#fff", strokeWidth: 2.4, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  // Filled glyphs drawn on a 24-unit grid, centred in the 40-unit circle.
+  const g = (d: string, scale = .68) => <path d={d} fill="#fff" transform={`translate(${20 - 12 * scale} ${20 - 12 * scale}) scale(${scale})`} />;
   switch (k) {
     case "like":
-      return <g transform="translate(10.6 9.2) scale(.8)"><path d="M7 10v12" {...w} /><path d="M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.6l-2.3 8a2 2 0 0 1-1.9 1.4H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z" fill="#fff" stroke="#fff" strokeWidth={1.6} strokeLinejoin="round" /></g>;
+      return g("M2 20h3V10H2v10Zm19.5-8.6c0-1-.8-1.9-1.9-1.9h-5.7l.9-4.2v-.3c0-.4-.2-.8-.4-1L13.4 3 7.4 9c-.3.3-.5.8-.5 1.3V18c0 1 .9 1.9 1.9 1.9h8.3c.8 0 1.4-.5 1.7-1.1l2.8-6.5c.1-.2.1-.4.1-.6v-.3Z", .78);
     case "love":
-      return <path d="M20 28.2s-8.4-4.9-8.4-10.6c0-2.6 2-4.6 4.5-4.6 1.6 0 3 .8 3.9 2.1.9-1.3 2.3-2.1 3.9-2.1 2.5 0 4.5 2 4.5 4.6 0 5.7-8.4 10.6-8.4 10.6Z" fill="#fff" />;
+      return g("M12 20.6 10.7 19.4C6 15.1 2.9 12.3 2.9 8.8 2.9 6 5.1 3.8 7.9 3.8c1.6 0 3.1.7 4.1 1.9 1-1.2 2.5-1.9 4.1-1.9 2.8 0 5 2.2 5 5 0 3.5-3.1 6.3-7.8 10.6L12 20.6Z", .7);
     case "idea":
-      return <g {...w}><path d="M16.3 23.2c-.3-1.6-1.1-2.6-2-3.6a6.6 6.6 0 1 1 11.4 0c-.9 1-1.7 2-2 3.6" /><path d="M16.6 26.4h6.8" /><path d="M18 29.3h4" /></g>;
+      return <g><path d="M20 10.2a6.6 6.6 0 0 0-3.9 11.9v2.4c0 .6.5 1.1 1.1 1.1h5.6c.6 0 1.1-.5 1.1-1.1v-2.4A6.6 6.6 0 0 0 20 10.2Z" fill="#fff" /><rect x="17.1" y="26.6" width="5.8" height="2.4" rx="1.2" fill="#fff" /><path d="M18.4 15.4c.5-.6 1.1-.9 1.9-1" stroke="#F2B12F" strokeWidth="1.5" strokeLinecap="round" fill="none" /></g>;
     case "agree":
-      return <path d="M13 19.6l4.6 4.6 9.4-9.6" {...w} strokeWidth={3} />;
-    case "support":
-      // An olive sprig: two leaves on a stem, with one olive.
-      return <g><path d="M12.5 27.5c4-2.6 9-7.4 14.5-13.8" {...w} strokeWidth={1.8} /><path d="M17.8 21.4c-3.4.2-5.6-1.6-6.4-4.6 3.4-.3 5.6 1.5 6.4 4.6Z" fill="#fff" /><path d="M22.6 16.2c.4-3.3 2.5-5.4 5.7-5.9.1 3.3-2 5.5-5.7 5.9Z" fill="#fff" /><path d="M22.4 22.3c2.9 1.6 5.6 1 7.5-1.4-2.9-1.6-5.6-1-7.5 1.4Z" fill="#fff" /><circle cx="15.6" cy="25.2" r="2.1" fill="#F7C24C" /></g>;
+      return <path d="M13.4 20.3l4.4 4.4 8.8-9.2" fill="none" stroke="#fff" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />;
+    case "support": {
+      // An olive sprig: a gentle stem, alternating leaves and one olive.
+      const leaf = (x: number, y: number, r: number) => <ellipse cx={x} cy={y} rx="3.5" ry="1.6" transform={`rotate(${r} ${x} ${y})`} fill="#fff" />;
+      return <g><path d="M12.6 28.6Q19.6 21.6 28.4 12.2" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />{leaf(14.8, 21.4, -88)}{leaf(22.6, 22.6, -6)}{leaf(20.6, 15, -88)}{leaf(28.4, 16.2, -6)}{leaf(29.2, 10.9, -47)}<circle cx="18" cy="26.6" r="2.2" fill="#F7C24C" /></g>;
+    }
     case "inspire":
       // The logo's three dots: a voice on its way.
-      return <g><circle cx="13.6" cy="19.3" r="2.9" fill="#4DC7B1" /><circle cx="20" cy="19.3" r="2.9" fill="#fff" /><circle cx="26.4" cy="19.3" r="2.9" fill="#F7C24C" /></g>;
+      return <g><circle cx="13.4" cy="20" r="3" fill="#4DC7B1" /><circle cx="20" cy="20" r="3" fill="#fff" /><circle cx="26.6" cy="20" r="3" fill="#F7C24C" /></g>;
   }
 }
 
@@ -38,8 +38,9 @@ export function ReactionIcon({ k, size = 22, className = "" }: { k: ReactionKey;
   const r = REACTION_SET.find((x) => x.key === k)!;
   return (
     <svg className={`wp-react ${className}`} width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      <path d={BUBBLE} fill={r.color} />
-      <path d={BUBBLE} fill="url(#wpReactShine)" />
+      <circle cx="20" cy="20" r="19" fill={r.color} />
+      <circle cx="20" cy="20" r="19" fill="url(#wpReactShine)" />
+      <circle cx="20" cy="20" r="18.4" fill="none" stroke="#000" strokeOpacity=".08" strokeWidth="1.2" />
       <Sign k={k} />
     </svg>
   );
@@ -49,7 +50,7 @@ export function ReactionIcon({ k, size = 22, className = "" }: { k: ReactionKey;
 export function ReactionDefs() {
   return (
     <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true">
-      <defs><linearGradient id="wpReactShine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".28" /><stop offset=".55" stopColor="#fff" stopOpacity="0" /></linearGradient></defs>
+      <defs><linearGradient id="wpReactShine" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".26" /><stop offset=".6" stopColor="#fff" stopOpacity="0" /><stop offset="1" stopColor="#000" stopOpacity=".06" /></linearGradient></defs>
     </svg>
   );
 }
