@@ -236,6 +236,7 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
   return (
     <>
     <div className="f-keffiyeh" aria-hidden="true" />
+    <div className="f-keffiyeh-net" aria-hidden="true" />
     <footer className="f-footer">
       <div className="h-wrap">
         <div className="f-bento">
