@@ -79,7 +79,7 @@ export function AdminShell({ active, children }: { active: string; children: Rea
           <div className="a-me">
             <span className="a-avatar">ل</span>
             <span><b>{rtl ? "ليان أحمد" : "Layan Ahmad"}</b><small>{rtl ? "مدير عام" : "Administrator"}</small></span>
-            <a href="/dashboard" aria-label={rtl ? "العودة إلى مساحتي" : "Back to my area"} title={rtl ? "مساحتي" : "My area"}><LogOut /></a>
+            <a href="/community" aria-label={rtl ? "العودة إلى مساحتي" : "Back to my area"} title={rtl ? "مساحتي" : "My area"}><LogOut /></a>
           </div>
         </aside>
         <div className="a-scrim" onClick={() => setDrawer(false)} aria-hidden="true" />

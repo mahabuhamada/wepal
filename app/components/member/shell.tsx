@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  Bell, BookOpen, Compass, FolderKanban, Globe2, House, Languages, LayoutGrid, LogOut, MessageCircle,
+  Bell, BookOpen, Compass, FolderKanban, Globe2, Languages, LayoutDashboard, LayoutGrid, LogOut, MessageCircle,
   MessageCircleQuestion, MessagesSquare, Search, Settings, Sparkles, UserRound, Users, Vote, X, type LucideIcon,
 } from "lucide-react";
 import { Logo } from "../identity";
@@ -29,10 +29,11 @@ export type MemberRoute =
 type NavItem = { key: MemberRoute | "library"; href: string; icon: LucideIcon; label: T; count?: number };
 
 const NAV_MAIN: NavItem[] = [
-  { key: "dashboard", href: "/dashboard", icon: House, label: { ar: "الرئيسية", en: "Home" } },
+  // The community is the members' home; the overview ("My board") sits under it.
+  { key: "community", href: "/community", icon: Users, label: { ar: "المجتمع", en: "Community" } },
+  { key: "dashboard", href: "/dashboard", icon: LayoutDashboard, label: { ar: "لوحتي", en: "My board" } },
   { key: "messages", href: "/messages", icon: MessagesSquare, label: { ar: "الرسائل", en: "Messages" } },
   { key: "projects", href: "/projects", icon: FolderKanban, label: { ar: "مساحات العمل", en: "Workspaces" } },
-  { key: "community", href: "/community", icon: Users, label: { ar: "المجتمع", en: "Community" } },
   { key: "surveys", href: "/surveys", icon: Vote, label: { ar: "شارك برأيك", en: "Have your say" } },
 ];
 const NAV_MORE: NavItem[] = [
@@ -100,7 +101,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
         {/* ── Members top bar ── */}
         <header className="m-top" ref={barRef}>
           <div className="m-top-inner">
-            <a href="/dashboard" className="m-top-brand" aria-label="WePal"><Logo /></a>
+            <a href="/community" className="m-top-brand" aria-label="WePal"><Logo /></a>
             <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} onAsk={search} />
             <div className="m-top-actions">
               <button className="m-top-btn m-search-open" onClick={() => setSearchOpen(true)} aria-label={rtl ? "ابحث" : "Search"}><Search /></button>
@@ -202,7 +203,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
 
         {/* Mobile: tab bar + sheet with every section */}
         <nav className="h-tabbar m-tabbar" aria-label={rtl ? "تنقل الأعضاء" : "Members navigation"}>
-          {[NAV_MAIN[0], NAV_MAIN[3], NAV_MAIN[2], NAV_MAIN[1]].map((raw) => { const t = counted(raw); const Icon = t.icon; const on = t.key === active; return (
+          {[NAV_MAIN[0], NAV_MAIN[1], NAV_MAIN[3], NAV_MAIN[2]].map((raw) => { const t = counted(raw); const Icon = t.icon; const on = t.key === active; return (
             <a key={t.key} href={t.href} className={on ? "is-active" : ""} aria-current={on ? "page" : undefined}>
               <span className="h-tab-icon"><Icon />{!!t.count && <b className="m-dot">{t.count}</b>}</span><span>{tx(t.label)}</span>
             </a>

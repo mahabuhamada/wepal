@@ -20,7 +20,7 @@ function Steps() {
   const finish = () => {
     update((x) => ({ ...x, onboarded: true, interests: interests.length ? interests : x.interests }));
     try { window.localStorage.setItem(MEMBER_FLAG, "1"); } catch { /* storage blocked */ }
-    window.location.assign(`${window.location.origin}/dashboard`);
+    window.location.assign(`${window.location.origin}/community`);
   };
   const joined = (id: string) => s.joined[id] ?? GROUPS.find((g) => g.id === id)!.joined;
   const canNext = step !== 1 || interests.length > 0;
