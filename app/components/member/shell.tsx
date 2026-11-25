@@ -343,7 +343,6 @@ export function PageHead({ icon: Icon, kicker, title, lead, actions }: { icon: L
       <div>
         <span className="m-kicker"><Icon aria-hidden="true" />{tx(kicker)}</span>
         <h1>{s(title)}</h1>
-        <img className="m-olive" src="/heritage/olive-rule.svg" alt="" aria-hidden="true" />
         {lead && <p>{s(lead)}</p>}
       </div>
       {actions && <div className="m-head-actions">{actions}</div>}
