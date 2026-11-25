@@ -235,9 +235,7 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
   const links = [...NAV.slice(1), ...EXTRA_PAGES];
   return (
     <>
-    <div className="f-keffiyeh" aria-hidden="true">
-      <span className="f-keffiyeh-medal"><img src="/heritage/rosette.svg" alt="" /></span>
-    </div>
+    <div className="f-keffiyeh" aria-hidden="true" />
     <footer className="f-footer">
       <div className="h-wrap">
         <div className="f-bento">
