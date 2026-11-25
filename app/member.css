@@ -942,7 +942,8 @@
 .o-foot { display: flex; justify-content: space-between; gap: 8px; padding: 16px 24px; border-top: 1px solid var(--line); background: #fff; color: var(--ink); }
 
 /* Heritage accents (brand guidelines): a stitch line in the home hero, an olive rule under page titles */
-.dh-stitch { position: absolute; inset: auto 0 0 0; z-index: 0; height: 10px; background: url(/heritage/divider-stitch.svg) repeat-x center / auto 100%; opacity: .55; pointer-events: none; }
+.dh-hero { padding-bottom: 50px; }
+.dh-stitch { position: absolute; inset: auto 0 14px 0; z-index: 0; height: 16px; background: url(/heritage/divider-stitch.svg) repeat-x center / auto 100%; opacity: .85; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, #000 28%, #000 72%, transparent 100%); }
 
 /* Community: creative post tools (poll, colour card, event, feeling, emoji) */
 .s-composer-main { display: grid; flex: 1; gap: 8px; min-width: 0; }
@@ -1190,7 +1191,8 @@
   .dh-places-row { grid-auto-columns: 200px; gap: 10px; }
   .dh-place { padding: 10px 12px; border-radius: 16px; }
   .dh-place-ic { width: 42px; height: 42px; border-radius: 13px; }
-  .dh-hero { gap: 16px; padding: 20px 18px; border-radius: 22px; }
+  .dh-hero { gap: 16px; padding: 20px 18px 42px; border-radius: 22px; }
+  .dh-stitch { bottom: 12px; height: 13px; }
   .dh-hero-top { flex-direction: column-reverse; align-items: stretch; gap: 14px; }
   .dh-me { grid-template-columns: auto 1fr; justify-items: start; align-items: center; column-gap: 12px; padding: 10px 12px; text-align: start; }
   .dh-me .dh-ring { grid-row: span 2; }
