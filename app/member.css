@@ -946,8 +946,6 @@
 .dh-rosette { position: absolute; z-index: -1; bottom: -90px; inset-inline-start: -70px; width: 260px; height: 260px; opacity: .22; pointer-events: none; animation: hrSpin 90s linear infinite; }
 @keyframes hrSpin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .dh-rosette { animation: none; } }
-.m-olive { display: block; width: 180px; height: auto; margin: -2px 0 8px; }
-[dir="rtl"] .m-olive { transform: scaleX(-1); }
 
 /* ── 11 · Responsive ── */
 @media (max-width: 1100px) {

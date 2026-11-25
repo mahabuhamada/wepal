@@ -102,7 +102,7 @@ export default function PortalPage({ page }: { page: PortalPageType }) {
           <div className="portal-hero-copy">
             <div className="portal-breadcrumb"><a href="/">{rtl ? "الرئيسية" : "Home"}</a><Arrow size={13} /><span>{text.kicker}</span></div>
             <div className="portal-kicker"><Icon size={16} />{text.kicker}</div>
-            <h1>{text.title}</h1><img className="p-olive" src="/heritage/olive-rule.svg" alt="" aria-hidden="true" /><p>{text.text}</p><div className="portal-hero-pills">{pageTags[page][language].map((tag,index)=><span key={tag}><i>{String(index+1).padStart(2,"0")}</i>{tag}</span>)}</div>
+            <h1>{text.title}</h1><p>{text.text}</p><div className="portal-hero-pills">{pageTags[page][language].map((tag,index)=><span key={tag}><i>{String(index+1).padStart(2,"0")}</i>{tag}</span>)}</div>
           </div>
           <div className="portal-hero-art" aria-hidden="true"><img className="art-motif" src="/heritage/moon-bethlehem.svg" alt="" /><div className="art-ring ring-one" /><div className="art-ring ring-two" /><div className="art-icon"><Icon /></div><span className="art-dot dot-one" /><span className="art-dot dot-two" /></div>
         </div>
