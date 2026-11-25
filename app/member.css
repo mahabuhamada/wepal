@@ -943,9 +943,6 @@
 
 /* Heritage accents (brand guidelines): a stitch line in the home hero, an olive rule under page titles */
 .dh-stitch { position: absolute; inset: auto 0 0 0; z-index: 0; height: 10px; background: url(/heritage/divider-stitch.svg) repeat-x center / auto 100%; opacity: .55; pointer-events: none; }
-.dh-rosette { position: absolute; z-index: -1; bottom: -90px; inset-inline-start: -70px; width: 260px; height: 260px; opacity: .22; pointer-events: none; animation: hrSpin 90s linear infinite; }
-@keyframes hrSpin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .dh-rosette { animation: none; } }
 
 /* Community: creative post tools (poll, colour card, event, feeling, emoji) */
 .s-composer-main { display: grid; flex: 1; gap: 8px; min-width: 0; }
