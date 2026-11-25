@@ -1082,7 +1082,6 @@
 .c-trends button:hover { background: var(--tint); }
 .c-trends button[aria-pressed="true"] { background: var(--c100); }
 .c-trends b { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 9px; background: var(--tint); color: var(--ink-2); font-size: 12px; font-weight: 800; }
-.c-trends li:first-child b { background: color-mix(in srgb, #e8707f 15%, #fff); color: #c4505e; }
 .c-trends span { display: grid; min-width: 0; }
 .c-trends strong { overflow: hidden; color: var(--b500); font-size: 14px; white-space: nowrap; text-overflow: ellipsis; direction: rtl; }
 .c-trends small { color: var(--ink-3); font-size: 12px; }
