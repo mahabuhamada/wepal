@@ -7,6 +7,7 @@ import { Avatar, Card, Empty, MemberShell, PageHead, Tabs, memberOrMe, useMember
 import { GROUPS, GROUP_META, MEMBERS, ONLINE, TRACKS, WORKSPACES, groupById, memberById } from "./data";
 import { Composer, PostCard, isMod, useFeed } from "./social";
 import { toast, update, useStore } from "./store";
+import { CommunitySide, TRENDS } from "./community-side";
 
 /** Join/leave state shared with the sidebar and dashboard through the demo store. */
 function useJoined() {
@@ -32,14 +33,13 @@ function JoinButton({ id, size = "sm" }: { id: string; size?: "sm" | "md" }) {
 function Community() {
   const { rtl, tx } = useMember();
   const Arrow = rtl ? ArrowLeft : ArrowRight;
-  const { isIn, members } = useJoined();
+  const { isIn, members, toggle } = useJoined();
+  const [tag, setTag] = useState<number | null>(null);
   const [tab, setTab] = useState<"feed" | "groups">("feed");
   const [filter, setFilter] = useState<"all" | "mine" | "questions">("all");
   const [q, setQ] = useState("");
-  const feed = useFeed().filter((p) => (filter === "all" || (filter === "mine" ? isIn(p.group.id) : p.kind === "question")));
+  const feed = useFeed().filter((p) => (filter === "all" || (filter === "mine" ? isIn(p.group.id) : p.kind === "question")) && (tag === null || tx(p.text).includes(tx(TRENDS[tag].q))));
   const groups = GROUPS.filter((g) => !q.trim() || tx(g.name).toLowerCase().includes(q.trim().toLowerCase()));
-  const suggest = GROUPS.filter((g) => !isIn(g.id));
-  const active = MEMBERS.filter((m) => ONLINE.has(m.id));
 
   return (
     <>
@@ -53,18 +53,10 @@ function Community() {
             <div className="m-chips" role="group" aria-label={rtl ? "تصفية" : "Filter"}>
               {([["all", rtl ? "الكل" : "All"], ["mine", rtl ? "من مجموعاتي" : "My groups"], ["questions", rtl ? "أسئلة" : "Questions"]] as const).map(([k, l]) => <button key={k} aria-pressed={filter === k} onClick={() => setFilter(k)}>{k === "questions" && <HelpCircle />}{l}</button>)}
             </div>
+            {tag !== null && <div className="c-tagbar"><span>{rtl ? "تعرض منشورات" : "Showing posts about"} <b>{tx(TRENDS[tag].tag)}</b></span><button type="button" onClick={() => setTag(null)}>{rtl ? "إلغاء" : "Clear"}</button></div>}
             {feed.length === 0 ? <Empty icon={MessageSquare} title={rtl ? "لا منشورات هنا بعد" : "No posts here yet"} text={rtl ? "كن أول من يكتب." : "Be the first to write."} /> : feed.map((p) => <PostCard key={p.id} post={p} />)}
           </div>
-          <div className="m-stack">
-            <Card title={rtl ? "متصلون الآن" : "Online now"}>
-              <ul className="m-people">{active.map((m) => <li key={m.id}><a href={`/members/${m.id}`}><Avatar who={m} size={34} online /><span><strong>{tx(m.name)}</strong><small>{tx(m.city)}</small></span></a></li>)}</ul>
-            </Card>
-            {suggest.length > 0 && (
-              <Card title={rtl ? "مجموعات قد تهمك" : "Groups you may like"}>
-                <ul className="c-suggest">{suggest.map((g) => <li key={g.id}><span className="m-group-badge is-sm">{tx(g.name).slice(0, 1)}</span><a href={`/community/${g.id}`}><strong>{tx(g.name)}</strong><small>{members(g.id)} {rtl ? "عضوًا" : "members"}</small></a><JoinButton id={g.id} /></li>)}</ul>
-              </Card>
-            )}
-          </div>
+          <CommunitySide tag={tag} setTag={setTag} isIn={isIn} toggle={toggle} members={members} />
         </div>
       ) : (
         <>
