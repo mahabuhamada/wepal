@@ -234,8 +234,9 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
   const latest = NEWS[0];
   const links = [...NAV.slice(1), ...EXTRA_PAGES];
   return (
+    <>
+    <div className="f-keffiyeh" aria-hidden="true" />
     <footer className="f-footer">
-      <span className="f-heritage" aria-hidden="true" />
       <div className="h-wrap">
         <div className="f-bento">
           <section className="f-card f-brand">
@@ -281,5 +282,6 @@ export function SiteFooter({ lang, onLang }: { lang: Lang; onLang?: (l: Lang) =>
         <div className="f-bottom"><span>© 2026 WePal. {rtl ? "جميع الحقوق محفوظة." : "All rights reserved."}</span><span className="wp-dots" aria-hidden="true"><i /><i /><i /></span><span>{rtl ? "صُنع في فلسطين" : "Made in Palestine"}</span></div>
       </div>
     </footer>
+    </>
   );
 }

@@ -631,7 +631,7 @@ html.lang-in main > *:not(.h-header):not(.m-top), html.lang-in :is(.h-header, .m
 /* Heritage (brand guidelines, part 2): quiet dividers drawn from tatreez, used sparingly */
 .hr-divider { display: flex; justify-content: center; padding: 0 20px; margin: -60px 0 44px; }
 .hr-divider img { width: min(440px, 80%); height: auto; opacity: .9; }
-.f-heritage { position: absolute; inset: 0 0 auto 0; height: 26px; background: url(/heritage/border-nablus-navy.svg) repeat-x center / auto 100%; opacity: .9; pointer-events: none; }
+.f-keffiyeh { height: 40px; margin: 0 0 -1px; background: url(/heritage/keffiyeh-leaves.svg) repeat-x center / auto 100%; opacity: .85; }
 .h-rosette { position: absolute; bottom: 70px; inset-inline-start: -160px; width: 420px; height: 420px; opacity: .1; animation: hrSpin 90s linear infinite; }
 @keyframes hrSpin { to { transform: rotate(360deg); } }
 .h-hero-stitch { position: relative; z-index: 1; height: 14px; margin-top: 34px; background: url(/heritage/divider-stitch.svg) repeat-x center / auto 100%; opacity: .7; }
