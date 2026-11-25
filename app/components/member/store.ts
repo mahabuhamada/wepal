@@ -12,7 +12,9 @@ export type ChatMsg = { id?: string; from: "me" | string; text: string; time: nu
 export type TaskMeta = { owner?: string; due?: string; desc?: string; comments?: { id: string; from: string; text: string; time: number }[] };
 export type Proposal = { id: string; title: string; summary: string; track: "research" | "initiative" | "digital"; team: string[]; due?: string; time: number };
 export type NewTask = { id: string; ws: string; title: string; status: "todo" | "doing" | "done"; time: number };
-export type NewPost = { id: string; group: string; text: string; time: number; kind: "post" | "question"; attachments?: Att[] };
+/** Creative extras on a post: a quick poll, a colour card, an event, or a feeling. */
+export type PostExtra = { poll?: string[]; card?: string; event?: { title: string; date: string; place: string }; feeling?: string };
+export type NewPost = { id: string; group: string; text: string; time: number; kind: "post" | "question"; attachments?: Att[]; extra?: PostExtra };
 
 type State = {
   reactions: Record<string, Reaction | undefined>;
@@ -38,6 +40,8 @@ type State = {
   onboarded?: boolean;
   interests: string[];
   posts: NewPost[];
+  pollVotes?: Record<string, number>;
+  going?: Record<string, boolean>;
   answered: Record<string, boolean>;
   votes: Record<string, string>;
   myAvatar?: number;
