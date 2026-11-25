@@ -316,13 +316,20 @@ export function Panel({ open, onClose, title, children, footer }: { open: boolea
   );
 }
 
-/** The "search & ask" mark: the WePal speech bubble with a question mark. */
+/** The "search & ask" mark: the P from the WePal logo in the brand gradient, a centred question mark, and an AI sparkle. */
 function AskIcon() {
   return (
-    <svg className="m-ask-ic" viewBox="0 0 40 40" aria-hidden="true">
-      <path d="M8 4h17c6.6 0 12 5.4 12 12v1c0 6.6-5.4 12-12 12H16.5l-6.6 6.3c-1.3 1.2-3.4.3-3.4-1.5V28.6A12 12 0 0 1 3 20V9a5 5 0 0 1 5-5Z" fill="#0B79CD" />
-      <path d="M15.6 13.4c.6-2.4 2.6-3.9 5.1-3.9 2.9 0 5.1 1.9 5.1 4.5 0 2-1.1 3.2-2.8 4.2-1.2.7-1.6 1.2-1.6 2.3v.6" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="21.4" cy="25.6" r="2" fill="#F7C24C" />
+    <svg className="m-ask-ic" viewBox="1600 -60 700 800" aria-hidden="true">
+      <defs>
+        <linearGradient id="askGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#3D96DC" /><stop offset=".5" stopColor="#0B79CD" /><stop offset="1" stopColor="#4DC7B1" /></linearGradient>
+      </defs>
+      <path d="M1634 90A90 90 0 0 1 1724 0H1996A240 240 0 0 1 1996 480H1912C1790 480 1712 596 1670 698C1663 718 1638 722 1635 702Z" fill="url(#askGrad)" />
+      <g transform="translate(16 -16)">
+        <path d="M1873 182a62 62 0 1 1 93 54c-20 12-31 24-31 46v10" fill="none" stroke="#fff" strokeWidth="50" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="1935" cy="372" r="29" fill="#fff" />
+      </g>
+      <path d="M2196 -40c8 46 24 62 70 70-46 8-62 24-70 70-8-46-24-62-70-70 46-8 62-24 70-70Z" fill="#F7C24C" />
+      <path d="M2262 92c4 22 11 29 33 33-22 4-29 11-33 33-4-22-11-29-33-33 22-4 29-11 33-33Z" fill="#4DC7B1" />
     </svg>
   );
 }
