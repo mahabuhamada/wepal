@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, CornerDownLeft, EyeOff, Flag, HelpCircle, MessageCircle, MoreHorizontal, Paperclip, PenLine, Pin, PinOff, Send, Share2, ThumbsUp, Trash2 } from "lucide-react";
+import { BarChart3, Bookmark, CalendarDays, CalendarPlus, Check, CornerDownLeft, EyeOff, Flag, HelpCircle, MapPin, MessageCircle, MoreHorizontal, Palette, Paperclip, PenLine, Pin, PinOff, Plus, Send, Share2, Smile, SmilePlus, ThumbsUp, Trash2, X } from "lucide-react";
 import { AttachmentView } from "./chat";
 import { Avatar, memberOrMe, useMember } from "./shell";
 import { GROUPS, GROUP_META, ME, type Post, type Group } from "./data";
-import { ago, now, readFiles, toast, uid, update, useStore, type Att, type Comment, type Reaction } from "./store";
+import { ago, now, readFiles, toast, uid, update, useStore, type Att, type Comment, type PostExtra, type Reaction } from "./store";
 
 const REACTIONS: { key: Reaction; emoji: string; label: { ar: string; en: string } }[] = [
   { key: "like", emoji: "👍", label: { ar: "أعجبني", en: "Like" } },
@@ -22,6 +22,70 @@ const REPORT_REASONS = [
 ];
 
 type FeedPost = Post & { group: Group } & { attachments?: Att[]; own?: boolean };
+
+/* ── Creative post tools ── */
+export const FEELINGS: { key: string; emoji: string; ar: string; en: string }[] = [
+  { key: "hopeful", emoji: "🌱", ar: "متفائل", en: "hopeful" },
+  { key: "inspired", emoji: "✨", ar: "مُلهَم", en: "inspired" },
+  { key: "proud", emoji: "🌟", ar: "فخور", en: "proud" },
+  { key: "grateful", emoji: "🙏", ar: "ممتن", en: "grateful" },
+  { key: "excited", emoji: "🎉", ar: "متحمّس", en: "excited" },
+  { key: "thinking", emoji: "🤔", ar: "يفكّر", en: "thinking" },
+  { key: "happy", emoji: "😊", ar: "سعيد", en: "happy" },
+  { key: "worried", emoji: "😟", ar: "قلق", en: "worried" },
+];
+export const CARDS: { key: string; ar: string; en: string }[] = [
+  { key: "navy", ar: "ليلي", en: "Night" }, { key: "blue", ar: "أزرق", en: "Blue" }, { key: "teal", ar: "فيروزي", en: "Teal" },
+  { key: "sunset", ar: "غروب", en: "Sunset" }, { key: "tatreez", ar: "تطريز", en: "Tatreez" }, { key: "olive", ar: "زيتون", en: "Olive" }, { key: "keffiyeh", ar: "كوفية", en: "Keffiyeh" },
+];
+const EMOJIS = ["😊", "😂", "❤️", "👏", "🙏", "🔥", "🎉", "💡", "🤝", "🌱", "🇵🇸", "🫒"];
+const youtubeId = (t: string) => t.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/))([\w-]{6,})/)?.[1];
+
+function PollView({ post }: { post: FeedPost }) {
+  const { rtl, lang } = useMember();
+  const s = useStore();
+  const opts = (lang === "en" && post.extra?.pollEn) || post.extra?.poll || [];
+  const mine = s.pollVotes?.[post.id];
+  const base = opts.map((_, i) => (post.own ? 0 : [14, 9, 6, 3][i] ?? 2));
+  const counts = base.map((n, i) => n + (mine === i ? 1 : 0));
+  const total = counts.reduce((a, b) => a + b, 0);
+  const vote = (i: number) => update((x) => ({ ...x, pollVotes: { ...(x.pollVotes ?? {}), [post.id]: i } }));
+  return (
+    <div className="s-poll" role="group" aria-label={rtl ? "استطلاع" : "Poll"}>
+      {opts.map((o, i) => { const pct = total ? Math.round((counts[i] / total) * 100) : 0; return (
+        <button key={i} type="button" className={`s-poll-opt ${mine === i ? "is-mine" : ""} ${mine !== undefined ? "is-voted" : ""}`} onClick={() => vote(i)} aria-pressed={mine === i}>
+          <span className="s-poll-fill" style={{ width: mine !== undefined ? `${pct}%` : 0 }} />
+          <span className="s-poll-label">{mine === i && <Check aria-hidden="true" />}{o}</span>
+          {mine !== undefined && <b>{pct}%</b>}
+        </button>
+      ); })}
+      <small>{total} {rtl ? "صوتًا" : "votes"}{mine === undefined ? (rtl ? " · اختر لترى النتيجة" : " · vote to see results") : (rtl ? " · يمكنك تغيير صوتك" : " · you can change your vote")}</small>
+    </div>
+  );
+}
+
+function EventView({ post }: { post: FeedPost }) {
+  const { rtl, lang } = useMember();
+  const s = useStore();
+  const ev = post.extra!.event!;
+  const d = new Date(ev.date);
+  const going = !!s.going?.[post.id];
+  const count = (post.own ? 0 : 17) + (going ? 1 : 0);
+  const loc = lang === "ar" ? "ar-u-nu-latn" : "en-GB";
+  return (
+    <div className="s-event">
+      <div className="s-event-date"><b>{d.toLocaleDateString(loc, { day: "numeric" })}</b><span>{d.toLocaleDateString(loc, { month: "short" })}</span></div>
+      <div className="s-event-body">
+        <strong>{ev.title}</strong>
+        <small><CalendarDays aria-hidden="true" />{d.toLocaleDateString(loc, { weekday: "long" })} · {d.toLocaleTimeString(loc, { hour: "2-digit", minute: "2-digit" })}</small>
+        {ev.place && <small><MapPin aria-hidden="true" />{ev.place}</small>}
+      </div>
+      <button type="button" className={`m-btn is-sm ${going ? "is-primary" : ""}`} aria-pressed={going} onClick={() => update((x) => ({ ...x, going: { ...(x.going ?? {}), [post.id]: !going } }))}>
+        {going ? <Check aria-hidden="true" /> : <CalendarPlus aria-hidden="true" />}{going ? (rtl ? "سأحضر" : "Going") : (rtl ? "سأحضر؟" : "Join")} · {count}
+      </button>
+    </div>
+  );
+}
 
 /** Is the signed-in member a moderator of this group? */
 export const isMod = (groupId: string) => GROUP_META[groupId]?.mods.includes("me") ?? false;
@@ -91,6 +155,8 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
   const saved = !!s.saved[post.id];
   const current = REACTIONS.find((r) => r.key === mine);
   const text = s.postEdits[post.id] ?? tx(post.text);
+  const feeling = FEELINGS.find((f) => f.key === post.extra?.feeling);
+  const yt = youtubeId(text);
   const pinned = s.pinnedPosts[post.group.id] === post.id;
 
   if (s.hiddenPosts[post.id]) {
@@ -144,7 +210,7 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
         <a href={post.author === "me" ? "/profile" : `/members/${post.author}`}><Avatar who={author} size={42} /></a>
         <div>
           <a href={post.author === "me" ? "/profile" : `/members/${post.author}`}><strong>{tx(author.name)}</strong></a>
-          <small>{showGroup && <><a href={`/community/${post.group.id}`}>{tx(post.group.name)}</a> · </>}{tx(post.time)}{s.postEdits[post.id] !== undefined && (rtl ? " · عُدّل" : " · edited")}</small>
+          <small>{feeling && <span className="s-feeling">{feeling.emoji} {rtl ? `يشعر بأنه ${feeling.ar}` : `feeling ${feeling.en}`} · </span>}{showGroup && <><a href={`/community/${post.group.id}`}>{tx(post.group.name)}</a> · </>}{tx(post.time)}{s.postEdits[post.id] !== undefined && (rtl ? " · عُدّل" : " · edited")}</small>
         </div>
         {post.kind === "question" && <span className="s-kind"><HelpCircle aria-hidden="true" />{rtl ? "سؤال" : "Question"}</span>}
         <PostMenu post={post} onEdit={() => { setEditText(text); setEditing(true); }} />
@@ -154,7 +220,10 @@ export function PostCard({ post, showGroup = true }: { post: FeedPost; showGroup
           <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={3} autoFocus aria-label={rtl ? "نص المنشور" : "Post text"} />
           <div><button type="button" className="m-btn is-sm" onClick={() => setEditing(false)}>{rtl ? "إلغاء" : "Cancel"}</button><button className="m-btn is-sm is-primary" disabled={!editText.trim()}>{rtl ? "احفظ" : "Save"}</button></div>
         </form>
-      ) : text && <p className="s-text">{text}</p>}
+      ) : post.extra?.card && text ? <div className={`s-card is-${post.extra.card}`}><p>{text}</p></div> : text && <p className="s-text">{text}</p>}
+      {!!post.extra?.poll?.length && <PollView post={post} />}
+      {post.extra?.event && <EventView post={post} />}
+      {yt && <div className="s-video"><iframe src={`https://www.youtube-nocookie.com/embed/${yt}`} title="video" loading="lazy" allow="encrypted-media; picture-in-picture" allowFullScreen /></div>}
       {post.img && <img className="s-img" src={post.img} alt="" loading="lazy" />}
       {!!post.attachments?.length && <div className="s-atts">{post.attachments.map((a, i) => <AttachmentView key={i} a={a} />)}</div>}
 
@@ -218,25 +287,108 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
   const [kind, setKind] = useState<"post" | "question">("post");
   const [focus, setFocus] = useState(false);
   const [files, setFiles] = useState<Att[]>([]);
+  const [tool, setTool] = useState<null | "poll" | "card" | "event">(null);
+  const [picker, setPicker] = useState<null | "feeling" | "emoji">(null);
+  const [poll, setPoll] = useState<string[]>(["", ""]);
+  const [card, setCard] = useState<string | null>(null);
+  const [event, setEvent] = useState({ title: "", date: "", place: "" });
+  const [feeling, setFeeling] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const taRef = useRef<HTMLTextAreaElement>(null);
   const pick = async (list: FileList | null) => { if (list?.length) { const a = await readFiles(list); setFiles((f) => [...f, ...a].slice(0, 4)); setFocus(true); } };
+  const pollOk = tool === "poll" && poll.filter((o) => o.trim()).length >= 2;
+  const eventOk = tool === "event" && event.title.trim() && event.date;
+  const canPost = !!text.trim() || files.length > 0 || pollOk || !!eventOk;
+  const toggle = (t: "poll" | "card" | "event" | "feeling" | "emoji") => {
+    setFocus(true);
+    if (t === "feeling" || t === "emoji") { setPicker((x) => (x === t ? null : t)); return; }
+    setTool((x) => (x === t ? null : t)); if (t === "card" && !card) setCard("tatreez");
+  };
+  const insert = (e: string) => {
+    const el = taRef.current; const at = el?.selectionStart ?? text.length;
+    setText(text.slice(0, at) + e + text.slice(at));
+    requestAnimationFrame(() => { el?.focus(); el?.setSelectionRange(at + e.length, at + e.length); });
+  };
+  const reset = () => { setText(""); setFiles([]); setFocus(false); setTool(null); setPicker(null); setPoll(["", ""]); setCard(null); setEvent({ title: "", date: "", place: "" }); setFeeling(null); };
   const submit = (e: React.FormEvent) => {
-    e.preventDefault(); if (!text.trim() && !files.length) return;
-    update((x) => ({ ...x, posts: [{ id: uid(), group, text: text.trim(), time: now(), kind, attachments: files.length ? files : undefined }, ...x.posts] }));
-    setText(""); setFiles([]); setFocus(false);
+    e.preventDefault(); if (!canPost) return;
+    const extra: PostExtra = {};
+    if (pollOk) extra.poll = poll.map((o) => o.trim()).filter(Boolean);
+    if (tool === "card" && card && text.trim()) extra.card = card;
+    if (eventOk) extra.event = { title: event.title.trim(), date: event.date, place: event.place.trim() };
+    if (feeling) extra.feeling = feeling;
+    update((x) => ({ ...x, posts: [{ id: uid(), group, text: text.trim(), time: now(), kind, attachments: files.length ? files : undefined, extra: Object.keys(extra).length ? extra : undefined }, ...x.posts] }));
+    reset();
     toast(rtl ? "نُشر منشورك" : "Your post is live");
   };
+  const tools: { key: "poll" | "card" | "event" | "feeling" | "emoji"; icon: typeof Palette; ar: string; en: string }[] = [
+    { key: "poll", icon: BarChart3, ar: "استطلاع", en: "Poll" },
+    { key: "card", icon: Palette, ar: "بطاقة ملوّنة", en: "Colour card" },
+    { key: "event", icon: CalendarPlus, ar: "فعالية", en: "Event" },
+    { key: "feeling", icon: SmilePlus, ar: "شعور", en: "Feeling" },
+    { key: "emoji", icon: Smile, ar: "رموز", en: "Emoji" },
+  ];
+  const chosenFeeling = FEELINGS.find((f) => f.key === feeling);
+  const placeholder = tool === "poll" ? (rtl ? "اطرح سؤال الاستطلاع…" : "Ask your poll question…")
+    : tool === "event" ? (rtl ? "اكتب دعوة قصيرة للفعالية…" : "Write a short invitation…")
+    : kind === "question" ? (rtl ? "ما سؤالك للمجتمع؟" : "What's your question for the community?")
+    : (rtl ? `بماذا تفكّر يا ${tx(ME.name).split(" ")[0]}؟` : `What's on your mind, ${tx(ME.name).split(" ")[0]}?`);
   return (
     <form className={`s-composer ${focus || text ? "is-open" : ""}`} onSubmit={submit}>
       <div className="s-composer-top">
         <Avatar who={{ ...ME, tone: 0 }} size={42} />
-        <textarea value={text} onChange={(e) => setText(e.target.value)} onFocus={() => setFocus(true)} rows={focus || text ? 3 : 1}
-          placeholder={kind === "question" ? (rtl ? "ما سؤالك للمجتمع؟" : "What's your question for the community?") : (rtl ? `بماذا تفكّر يا ${tx(ME.name).split(" ")[0]}؟` : `What's on your mind, ${tx(ME.name).split(" ")[0]}?`)}
-          aria-label={rtl ? "منشور جديد" : "New post"} />
+        <div className="s-composer-main">
+          {chosenFeeling && <span className="s-feeling-chip">{chosenFeeling.emoji} {rtl ? `يشعر بأنه ${chosenFeeling.ar}` : `feeling ${chosenFeeling.en}`}<button type="button" onClick={() => setFeeling(null)} aria-label={rtl ? "إزالة الشعور" : "Remove feeling"}><X /></button></span>}
+          {tool === "card" && card ? (
+            <div className={`s-card is-${card} is-editing`}>
+              <textarea ref={taRef} value={text} maxLength={180} onChange={(e) => setText(e.target.value)} placeholder={rtl ? "اكتب جملة قصيرة تظهر على البطاقة…" : "Write a short line for the card…"} aria-label={rtl ? "نص البطاقة" : "Card text"} autoFocus />
+            </div>
+          ) : (
+            <textarea ref={taRef} value={text} onChange={(e) => setText(e.target.value)} onFocus={() => setFocus(true)} rows={focus || text ? 3 : 1} placeholder={placeholder} aria-label={rtl ? "منشور جديد" : "New post"} />
+          )}
+        </div>
       </div>
+
+      {tool === "poll" && (
+        <div className="s-tool s-tool-poll">
+          {poll.map((o, i) => (
+            <div key={i} className="s-tool-row">
+              <span>{i + 1}</span>
+              <input value={o} maxLength={60} onChange={(e) => setPoll(poll.map((x, j) => (j === i ? e.target.value : x)))} placeholder={rtl ? `الخيار ${i + 1}` : `Option ${i + 1}`} />
+              {poll.length > 2 && <button type="button" onClick={() => setPoll(poll.filter((_, j) => j !== i))} aria-label={rtl ? "حذف الخيار" : "Remove option"}><X /></button>}
+            </div>
+          ))}
+          {poll.length < 4 && <button type="button" className="s-tool-add" onClick={() => setPoll([...poll, ""])}><Plus aria-hidden="true" />{rtl ? "أضف خيارًا" : "Add option"}</button>}
+        </div>
+      )}
+      {tool === "card" && (
+        <div className="s-tool s-swatches" role="radiogroup" aria-label={rtl ? "خلفية البطاقة" : "Card background"}>
+          {CARDS.map((c) => <button key={c.key} type="button" role="radio" aria-checked={card === c.key} className={`s-swatch is-${c.key}`} onClick={() => setCard(c.key)} title={rtl ? c.ar : c.en} aria-label={rtl ? c.ar : c.en} />)}
+        </div>
+      )}
+      {tool === "event" && (
+        <div className="s-tool s-tool-event">
+          <input value={event.title} onChange={(e) => setEvent({ ...event, title: e.target.value })} placeholder={rtl ? "اسم الفعالية" : "Event name"} aria-label={rtl ? "اسم الفعالية" : "Event name"} />
+          <input type="datetime-local" value={event.date} onChange={(e) => setEvent({ ...event, date: e.target.value })} aria-label={rtl ? "الموعد" : "Date and time"} />
+          <input value={event.place} onChange={(e) => setEvent({ ...event, place: e.target.value })} placeholder={rtl ? "المكان أو رابط اللقاء" : "Place or meeting link"} aria-label={rtl ? "المكان" : "Place"} />
+        </div>
+      )}
+      {picker === "feeling" && (
+        <div className="s-tool s-feelings">
+          {FEELINGS.map((f) => <button key={f.key} type="button" aria-pressed={feeling === f.key} onClick={() => { setFeeling(f.key); setPicker(null); }}><span>{f.emoji}</span>{rtl ? f.ar : f.en}</button>)}
+        </div>
+      )}
+      {picker === "emoji" && (
+        <div className="s-tool s-emojis">{EMOJIS.map((e) => <button key={e} type="button" onClick={() => insert(e)} aria-label={e}>{e}</button>)}</div>
+      )}
+
       {files.length > 0 && <div className="s-pending">{files.map((f, i) => <AttachmentView key={i} a={f} compact onRemove={() => setFiles((x) => x.filter((_, j) => j !== i))} />)}</div>}
+      <div className="s-composer-tools" role="group" aria-label={rtl ? "أضف إلى منشورك" : "Add to your post"}>
+        <span>{rtl ? "أضف إلى منشورك" : "Add to your post"}</span>
+        <button type="button" className="s-tool-btn is-file" onClick={() => fileRef.current?.click()} title={rtl ? "صورة أو ملف" : "Photo or file"}><Paperclip /><em>{rtl ? "صورة أو ملف" : "Photo or file"}</em></button>
+        {tools.map((t) => { const I = t.icon; return <button key={t.key} type="button" className={`s-tool-btn is-${t.key}`} aria-pressed={tool === t.key || picker === t.key} onClick={() => toggle(t.key)} title={rtl ? t.ar : t.en}><I /><em>{rtl ? t.ar : t.en}</em></button>; })}
+      </div>
       <div className="s-composer-bar">
-        <button type="button" className="s-attach" onClick={() => fileRef.current?.click()}><Paperclip />{rtl ? "صورة أو ملف" : "Photo or file"}</button>
         <input ref={fileRef} type="file" multiple hidden onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
         <div className="s-kinds" role="group" aria-label={rtl ? "نوع المنشور" : "Post type"}>
           <button type="button" aria-pressed={kind === "post"} onClick={() => setKind("post")}><PenLine />{rtl ? "منشور" : "Post"}</button>
@@ -247,7 +399,7 @@ export function Composer({ fixedGroup }: { fixedGroup?: string }) {
             {(myGroups.length ? myGroups : GROUPS).map((g) => <option key={g.id} value={g.id}>{tx(g.name)}</option>)}
           </select>
         )}
-        <button className="m-btn is-primary is-sm" disabled={!text.trim() && !files.length}><Send />{rtl ? "انشر" : "Post"}</button>
+        <button className="m-btn is-primary is-sm" disabled={!canPost}><Send />{rtl ? "انشر" : "Post"}</button>
       </div>
     </form>
   );
@@ -260,7 +412,7 @@ export function useFeed(groupId?: string) {
   const mine: FeedPost[] = s.posts.filter((p) => !groupId || p.group === groupId).map((p) => {
     const g = GROUPS.find((x) => x.id === p.group)!;
     const time = ago(p.time, lang === "ar");
-    return { id: p.id, author: "me", text: { ar: p.text, en: p.text }, time: { ar: time, en: time }, replies: 0, reacts: 0, kind: p.kind, group: g, attachments: p.attachments, own: true };
+    return { id: p.id, author: "me", text: { ar: p.text, en: p.text }, time: { ar: time, en: time }, replies: 0, reacts: 0, kind: p.kind, group: g, attachments: p.attachments, extra: p.extra, own: true };
   });
   const seeded: FeedPost[] = GROUPS.filter((g) => !groupId || g.id === groupId).flatMap((g) => g.posts.map((p) => ({ ...p, group: g })));
   const feed = [...mine, ...seeded];

@@ -49,12 +49,14 @@ export const memberById = (id: string) => MEMBERS.find((m) => m.id === id);
 
 export type Group = { id: string; name: T; about: T; kind: T; members: number; joined: boolean; posts: Post[] };
 export type SeedComment = { author: string; text: T; time: T };
-export type Post = { id: string; author: string; text: T; time: T; replies: number; reacts?: number; img?: string; kind?: "post" | "question"; comments?: SeedComment[] };
+export type Post = { id: string; author: string; text: T; time: T; replies: number; reacts?: number; img?: string; kind?: "post" | "question"; comments?: SeedComment[]; extra?: { poll?: string[]; pollEn?: string[]; card?: string; event?: { title: string; date: string; place: string }; feeling?: string } };
 export const GROUPS: Group[] = [
   {
     id: "g1", name: L("حوار الضفة الشمالية", "Northern West Bank dialogue"), kind: L("منطقة", "Region"), members: 86, joined: true,
     about: L("مساحة لأعضاء نابلس وجنين وطولكرم لتنسيق جلسات الحوار المحلية.", "A space for members in Nablus, Jenin and Tulkarm to coordinate local dialogue sessions."),
     posts: [
+      { id: "p-event", author: "m4", text: L("لقاء مفتوح لأعضاء الشمال: نراجع ما أنجزناه ونخطط للشهر القادم.", "Open meetup for northern members: reviewing what we did and planning next month."), time: L("قبل 40 دقيقة", "40 min ago"), replies: 3, reacts: 12,
+        extra: { event: { title: "لقاء أعضاء الشمال", date: "2026-12-06T17:00", place: "نابلس · مركز يافا الثقافي" } } },
       { id: "p1", author: "m1", text: L("أرفقت ملخص جلسة الأمس عن الثقة بين الأجيال. ما الذي فاتني؟", "I attached the summary of yesterday's session on trust between generations. What did I miss?"), time: L("قبل ساعتين", "2 hours ago"), replies: 6, reacts: 14, img: "/images/facilitators.webp", kind: "question",
         comments: [
           { author: "m6", text: L("نقطة الاستماع قبل الرد كانت الأهم برأيي.", "Listening before replying was the key point for me."), time: L("قبل ساعة", "1 hour ago") },
@@ -67,6 +69,10 @@ export const GROUPS: Group[] = [
     id: "g2", name: L("صنّاع المحتوى", "Content makers"), kind: L("مسار", "Track"), members: 124, joined: true,
     about: L("نتبادل الأفكار والأدوات لصناعة محتوى رقمي واضح ومسؤول.", "Sharing ideas and tools for clear, responsible digital content."),
     posts: [
+      { id: "p-poll", author: "m6", text: L("نجهّز الحلقة القادمة من «اقرأ الخبر». أي صيغة تفضّلون؟", "We're preparing the next “Read the news” episode. Which format do you prefer?"), time: L("قبل ساعة", "1 hour ago"), replies: 5, reacts: 18,
+        extra: { poll: ["فيديو قصير", "بودكاست", "إنفوغرافيك", "مقال مصوّر"], pollEn: ["Short video", "Podcast", "Infographic", "Illustrated article"] } },
+      { id: "p-card", author: "m8", text: L("الحوار لا يعني أن نتفق، بل أن نفهم بعضنا.", "Dialogue doesn't mean agreeing; it means understanding each other."), time: L("قبل 3 ساعات", "3 hours ago"), replies: 2, reacts: 31,
+        extra: { card: "tatreez", feeling: "inspired" } },
       { id: "p3", author: "m2", text: L("مسودة فيديو «كيف نقرأ الخبر؟» جاهزة للتعليق.", "Draft video \"How do we read the news?\" is ready for feedback."), time: L("قبل 3 ساعات", "3 hours ago"), replies: 9, reacts: 23, img: "/images/library.webp",
         comments: [{ author: "m5", text: L("الإيقاع ممتاز، فقط اختصري المقدمة قليلًا.", "Great pace, just trim the intro a little."), time: L("قبل ساعتين", "2 hours ago") }] },
       { id: "p4", author: "m5", text: L("شاركت قالب إنفوغرافيك جديدًا.", "Shared a new infographic template."), time: L("قبل يومين", "2 days ago"), replies: 4, reacts: 11 },
