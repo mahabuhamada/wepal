@@ -13,7 +13,7 @@ export type TaskMeta = { owner?: string; due?: string; desc?: string; comments?:
 export type Proposal = { id: string; title: string; summary: string; track: "research" | "initiative" | "digital"; team: string[]; due?: string; time: number };
 export type NewTask = { id: string; ws: string; title: string; status: "todo" | "doing" | "done"; time: number };
 /** Creative extras on a post: a quick poll, a colour card, an event, or a feeling. */
-export type PostExtra = { poll?: string[]; card?: string; event?: { title: string; date: string; place: string }; feeling?: string };
+export type PostExtra = { poll?: string[]; card?: string; event?: { title: string; date: string; place: string }; feeling?: string; visibility?: "all" | "group"; comments?: "all" | "group" | "off" };
 export type NewPost = { id: string; group: string; text: string; time: number; kind: "post" | "question"; attachments?: Att[]; extra?: PostExtra };
 
 type State = {
