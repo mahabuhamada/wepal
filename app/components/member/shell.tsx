@@ -10,6 +10,7 @@ import { useLang } from "../site-chrome";
 import type { Lang, T } from "../content";
 import { ASK_SUGGESTIONS, GROUPS, MEMBERS, ME, NOTICES, ONLINE, ROOM_SEED, THREADS, WORKSPACES, type Member } from "./data";
 import { ago, MEMBER_FLAG, update, useStore, useToasts } from "./store";
+import { ReactionDefs } from "./reactions";
 import { apiEnabled, getToken, logout, me, type ApiUser } from "./api";
 
 /* ── Context: current language for every member page ── */
@@ -226,6 +227,7 @@ export function MemberShell({ active, children }: { active: MemberRoute; childre
           </div>
         </div>
         <Toasts />
+        <ReactionDefs />
       </main>
     </MemberCtx.Provider>
   );

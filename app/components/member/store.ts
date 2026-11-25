@@ -5,7 +5,7 @@
 // between pages (each link is a full page load). Falls back to memory when storage is blocked.
 import { useSyncExternalStore } from "react";
 
-export type Reaction = "like" | "love" | "idea" | "agree";
+export type Reaction = "like" | "love" | "idea" | "agree" | "support" | "inspire";
 export type Comment = { id: string; author: string; text: string; time: number; replyTo?: string };
 export type Att = { name: string; size: number; type: string; preview?: string };
 export type ChatMsg = { id?: string; from: "me" | string; text: string; time: number; attachments?: Att[]; replyTo?: { who: string; text: string }; reactions?: Record<string, string[]> };
