@@ -117,7 +117,7 @@ export function SiteHeader({ lang, onLang, current, member: memberProp = false }
           <nav className="h-nav" aria-label={rtl ? "التنقل الرئيسي" : "Main navigation"} onMouseLeave={resetIndicator}>
             <span className="h-nav-indicator" style={{ width: indicator.w, transform: `translateX(${indicator.x}px)`, opacity: indicator.visible ? 1 : 0 }} />
             {NAV.map((item, i) => { const Icon = item.icon; return (
-              <a key={item.href} ref={(el) => { navRefs.current[i] = el; }} href={item.href} className={item.href === current ? "is-active" : ""} aria-current={item.href === current ? "page" : undefined} onMouseEnter={() => moveIndicator(i)} onFocus={() => moveIndicator(i)}><span className="h-nav-ic" aria-hidden="true"><Icon className="h-nav-icon" /><img className="h-nav-sym" src="/heritage/rosette.svg" alt="" /></span>{item.label[lang]}</a>
+              <a key={item.href} ref={(el) => { navRefs.current[i] = el; }} href={item.href} className={item.href === current ? "is-active" : ""} aria-current={item.href === current ? "page" : undefined} onMouseEnter={() => moveIndicator(i)} onFocus={() => moveIndicator(i)}><span className="h-nav-ic" aria-hidden="true"><Icon className="h-nav-icon" /><img className="h-nav-sym" src={`/heritage/nav/${item.href === "/" ? "home" : item.href.slice(1)}.svg`} alt="" /></span>{item.label[lang]}</a>
             ); })}
           </nav>
           <div className="h-actions">

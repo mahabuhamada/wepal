@@ -635,8 +635,8 @@ html.lang-in main > *:not(.h-header):not(.m-top), html.lang-in :is(.h-header, .m
 .f-keffiyeh-net { height: 46px; margin-bottom: -1px; background: url(/heritage/keffiyeh-net.svg) repeat-x top / 300px auto; opacity: .8; -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent); }
 .h-rosette { position: absolute; bottom: 70px; inset-inline-start: -160px; width: 420px; height: 420px; opacity: .1; animation: hrSpin 90s linear infinite; }
 @keyframes hrSpin { to { transform: rotate(360deg); } }
-.h-hero-stitch { position: relative; z-index: 1; height: 14px; margin-top: 34px; background: url(/heritage/divider-stitch.svg) repeat-x center / auto 100%; opacity: .7; }
-.portal-hero .h-hero-stitch { position: absolute; inset: auto 0 0 0; margin: 0; }
+.h-hero-stitch { position: relative; z-index: 1; height: 9px; margin-top: 30px; background: url(/heritage/divider-stitch.svg) repeat-x center / auto 100%; opacity: .45; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 70%, transparent 100%); mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 70%, transparent 100%); }
+.portal-hero .h-hero-stitch { position: absolute; inset: auto 0 22px 0; margin: 0; }
 .p-olive { display: block; width: 190px; height: auto; margin: -4px 0 12px; }
 [dir="rtl"] .p-olive { transform: scaleX(-1); }
 .portal-hero-art .art-motif { position: absolute; inset: 50% auto auto 50%; width: 82%; height: auto; transform: translate(-50%, -50%); opacity: .14; }
@@ -659,7 +659,7 @@ html.lang-in main > *:not(.h-header):not(.m-top), html.lang-in :is(.h-header, .m
 .h-header-inner { position: relative; z-index: 1; }
 .h-nav-ic { position: relative; display: inline-grid; place-items: center; width: 16px; height: 16px; flex: none; }
 .h-nav-ic > * { grid-area: 1 / 1; transition: opacity .3s, transform .45s cubic-bezier(.34, 1.56, .64, 1); }
-.h-nav-sym { width: 17px; height: 17px; opacity: 0; transform: scale(.3) rotate(-120deg); }
+.h-nav-sym { width: 18px; height: 18px; opacity: 0; transform: scale(.3) rotate(-120deg); }
 .h-nav a:hover .h-nav-icon, .h-nav a:focus-visible .h-nav-icon { opacity: 0; transform: scale(.4) rotate(40deg); }
 .h-nav a:hover .h-nav-sym, .h-nav a:focus-visible .h-nav-sym { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) { .h-nav-ic > * { transition: opacity .2s; } }
