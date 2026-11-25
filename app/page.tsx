@@ -174,7 +174,7 @@ export default function Home() {
       <SiteHeader lang={lang} onLang={changeLang} current="/" />
       {/* ── Hero ── */}
       <section id="top" className="h-hero">
-        <div className="h-hero-bg" aria-hidden="true"><span className="h-blob h-blob-1" /><span className="h-blob h-blob-2" /><span className="h-grid-lines" /></div>
+        <div className="h-hero-bg" aria-hidden="true"><span className="h-blob h-blob-1" /><span className="h-blob h-blob-2" /><span className="h-grid-lines" /><img className="h-rosette" src="/heritage/rosette.svg" alt="" /></div>
         <div className="h-wrap h-hero-grid">
           <div className="h-hero-copy">
             <span className="h-chip"><span className="h-pulse" />{rtl ? "منصة فلسطينية للمعرفة والحوار" : "A Palestinian platform for knowledge & dialogue"}</span>
@@ -199,6 +199,7 @@ export default function Home() {
             <div className="h-float h-float-2"><span className="h-avatars"><i>ل</i><i>أ</i><i>ن</i></span>{rtl ? "مساحة للجميع" : "A space for everyone"}</div>
           </div>
         </div>
+        <div className="h-hero-stitch" aria-hidden="true" />
         <div className="h-marquee" aria-label={rtl ? "موضوعات نتابعها" : "Topics we follow"}>
           <div className="h-marquee-row">{[...TOPICS, ...TOPICS].map((t, i) => <a key={i} href="#news" aria-hidden={i >= TOPICS.length} tabIndex={i >= TOPICS.length ? -1 : 0}><Sparkles size={14} />{tx(t)}</a>)}</div>
         </div>

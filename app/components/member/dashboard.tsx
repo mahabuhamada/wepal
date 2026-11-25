@@ -90,7 +90,7 @@ function Dashboard() {
     <div className="dh">
       {/* ── Welcome ── */}
       <section className="dh-hero" aria-labelledby="dh-title">
-        <span className="dh-glow" aria-hidden="true" /><span className="dh-stitch" aria-hidden="true" />
+        <span className="dh-glow" aria-hidden="true" /><img className="dh-rosette" src="/heritage/rosette.svg" alt="" aria-hidden="true" /><span className="dh-stitch" aria-hidden="true" />
         <div className="dh-hero-top">
           <div className="dh-hello">
             <span className="dh-when"><Icon aria-hidden="true" />{hello}{today && <> · {today}</>}</span>
