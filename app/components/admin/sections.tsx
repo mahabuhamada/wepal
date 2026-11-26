@@ -317,7 +317,7 @@ export const LIBRARY: CollectionConfig = {
     { key: "kind", label: L("النوع", "Type"), type: "select", list: true, filter: true, options: LIB_KINDS },
     { key: "summary", label: L("الوصف", "Description"), type: "textarea", bi: true, rows: 3 },
     { key: "media", label: L("الملف أو الرابط", "File or link"), type: "url", bi: true, hint: L("العربي والإنجليزي منفصلان: تغيير أحدهما لا يغيّر الآخر", "Arabic and English are separate: changing one doesn't change the other"), placeholder: "https://…" },
-    { key: "cover", label: L("صورة العرض", "Display image"), type: "image", hint: L("تظهر على بطاقة المادة وقبل تشغيل الفيديو", "Shown on the card and before the video plays") },
+    { key: "cover", label: L("الغلاف", "Cover"), type: "image", list: true, coverMaker: true, hint: L("ارفع صورة، أو صمّم غلافًا موحّدًا بهوية ويبال", "Upload an image, or design a unified WePal cover") },
     { key: "gallery", label: L("صور", "Images"), type: "images" },
     { key: "tags", label: L("الوسوم", "Tags"), type: "tags" },
     { key: "author", label: L("أضافه", "Added by"), type: "member", list: true },
