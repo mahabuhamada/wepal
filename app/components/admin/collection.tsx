@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
-  ArrowLeft, ArrowRight, Copy, Eye, ImagePlus, Pencil, Plus, Search, Trash2, X, type LucideIcon,
+  ArrowLeft, ArrowRight, Copy, Eye, ImagePlus, Palette, Pencil, Plus, Search, Trash2, X, type LucideIcon,
 } from "lucide-react";
 import { ACard, Hero, useAdmin } from "./shell";
 import { findSection } from "./nav";
@@ -10,6 +10,7 @@ import { USERS } from "./data";
 import { Avatar } from "./users";
 import { logAction, nowIso, readImage, toast, uid, useAdminState, type AuditEntry } from "./store";
 import type { T } from "../content";
+import { CoverMaker } from "./cover-maker";
 
 /* ── Types ── */
 export type Bi = { ar: string; en: string };
@@ -17,7 +18,7 @@ export type Item = { id: string; status: string; created: string; history?: { at
 export type FieldType = "text" | "textarea" | "select" | "number" | "date" | "url" | "member" | "members" | "image" | "images" | "tags" | "toggle";
 export type Field = {
   key: string; label: T; type: FieldType; bi?: boolean; required?: boolean | "ar"; options?: { value: string; label: T }[];
-  list?: boolean; filter?: boolean; hint?: T; rows?: number; placeholder?: string; hideInView?: boolean;
+  list?: boolean; filter?: boolean; hint?: T; rows?: number; placeholder?: string; hideInView?: boolean; coverMaker?: boolean;
 };
 export type StatusDef = { key: string; label: T; tone: "ok" | "new" | "bad" | "warn" | "mute" };
 export type ActionDef = {
@@ -193,6 +194,8 @@ function Cell({ f, v, ctx }: { f: Field; v: unknown; ctx: Ctx }) {
   if (f.type === "member" && typeof v === "string") { const u = USERS.find((x) => x.id === v); return u ? <a className="a-person" href={`/admin/users?open=${u.id}`}><Avatar u={u} size={24} />{ctx.tx(u.name)}</a> : <>—</>; }
   if (f.type === "members" && Array.isArray(v)) return <span className="a-faces">{(v as string[]).slice(0, 4).map((id) => { const u = USERS.find((x) => x.id === id); return u ? <a key={id} href={`/admin/users?open=${id}`} title={ctx.tx(u.name)}><Avatar u={u} size={24} /></a> : null; })}{v.length > 4 && <small>+{v.length - 4}</small>}</span>;
   if (f.type === "select") return <span className="a-tag">{fieldText(f, v, ctx) || "—"}</span>;
+  // eslint-disable-next-line @next/next/no-img-element
+  if (f.type === "image") return typeof v === "string" && v ? <img className="a-thumb" src={v} alt="" /> : <span className="a-thumb is-empty" />;
   return <>{fieldText(f, v, ctx) || "—"}</>;
 }
 
@@ -336,7 +339,7 @@ function EditForm({ config, item, onClose, onSave }: { config: CollectionConfig;
         <header className="a-drawer-h"><div><h2>{item ? (rtl ? "تعديل" : "Edit") : tx(config.createLabel ?? { ar: "إضافة", en: "Add" })}</h2><small className="a-muted">{rtl ? "الحقول المعلَّمة بـ * مطلوبة. العربية والإنجليزية منفصلتان: كل لغة لها نصّها وملفاتها." : "Fields marked * are required. Arabic and English are separate: each has its own text and files."}</small></div>
           <button type="button" className="a-icon" onClick={onClose} aria-label={rtl ? "إغلاق" : "Close"}><X /></button></header>
         <div className="a-drawer-b a-form">
-          {config.fields.map((f) => <FieldInput key={f.key} f={f} value={v[f.key]} onChange={(val) => set(f.key, val)} />)}
+          {config.fields.map((f) => <FieldInput key={f.key} f={f} value={v[f.key]} item={v} onChange={(val) => set(f.key, val)} />)}
           {err && <p className="a-err" role="alert">{err}</p>}
         </div>
         <div className="a-drawer-f"><button type="button" className="a-btn" onClick={onClose}>{rtl ? "إلغاء" : "Cancel"}</button><button type="submit" className="a-btn is-primary">{rtl ? "حفظ" : "Save"}</button></div>
@@ -345,8 +348,9 @@ function EditForm({ config, item, onClose, onSave }: { config: CollectionConfig;
   );
 }
 
-function FieldInput({ f, value, onChange }: { f: Field; value: unknown; onChange: (v: unknown) => void }) {
+function FieldInput({ f, value, item, onChange }: { f: Field; value: unknown; item?: Item; onChange: (v: unknown) => void }) {
   const { rtl, tx } = useAdmin();
+  const [maker, setMaker] = useState(false);
   const label = <span className="a-flabel">{tx(f.label)}{f.required && <em>*</em>}{f.bi && f.required === "ar" && <small>{rtl ? "(الإنجليزية اختيارية)" : "(English optional)"}</small>}{f.hint && <small>{tx(f.hint)}</small>}</span>;
   const input = (val: string, set: (s: string) => void, dir?: "rtl" | "ltr", ph?: string) =>
     f.type === "textarea" ? <textarea dir={dir} rows={f.rows ?? 4} value={val} placeholder={ph} onChange={(e) => set(e.target.value)} />
@@ -380,7 +384,9 @@ function FieldInput({ f, value, onChange }: { f: Field; value: unknown; onChange
       <div className="a-images">
         {arr.map((src, i) => <span key={i}><img src={src} alt="" /><button type="button" onClick={() => onChange(multi ? arr.filter((_, k) => k !== i) : "")} aria-label={rtl ? "إزالة" : "Remove"}><X /></button></span>)}
         <label className="a-images-add"><ImagePlus aria-hidden="true" /><span>{multi ? (rtl ? "أضف صورًا" : "Add images") : (rtl ? "اختر صورة" : "Choose image")}</span><input type="file" accept="image/*" multiple={multi} onChange={(e) => { void add(e.target.files); e.target.value = ""; }} /></label>
+        {f.coverMaker && <button type="button" className="a-images-add is-maker" onClick={() => setMaker(true)}><Palette aria-hidden="true" /><span>{rtl ? "صمّم غلافًا" : "Design a cover"}</span></button>}
       </div>
+      {maker && <CoverMaker initial={{ type: String(item?.kind ?? ""), title: biText(item?.title, "ar"), series: "ويبال" }} onClose={() => setMaker(false)} onSave={(url) => { onChange(url); setMaker(false); toast(rtl ? "حُفظ الغلاف في المادة" : "Cover saved to the item"); }} />}
       {!multi && <input type="url" dir="ltr" placeholder={rtl ? "أو الصق رابط صورة" : "Or paste an image link"} value={arr[0]?.startsWith("data:") ? "" : arr[0] ?? ""} onChange={(e) => onChange(e.target.value)} />}
     </div>;
   }
