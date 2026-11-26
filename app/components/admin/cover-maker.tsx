@@ -1,6 +1,6 @@
 "use client";
 
-// WePal library cover maker: one A4 cover per item, in the platform's identity.
+// WePal library cover maker: one A4 cover per item, in the platform's identity and type.
 // A unified-colour image (or the type's colour and icon), a spine coloured by type, the type tab,
 // the title, the date and the series, with the WePal logo. Drag the image to move it, scroll to zoom.
 
@@ -27,7 +27,8 @@ export const COVER_TYPES: CoverType[] = [
 const TBY = Object.fromEntries(COVER_TYPES.map((t) => [t.id, t]));
 
 type Cover = { type: string; title: string; date: string; series: string; treat: "duo" | "soft" | "orig"; panel: "navy" | "white"; img: HTMLImageElement | null; z: number; ox: number; oy: number };
-const F = (w: number, s: number) => `${w} ${s}px Rubik, Nunito, "Segoe UI", sans-serif`;
+// The platform's type: Nunito for Latin, Baloo Bhaijaan 2 for Arabic (same as the site).
+const F = (w: number, s: number) => `${w} ${s}px Nunito, "Baloo Bhaijaan 2", "Segoe UI", sans-serif`;
 const isAr = (t: string) => /[؀-ۿ]/.test(t);
 
 function lines(c: CanvasRenderingContext2D, text: string, size: number, weight: number, maxW: number) {
@@ -123,7 +124,7 @@ export function CoverMaker({ initial, onSave, onClose }: { initial: { type?: str
     (async () => {
       const [dark, light] = await Promise.all([loadImg("/brand/forum/wepal-logo-reverse.svg"), loadImg("/brand/forum/wepal-logo-primary.svg")]);
       logos.current = { dark: dark ?? undefined, light: light ?? undefined };
-      try { await Promise.all([document.fonts.load(F(800, 100), "عنوان"), document.fonts.load(F(700, 46), "تقرير")]); } catch { /* fonts unavailable */ }
+      try { await Promise.all([800, 700, 500].flatMap((w) => [document.fonts.load(`${w} 60px "Baloo Bhaijaan 2"`, "عنوان المادة تقرير"), document.fonts.load(`${w} 60px Nunito`, "WePal 2026")])); } catch { /* fonts unavailable */ }
       if (live) setReady((n) => n + 1);
     })();
     const k = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
